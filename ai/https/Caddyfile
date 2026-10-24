@@ -1,0 +1,11 @@
+# Proxy HTTPS local para Ollama (SQL Server 2025 exige HTTPS en CREATE EXTERNAL MODEL).
+# https://localhost:11443 -> http://localhost:11434
+# Certificado emitido por la CA local de Caddy (tls internal); se confía con `caddy trust`.
+# Sin secretos: no hay claves ni contraseñas en este fichero.
+
+https://localhost:11443 {
+	tls internal
+	reverse_proxy localhost:11434 {
+		header_up Host localhost:11434
+	}
+}
