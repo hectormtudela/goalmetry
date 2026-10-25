@@ -1,0 +1,6 @@
+# Los CSV se guardan y se entregan siempre con LF, en cualquier sistema.
+# 03_insert_data.sql usa ROWTERMINATOR = '0x0a' (y además elimina un posible CR final).
+data/*.csv text eol=lf
+*.sql text
+*.md text
+*.ps1 text eol=crlf
