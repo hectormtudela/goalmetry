@@ -13,6 +13,13 @@ USE LigaDB;
 GO
 
 /* ---------- Limpieza (hijas antes que padres) ---------- */
+-- La política de RLS de 06_security.sql usa funciones con SCHEMABINDING sobre las tablas
+-- de ventas: hay que quitarla antes, o el DROP TABLE falla.
+DROP SECURITY POLICY IF EXISTS seguridad.pol_VentasPorEquipo;
+DROP FUNCTION IF EXISTS seguridad.fn_FiltroEntrada;
+DROP FUNCTION IF EXISTS seguridad.fn_FiltroEquipo;
+DROP TABLE IF EXISTS seguridad.UsuarioEquipo;
+GO
 DROP TABLE IF EXISTS ia.Documento;
 DROP TABLE IF EXISTS ventas.Entrada;
 DROP TABLE IF EXISTS ventas.Abonado;
@@ -158,7 +165,10 @@ CREATE TABLE liga.PartidoAuditoria
     EstadoNuevo            VARCHAR(12)          NULL,
     GolesLocalNuevo        TINYINT              NULL,
     GolesVisitanteNuevo    TINYINT              NULL,
-    Usuario                NVARCHAR(128)        NOT NULL CONSTRAINT DF_PartidoAuditoria_Usuario DEFAULT (SUSER_SNAME()),
+    -- Usuario de la BD + login real: con EXECUTE AS USER sobre un usuario WITHOUT LOGIN,
+    -- SUSER_SNAME() solo devuelve un SID ('S-1-9-3-...'). Ej.: 'u_admin (EQUIPO\Usuario)'.
+    Usuario                NVARCHAR(260)        NOT NULL CONSTRAINT DF_PartidoAuditoria_Usuario
+                                                DEFAULT (CONCAT(USER_NAME(), N' (', ORIGINAL_LOGIN(), N')')),
     FechaCambio            DATETIME2(0)         NOT NULL CONSTRAINT DF_PartidoAuditoria_Fecha   DEFAULT (SYSDATETIME()),
     CONSTRAINT PK_PartidoAuditoria         PRIMARY KEY (AuditoriaID),
     CONSTRAINT FK_PartidoAuditoria_Partido FOREIGN KEY (PartidoID) REFERENCES liga.Partido (PartidoID)

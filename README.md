@@ -1,6 +1,6 @@
 # LigaDB · Liga Española de Fútbol inteligente con SQL Server 2025
 
-Base de datos de la **temporada 2026-27 de LaLiga (jornadas 1-10)** construida sobre **SQL Server 2025**: modelo relacional, T-SQL avanzado y, en las fases siguientes, seguridad, optimización, embeddings, búsqueda semántica y preguntas y respuestas (RAG) con modelos que se ejecutan **en tu propio equipo**.
+Base de datos de la **temporada 2026-27 de LaLiga (jornadas 1-10)** construida sobre **SQL Server 2025**: modelo relacional, T-SQL avanzado, seguridad (roles, Row-Level Security y enmascaramiento), optimización con índices y, en las fases siguientes, embeddings, búsqueda semántica y preguntas y respuestas (RAG) con modelos que se ejecutan **en tu propio equipo**.
 
 Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar) · Nivel 3 (avanzado).
 
@@ -12,13 +12,13 @@ Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar)
 |---|---|---|
 | A · Diseño y T-SQL | Tablas, carga de datos, vistas, función, procedimientos, trigger, consultas avanzadas | ✅ Terminado |
 | B · SQL con ayuda de IA | Registro en [`docs/ia-log.md`](docs/ia-log.md) | 🔄 Se completa en cada bloque |
-| C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico | ⏳ Pendiente |
-| D · Optimización | Plan de ejecución e índice antes/después | ⏳ Pendiente |
+| C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico | ✅ Terminado |
+| D · Optimización | Plan de ejecución e índice antes/después | ✅ Terminado |
 | E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)` | ⏳ Pendiente |
 | F · Búsqueda inteligente | Vectorial, full-text en español e híbrida | ⏳ Pendiente |
 | G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` | ⏳ Pendiente |
 
-Ahora mismo se puede instalar y usar todo el Bloque A. Este README se irá ampliando con cada bloque.
+Ahora mismo se pueden instalar y usar los bloques A, C y D. Este README se irá ampliando con cada bloque.
 
 ## Qué hay en la base de datos
 
@@ -46,6 +46,16 @@ Objetos para consultar y trabajar con los datos:
 | `liga.usp_RegistrarResultado` | Registrar o corregir un resultado (con validación y auditoría) |
 
 El modelo completo, con su diagrama, está en [`docs/modelo-datos.md`](docs/modelo-datos.md).
+
+### Usuarios y seguridad
+
+La base de datos trae usuarios de demostración **sin contraseña** (`WITHOUT LOGIN`): no se pueden conectar por sí mismos, se usan suplantándolos con `EXECUTE AS USER`.
+
+| Usuario | Rol | Qué puede hacer |
+|---|---|---|
+| `u_admin` | `rol_admin` | Todo en `liga`, `ventas` e `ia`; ve los datos personales sin máscara |
+| `u_analista` | `rol_analista` | Leer `liga` (salvo la auditoría) y consultar la clasificación; **sin acceso a `ventas`** |
+| `u_ventas_barcelona`, `u_ventas_madrid`, `u_ventas_atletico` | `rol_ventas` | Gestionar abonados y entradas **solo de su equipo** (Row-Level Security); ven el email, pero el teléfono y el DNI salen enmascarados |
 
 ## Requisitos
 
@@ -95,6 +105,8 @@ sqlcmd -S localhost -E -C -b -i database\02_create_tables.sql
 sqlcmd -S localhost -E -C -b -v DataPath="$PWD\data" -i database\03_insert_data.sql
 sqlcmd -S localhost -E -C -b -i database\04_views_functions.sql
 sqlcmd -S localhost -E -C -b -i database\05_procedures_triggers.sql
+sqlcmd -S localhost -E -C -b -i database\06_security.sql
+sqlcmd -S localhost -E -C -b -i database\07_indexes.sql
 sqlcmd -S localhost -E -C -b -i database\consultas_avanzadas.sql     # opcional, solo lectura
 ```
 
@@ -137,6 +149,16 @@ BEGIN TRANSACTION;
     SELECT * FROM liga.PartidoAuditoria;                      -- el trigger ha guardado el cambio
     SELECT * FROM liga.vw_Clasificacion ORDER BY Posicion;    -- la clasificación ya lo refleja
 ROLLBACK TRANSACTION;                                         -- y aquí se deshace
+
+-- Seguridad: lo mismo visto por distintos usuarios
+EXECUTE AS USER = 'u_ventas_madrid';
+SELECT COUNT(*) AS AbonadosQueVeo FROM ventas.Abonado;          -- 100: solo los del Real Madrid
+SELECT TOP (3) Nombre, Email, Telefono, Documento FROM ventas.Abonado;   -- teléfono y DNI enmascarados
+REVERT;
+
+EXECUTE AS USER = 'u_analista';
+SELECT TOP (1) * FROM ventas.Abonado;                           -- error 229: permiso denegado
+REVERT;
 ```
 
 En [`database/consultas_avanzadas.sql`](database/consultas_avanzadas.sql) hay más ejemplos: posición de cada equipo tras cada jornada, goles por 90 minutos, fichas de partido en JSON, validación con expresiones regulares y búsqueda aproximada de nombres. Puedes ejecutar y modificar lo que quieras: si rompes algo, `instalar.ps1` deja la base de datos como nueva en unos segundos.
@@ -147,14 +169,13 @@ En [`database/consultas_avanzadas.sql`](database/consultas_avanzadas.sql) hay m�
 goalmetry/
 ├── instalar.ps1               Instalación completa en un solo paso
 ├── data/                      CSV verificados de la temporada (J1-J10) + LEEME-datos.md
-├── database/                  Scripts SQL numerados (01 -> 05) + consultas_avanzadas.sql
+├── database/                  Scripts SQL numerados (01 -> 07) + consultas_avanzadas.sql
 ├── ai/https/Caddyfile         Proxy HTTPS local delante de Ollama (bloques E-G)
 ├── docs/
 │   ├── README.md              Cómo se ha hecho el proyecto y por qué se decidió cada cosa
 │   ├── modelo-datos.md        Modelo de datos y diagrama
 │   ├── verificacion.md        Fuentes y comprobaciones de los datos
-│   ├── ia-log.md              Registro del desarrollo asistido por IA
-│   └── plan.md                Plan de trabajo y estado de cada bloque
+│   └── ia-log.md              Registro del desarrollo asistido por IA
 ├── tests/                     (pendiente) pruebas automáticas
 └── presentation/              (pendiente) presentación
 ```

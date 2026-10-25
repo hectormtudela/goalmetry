@@ -16,6 +16,20 @@ USE LigaDB;
 GO
 
 /* ===================== 0. Vaciar tablas (hijas antes que padres) ===================== */
+-- Si ya se ejecutó 06_security.sql, seguridad.UsuarioEquipo apunta a liga.Equipo: se guarda en
+-- una tabla temporal (dura toda la sesión de sqlcmd) y se restaura al final. Los EquipoID vienen
+-- fijados por los CSV, así que siguen siendo válidos tras la recarga.
+DROP TABLE IF EXISTS #UsuarioEquipo;
+CREATE TABLE #UsuarioEquipo (NombreUsuario SYSNAME COLLATE DATABASE_DEFAULT, EquipoID INT);
+
+-- Una transacción: si algo falla, no queda la BD a medio vaciar (con XACT_ABORT ON se deshace todo).
+BEGIN TRANSACTION;
+IF OBJECT_ID(N'seguridad.UsuarioEquipo') IS NOT NULL
+BEGIN
+    INSERT INTO #UsuarioEquipo (NombreUsuario, EquipoID)
+    SELECT NombreUsuario, EquipoID FROM seguridad.UsuarioEquipo;
+    DELETE FROM seguridad.UsuarioEquipo;
+END;
 DELETE FROM ia.Documento;
 -- TRUNCATE (no DELETE + DBCC CHECKIDENT RESEED 0): RESEED 0 en una tabla que nunca tuvo filas
 -- hace que el primer EntradaID sea 0, y en una que ya tuvo filas, 1. TRUNCATE siempre deja la
@@ -32,6 +46,7 @@ DELETE FROM liga.Arbitro;
 DELETE FROM liga.Estadio;
 DELETE FROM liga.Equipo;
 DELETE FROM liga.Temporada;
+COMMIT TRANSACTION;
 GO
 
 /* ===================== 1. Tablas de staging (columnas = cabecera del CSV, todo texto) ===================== */
@@ -272,7 +287,12 @@ ORDER BY f.AbonadoID, f.PartidoID, f.k          -- EntradaID siempre en el mismo
 OPTION (MAXDOP 1);
 GO
 
-/* ===================== 5. Limpieza de staging ===================== */
+/* ===================== 5. Restaurar asignaciones de seguridad y limpiar staging ===================== */
+IF OBJECT_ID(N'seguridad.UsuarioEquipo') IS NOT NULL
+    INSERT INTO seguridad.UsuarioEquipo (NombreUsuario, EquipoID)
+    SELECT NombreUsuario, EquipoID FROM #UsuarioEquipo;
+DROP TABLE IF EXISTS #UsuarioEquipo;
+
 DROP TABLE IF EXISTS staging.temporadas, staging.equipos, staging.estadios, staging.arbitros,
                      staging.jornadas, staging.partidos, staging.jugadores, staging.goles;
 GO
