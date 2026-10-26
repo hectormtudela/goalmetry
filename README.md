@@ -16,9 +16,16 @@ Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar)
 | D · Optimización | Plan de ejecución e índice antes/después | ✅ Terminado |
 | E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding | ✅ Terminado |
 | F · Búsqueda inteligente | Vectorial, full-text en español e híbrida (RRF) | ✅ Terminado |
-| G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` | ⏳ Pendiente |
+| G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` y búsqueda híbrida | ✅ Terminado |
+| Pruebas | `tests/tests.sql`: 72 pruebas automáticas (datos, reglas, T-SQL, seguridad, IA) | ✅ Terminado |
 
-Ahora mismo se pueden instalar y usar los bloques A, C, D, E y F (el E y el F con `-IA`). Este README se irá ampliando con cada bloque.
+Ahora mismo se pueden instalar y usar los todos los bloques de la base de datos y de la IA (A a G; del E al G con `-IA`). Los bloques de código están terminados; quedan el informe PDF y la presentación.
+
+## Arquitectura
+
+![Arquitectura de LigaDB](docs/arquitectura.png)
+
+SQL Server 2025 guarda los datos y hace todo el trabajo (búsqueda y RAG incluidos, desde T-SQL). Para generar embeddings y respuestas llama, por HTTPS, a Ollama a través de Caddy. Todo es local y gratuito. El diagrama editable está en [`docs/arquitectura.svg`](docs/arquitectura.svg).
 
 ## Qué hay en la base de datos
 
@@ -91,9 +98,19 @@ Opciones:
 | `-Servidor "localhost\NOMBRE"` | Usa una instancia con nombre (por defecto, `localhost`) |
 | `-Consultas` | Al final ejecuta también `database/consultas_avanzadas.sql` (solo lectura) |
 | `-IA` | Ejecuta también los scripts de `ai/` (requiere Ollama y Caddy; bloques E-G) |
+| `-Tests` | Ejecuta al final `tests/tests.sql` (72 pruebas) |
 | `-Forzar` | No pide confirmación antes de volver a crear `LigaDB` |
 
 `-ExecutionPolicy Bypass` solo afecta a esa ejecución: permite lanzar un script descargado sin cambiar la configuración de tu equipo.
+
+### Comprobar que todo funciona (pruebas)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -IA -Tests      # instala todo y ejecuta las pruebas
+sqlcmd -S localhost -E -C -b -i tests\tests.sql                         # solo las pruebas, sobre una instalación hecha
+```
+
+`tests/tests.sql` ejecuta 72 pruebas, cada una con su valor esperado y el obtenido: recuentos de tablas, integridad y reglas, vistas y procedimientos, trigger de auditoría, seguridad para cada usuario (RLS, enmascaramiento, permisos denegados), índices, embeddings (1.024 dimensiones, norma 1), búsqueda y RAG. Termina con error si alguna falla. Las pruebas que necesitan el modelo (búsqueda vectorial, híbrida y RAG) salen como `OMITIDA`, sin contar como fallo, si Caddy no está en marcha. No deja cambios en la base de datos.
 
 ## Instalación manual (script a script)
 
@@ -108,6 +125,15 @@ sqlcmd -S localhost -E -C -b -i database\05_procedures_triggers.sql
 sqlcmd -S localhost -E -C -b -i database\06_security.sql
 sqlcmd -S localhost -E -C -b -i database\07_indexes.sql
 sqlcmd -S localhost -E -C -b -i database\consultas_avanzadas.sql     # opcional, solo lectura
+```
+
+Bloques E, F y G (inteligencia artificial). Antes: Ollama con `bge-m3` y `qwen2.5:3b`, y Caddy en marcha (`caddy run --config ai\https\Caddyfile`, en otra consola; **no es un servicio**, hay que lanzarlo cada vez):
+
+```powershell
+sqlcmd -S localhost -E -C -b -i ai\create_external_model.sql    # modelo externo bge-m3
+sqlcmd -S localhost -E -C -b -i ai\generate_embeddings.sql      # 139 documentos + embeddings
+sqlcmd -S localhost -E -C -b -i ai\vector_search.sql            # Full-Text + búsqueda híbrida
+sqlcmd -S localhost -E -C -b -i ai\rag.sql                      # RAG: la primera vez tarda ~1 minuto
 ```
 
 - `-E`: autenticación de Windows (sin contraseña) · `-C`: confía en el certificado local del servidor · `-b`: devuelve un error si algo falla.
@@ -161,6 +187,14 @@ SELECT TOP (1) * FROM ventas.Abonado;                           -- error 229: pe
 REVERT;
 ```
 
+Con los bloques E-G instalados, se puede buscar y preguntar:
+
+```sql
+EXEC ia.usp_BuscarDocumentos N'reglas de la posición adelantada', @Modo = 'hibrida', @Top = 3;   -- 'vectorial' | 'texto' | 'hibrida'
+EXEC ia.usp_PreguntarLiga N'¿Quién lidera la clasificación y cuántos puntos tiene?';             -- RAG: 4 resultados
+EXEC ia.usp_PreguntarLiga N'¿Quién es el máximo goleador del Real Madrid?', @SinContexto = 1;  -- LLM solo (compara)
+```
+
 En [`database/consultas_avanzadas.sql`](database/consultas_avanzadas.sql) hay más ejemplos: posición de cada equipo tras cada jornada, goles por 90 minutos, fichas de partido en JSON, validación con expresiones regulares y búsqueda aproximada de nombres. Puedes ejecutar y modificar lo que quieras: si rompes algo, `instalar.ps1` deja la base de datos como nueva en unos segundos.
 
 ## Estructura del repositorio
@@ -170,13 +204,15 @@ goalmetry/
 ├── instalar.ps1               Instalación completa en un solo paso
 ├── data/                      CSV verificados de la temporada (J1-J10) + LEEME-datos.md
 ├── database/                  Scripts SQL numerados (01 -> 07) + consultas_avanzadas.sql
-├── ai/https/Caddyfile         Proxy HTTPS local delante de Ollama (bloques E-G)
+├── ai/                        Bloques E-G: create_external_model, generate_embeddings, vector_search, rag
+│   └── https/Caddyfile        Proxy HTTPS local delante de Ollama
 ├── docs/
+│   ├── arquitectura.png / .svg  Diagrama de arquitectura
 │   ├── README.md              Cómo se ha hecho el proyecto y por qué se decidió cada cosa
 │   ├── modelo-datos.md        Modelo de datos y diagrama
 │   ├── verificacion.md        Fuentes y comprobaciones de los datos
 │   └── ia-log.md              Registro del desarrollo asistido por IA
-├── tests/                     (pendiente) pruebas automáticas
+├── tests/tests.sql            72 pruebas automáticas
 └── presentation/              (pendiente) presentación
 ```
 
@@ -200,6 +236,7 @@ goalmetry/
 | Error de certificado al conectar | Asegúrate de usar `-C` (los comandos de este README ya lo incluyen) |
 | Error 4861 / «código de error del sistema operativo 5» en `03_insert_data.sql` | SQL Server no puede leer la carpeta `data/`. Clona el repositorio en una ruta sencilla (p. ej. `C:\LigaDB`) o dale permiso de lectura: `icacls .\data /grant "NT Service\MSSQLSERVER:(OI)(CI)R"` |
 | `'EDIT_DISTANCE' no es un nombre de función integrada reconocido` | Ejecuta antes `01_create_database.sql`, que activa `PREVIEW_FEATURES` en `LigaDB` (estas funciones están en vista previa en la RTM) |
+| `No se ha podido comunicar con el punto de conexión Rest externo` (0x80072efd) | Caddy no está en marcha: `caddy run --config ai\https\Caddyfile` en otra consola |
 | `instalar.ps1 no se puede cargar porque la ejecución de scripts está deshabilitada` | Lánzalo como se indica arriba: `powershell -ExecutionPolicy Bypass -File .\instalar.ps1` |
 | Error de permisos al crear la base de datos | Tu usuario de Windows necesita `sysadmin`, o `dbcreator` + `bulkadmin`, en la instancia |
 

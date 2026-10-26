@@ -25,6 +25,9 @@
     Ejecuta también los scripts de ai\ (embeddings, búsqueda y RAG). Requiere Ollama y el
     proxy HTTPS (Caddy) configurados como se explica en el README.
 
+.PARAMETER Tests
+    Al terminar, ejecuta tests\tests.sql (72 pruebas). Con -IA, comprueba también la búsqueda y el RAG.
+
 .PARAMETER Forzar
     No pide confirmación antes de borrar y volver a crear LigaDB.
 
@@ -39,6 +42,7 @@ param(
     [string] $Servidor = 'localhost',
     [switch] $Consultas,
     [switch] $IA,
+    [switch] $Tests,
     [switch] $Forzar
 )
 
@@ -76,6 +80,10 @@ if ($IA) {
         if (Test-Path $ruta) { $scripts += Get-Item $ruta }
         else { Write-Warning "ai\$nombre todavía no existe; se omite." }
     }
+}
+
+if ($Tests) {
+    $scripts += Get-Item (Join-Path $raiz 'tests\tests.sql')
 }
 
 Escribir-Paso 'Scripts que se van a ejecutar, en este orden'
