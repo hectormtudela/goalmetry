@@ -18,8 +18,9 @@ Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar)
 | F · Búsqueda inteligente | Vectorial, full-text en español e híbrida (RRF) | ✅ Terminado |
 | G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` y búsqueda híbrida | ✅ Terminado |
 | Pruebas | `tests/tests.sql`: 72 pruebas automáticas (datos, reglas, T-SQL, seguridad, IA) | ✅ Terminado |
+| Informe y presentación | Informe técnico de 8 páginas (PDF) y presentación de 8 diapositivas (PPTX) | ✅ Terminado |
 
-Ahora mismo se pueden instalar y usar los todos los bloques de la base de datos y de la IA (A a G; del E al G con `-IA`). Los bloques de código están terminados; quedan el informe PDF y la presentación.
+Ahora mismo se pueden instalar y usar los todos los bloques de la base de datos y de la IA (A a G; del E al G con `-IA`). Todo está terminado: bloques de código, informe técnico ([`docs/proyecto.pdf`](docs/proyecto.pdf)) y presentación ([`presentation/dp800-project.pptx`](presentation/dp800-project.pptx)).
 
 ## Arquitectura
 
@@ -208,12 +209,13 @@ goalmetry/
 │   └── https/Caddyfile        Proxy HTTPS local delante de Ollama
 ├── docs/
 │   ├── arquitectura.png / .svg  Diagrama de arquitectura
+│   ├── proyecto.pdf / .html     Informe técnico (el .html es el origen del PDF)
 │   ├── README.md              Cómo se ha hecho el proyecto y por qué se decidió cada cosa
 │   ├── modelo-datos.md        Modelo de datos y diagrama
 │   ├── verificacion.md        Fuentes y comprobaciones de los datos
 │   └── ia-log.md              Registro del desarrollo asistido por IA
 ├── tests/tests.sql            72 pruebas automáticas
-└── presentation/              (pendiente) presentación
+└── presentation/dp800-project.pptx   Presentación (8 diapositivas, con notas del orador)
 ```
 
 ## Sobre los datos
