@@ -220,7 +220,7 @@ CREATE TABLE ia.Documento
     EmbeddingModelo NVARCHAR(100)     NULL,
     EmbeddingFecha  DATETIME2(0)      NULL,
     CONSTRAINT PK_Documento         PRIMARY KEY (DocumentoID),
-    CONSTRAINT CK_Documento_Tipo    CHECK (Tipo IN ('reglamento', 'faq', 'ficha_equipo', 'resumen_jornada')),
+    CONSTRAINT CK_Documento_Tipo    CHECK (Tipo IN ('reglamento', 'faq', 'ficha_equipo', 'resumen_jornada', 'cronica_partido')),
     CONSTRAINT CK_Documento_Texto   CHECK (LEN(Texto) > 0),
     CONSTRAINT FK_Documento_Equipo  FOREIGN KEY (EquipoID)  REFERENCES liga.Equipo  (EquipoID),
     CONSTRAINT FK_Documento_Partido FOREIGN KEY (PartidoID) REFERENCES liga.Partido (PartidoID)

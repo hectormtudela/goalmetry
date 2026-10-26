@@ -14,11 +14,11 @@ Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar)
 | B · SQL con ayuda de IA | Registro en [`docs/ia-log.md`](docs/ia-log.md) | 🔄 Se completa en cada bloque |
 | C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico | ✅ Terminado |
 | D · Optimización | Plan de ejecución e índice antes/después | ✅ Terminado |
-| E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)` | ⏳ Pendiente |
+| E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding | ✅ Terminado |
 | F · Búsqueda inteligente | Vectorial, full-text en español e híbrida | ⏳ Pendiente |
 | G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` | ⏳ Pendiente |
 
-Ahora mismo se pueden instalar y usar los bloques A, C y D. Este README se irá ampliando con cada bloque.
+Ahora mismo se pueden instalar y usar los bloques A, C, D y E (el E con `-IA`). Este README se irá ampliando con cada bloque.
 
 ## Qué hay en la base de datos
 
@@ -33,7 +33,7 @@ Ahora mismo se pueden instalar y usar los bloques A, C y D. Este README se irá 
 | `liga.PartidoAuditoria` | 0 | Historial de cambios de resultado (lo rellena un trigger) |
 | `ventas.Abonado` | 2.000 | **Ficticios**, generados por script |
 | `ventas.Entrada` | 200.824 | **Ficticias**, generadas por script |
-| `ia.Documento` | 0 | Se rellenará en el Bloque E |
+| `ia.Documento` | 139 | Con `-IA`: 93 crónicas, 20 fichas, 10 resúmenes, 10 de reglamento y 6 de FAQ, cada uno con su embedding |
 
 Objetos para consultar y trabajar con los datos:
 
