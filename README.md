@@ -15,10 +15,10 @@ Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar)
 | C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico | ✅ Terminado |
 | D · Optimización | Plan de ejecución e índice antes/después | ✅ Terminado |
 | E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding | ✅ Terminado |
-| F · Búsqueda inteligente | Vectorial, full-text en español e híbrida | ⏳ Pendiente |
+| F · Búsqueda inteligente | Vectorial, full-text en español e híbrida (RRF) | ✅ Terminado |
 | G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` | ⏳ Pendiente |
 
-Ahora mismo se pueden instalar y usar los bloques A, C, D y E (el E con `-IA`). Este README se irá ampliando con cada bloque.
+Ahora mismo se pueden instalar y usar los bloques A, C, D, E y F (el E y el F con `-IA`). Este README se irá ampliando con cada bloque.
 
 ## Qué hay en la base de datos
 
