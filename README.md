@@ -11,7 +11,7 @@ Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar)
 | Bloque | Contenido | Estado |
 |---|---|---|
 | A · Diseño y T-SQL | Tablas, carga de datos, vistas, función, procedimientos, trigger, consultas avanzadas | ✅ Terminado |
-| B · SQL con ayuda de IA | Registro en [`docs/ia-log.md`](docs/ia-log.md) | 🔄 Se completa en cada bloque |
+| B · SQL con ayuda de IA | Registro en `docs/ia-log.md` | 🔄 Se completa en cada bloque |
 | C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico | ✅ Terminado |
 | D · Optimización | Plan de ejecución e índice antes/después | ✅ Terminado |
 | E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding | ✅ Terminado |
@@ -212,8 +212,7 @@ goalmetry/
 │   ├── proyecto.pdf / .html     Informe técnico (el .html es el origen del PDF)
 │   ├── README.md              Cómo se ha hecho el proyecto y por qué se decidió cada cosa
 │   ├── modelo-datos.md        Modelo de datos y diagrama
-│   ├── verificacion.md        Fuentes y comprobaciones de los datos
-│   └── ia-log.md              Registro del desarrollo asistido por IA
+│   └── verificacion.md        Fuentes y comprobaciones de los datos
 ├── tests/tests.sql            72 pruebas automáticas
 └── presentation/dp800-project.pptx   Presentación (8 diapositivas, con notas del orador)
 ```
@@ -245,6 +244,6 @@ goalmetry/
 ## Documentación
 
 - [`docs/README.md`](docs/README.md): **cómo se ha desarrollado el proyecto** y por qué se eligió cada tecnología y cada decisión de diseño.
-- [`docs/modelo-datos.md`](docs/modelo-datos.md) · [`docs/verificacion.md`](docs/verificacion.md) · [`docs/ia-log.md`](docs/ia-log.md)
+- [`docs/modelo-datos.md`](docs/modelo-datos.md) · [`docs/verificacion.md`](docs/verificacion.md) · `docs/ia-log.md`
 
 ---
