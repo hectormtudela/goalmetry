@@ -244,6 +244,6 @@ goalmetry/
 ## Documentación
 
 - [`docs/README.md`](docs/README.md): **cómo se ha desarrollado el proyecto** y por qué se eligió cada tecnología y cada decisión de diseño.
-- [`docs/modelo-datos.md`](docs/modelo-datos.md) · [`docs/verificacion.md`](docs/verificacion.md) · `docs/ia-log.md`
+- [`docs/modelo-datos.md`](docs/modelo-datos.md) · [`docs/verificacion.md`](docs/verificacion.md)
 
 ---
