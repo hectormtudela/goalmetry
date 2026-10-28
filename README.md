@@ -11,7 +11,7 @@ Mini-proyecto de la certificación DP-800 de Microsoft que he cursado en el Más
 | Bloque | Contenido | 
 |---|---|
 | A · Diseño y T-SQL | Tablas, carga de datos, vistas, función, procedimientos, trigger, consultas avanzadas | 
-| B · SQL con ayuda de IA | Registro en `docs/ia-log.md` | 
+| B · SQL con ayuda de IA | Registro en [`docs/ia-log.md`](docs/ia-log.md) | 
 | C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico |
 | D · Optimización | Plan de ejecución e índice antes/después | 
 | E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding |
@@ -212,7 +212,8 @@ goalmetry/
 │   ├── proyecto.pdf / .html     Informe técnico (el .html es el origen del PDF)
 │   ├── README.md              Cómo se ha hecho el proyecto y por qué se decidió cada cosa
 │   ├── modelo-datos.md        Modelo de datos y diagrama
-│   └── verificacion.md        Fuentes y comprobaciones de los datos
+│   ├── verificacion.md        Fuentes y comprobaciones de los datos
+│   └── ia-log.md              Registro del desarrollo asistido por IA (Bloque B)
 ├── tests/tests.sql            72 pruebas automáticas
 └── presentation/dp800-project.pptx   Presentación (8 diapositivas, con notas del orador)
 ```
@@ -245,5 +246,6 @@ goalmetry/
 
 - [`docs/README.md`](docs/README.md): **cómo se ha desarrollado el proyecto** y por qué se eligió cada tecnología y cada decisión de diseño.
 - [`docs/modelo-datos.md`](docs/modelo-datos.md) · [`docs/verificacion.md`](docs/verificacion.md)
+- [`docs/ia-log.md`](docs/ia-log.md): registro del desarrollo asistido por IA (Bloque B): prompts, respuestas, lo aceptado, lo corregido y los errores de la IA.
 
 ---
