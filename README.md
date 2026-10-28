@@ -2,7 +2,7 @@
 
 Base de datos de la **temporada 2026-27 de LaLiga (jornadas 1-10)** construida sobre **SQL Server 2025**: modelo relacional, T-SQL avanzado, seguridad (roles, Row-Level Security y enmascaramiento), optimización con índices y, en las fases siguientes, embeddings, búsqueda semántica y preguntas y respuestas (RAG) con modelos que se ejecutan **en tu propio equipo**.
 
-Mini-proyecto de la Práctica 09 (DP-800) del Máster en Big Data & IA (Tajamar) · Nivel 3 (avanzado).
+Mini-proyecto de la certificación DP-800 de Microsoft que he cursado en el Máster en Big Data & IA (Tajamar) · Nivel 3 (avanzado).
 
 **Todo es local y gratuito:** SQL Server 2025 Developer, sqlcmd, Ollama. No se usa Azure ni ningún servicio de pago, y el repositorio no contiene contraseñas ni claves (se usa autenticación de Windows).
 
