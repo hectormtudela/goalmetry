@@ -8,17 +8,17 @@ Mini-proyecto de la certificación DP-800 de Microsoft que he cursado en el Más
 
 ## Estado del proyecto
 
-| Bloque | Contenido | Estado |
-|---|---|---|
-| A · Diseño y T-SQL | Tablas, carga de datos, vistas, función, procedimientos, trigger, consultas avanzadas | ✅ Terminado |
-| B · SQL con ayuda de IA | Registro en `docs/ia-log.md` | 🔄 Se completa en cada bloque |
-| C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico | ✅ Terminado |
-| D · Optimización | Plan de ejecución e índice antes/después | ✅ Terminado |
-| E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding | ✅ Terminado |
-| F · Búsqueda inteligente | Vectorial, full-text en español e híbrida (RRF) | ✅ Terminado |
-| G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` y búsqueda híbrida | ✅ Terminado |
-| Pruebas | `tests/tests.sql`: 72 pruebas automáticas (datos, reglas, T-SQL, seguridad, IA) | ✅ Terminado |
-| Informe y presentación | Informe técnico de 8 páginas (PDF) y presentación de 8 diapositivas (PPTX) | ✅ Terminado |
+| Bloque | Contenido | 
+|---|---|
+| A · Diseño y T-SQL | Tablas, carga de datos, vistas, función, procedimientos, trigger, consultas avanzadas | 
+| B · SQL con ayuda de IA | Registro en `docs/ia-log.md` | 
+| C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico |
+| D · Optimización | Plan de ejecución e índice antes/después | 
+| E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding |
+| F · Búsqueda inteligente | Vectorial, full-text en español e híbrida (RRF) | 
+| G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` y búsqueda híbrida | 
+| Pruebas | `tests/tests.sql`: 72 pruebas automáticas (datos, reglas, T-SQL, seguridad, IA) | 
+| Informe y presentación | Informe técnico de 8 páginas (PDF) y presentación de 8 diapositivas (PPTX) |
 
 Ahora mismo se pueden instalar y usar los todos los bloques de la base de datos y de la IA (A a G; del E al G con `-IA`). Todo está terminado: bloques de código, informe técnico ([`docs/proyecto.pdf`](docs/proyecto.pdf)) y presentación ([`presentation/dp800-project.pptx`](presentation/dp800-project.pptx)).
 
