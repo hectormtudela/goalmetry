@@ -30,7 +30,13 @@ BEGIN
     SELECT NombreUsuario, EquipoID FROM seguridad.UsuarioEquipo;
     DELETE FROM seguridad.UsuarioEquipo;
 END;
+-- ia.Documento apunta a liga.Equipo y liga.Partido: hay que vaciarla para recargar la liga.
+-- Sus textos y embeddings se generan a partir de estos datos (ai\generate_embeddings.sql).
+DECLARE @Documentos INT = (SELECT COUNT(*) FROM ia.Documento);
 DELETE FROM ia.Documento;
+IF @Documentos > 0
+    PRINT CONCAT(N'AVISO: se han borrado ', @Documentos, N' documentos de ia.Documento. ',
+                 N'Para recuperarlos, ejecuta después ai\generate_embeddings.sql.');
 -- TRUNCATE (no DELETE + DBCC CHECKIDENT RESEED 0): RESEED 0 en una tabla que nunca tuvo filas
 -- hace que el primer EntradaID sea 0, y en una que ya tuvo filas, 1. TRUNCATE siempre deja la
 -- identidad en su semilla (1), así una BD recién creada y una recarga generan los mismos IDs.

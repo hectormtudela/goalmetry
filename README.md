@@ -141,6 +141,7 @@ sqlcmd -S localhost -E -C -b -i ai\rag.sql                      # RAG: la primer
 - `03_insert_data.sql` recibe la ruta de los CSV con `-v DataPath=...`; no hay rutas fijas dentro de los scripts.
 - **Desde SSMS:** activa *Consulta > Modo SQLCMD* y, en `03_insert_data.sql`, añade al principio `:setvar DataPath "C:\ruta\al\repo\data"`.
 - Todos los scripts se pueden ejecutar varias veces: el resultado es siempre el mismo.
+- Si vuelves a ejecutar solo `03_insert_data.sql` con la IA ya instalada, vacía `ia.Documento` (sus textos salen de los datos de la liga) y lo avisa. Ejecuta después `ai\generate_embeddings.sql` para regenerarlos.
 
 ## Primeras consultas para probar
 

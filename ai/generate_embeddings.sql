@@ -218,3 +218,19 @@ SELECT Tipo,
        CAST(MAX(VECTOR_NORM(Embedding, 'norm2')) AS DECIMAL(9,6)) AS NormaMax
 FROM ia.Documento GROUP BY Tipo ORDER BY Tipo;
 GO
+
+/* ---------- 5. Si ya existe el índice Full-Text (Bloque F), esperar a que esté al día ----------
+   Se actualiza en segundo plano; sin esta espera, una búsqueda justo después vería datos a medias. */
+IF EXISTS (SELECT 1 FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID(N'ia.Documento'))
+BEGIN
+    DECLARE @espera INT = 0;
+    WHILE (OBJECTPROPERTYEX(OBJECT_ID(N'ia.Documento'), 'TableFulltextPendingChanges') > 0
+           OR FULLTEXTCATALOGPROPERTY(N'ft_liga', 'PopulateStatus') <> 0)
+          AND @espera < 60
+    BEGIN
+        WAITFOR DELAY '00:00:01';
+        SET @espera += 1;
+    END;
+    PRINT CONCAT(N'Índice Full-Text al día (', @espera, N' s de espera).');
+END;
+GO
