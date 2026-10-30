@@ -13,8 +13,8 @@ Todos los ficheros son UTF-8, separados por comas, con cabecera en la primera fi
 | jornadas.csv | 10 | liga.Jornada |
 | partidos.csv | 100 | liga.Partido |
 | jugadores.csv | 452 | liga.Jugador |
-| goles.csv | 279 | liga.Gol |
-| cronicas.csv | 93 | ia.Documento (tipo `cronica_partido`) |
+| goles.csv | 298 | liga.Gol |
+| cronicas.csv | 100 | ia.Documento (tipo `cronica_partido`) |
 | documentos.csv | 16 | ia.Documento (tipos `reglamento` y `faq`) |
 
 Orden de carga (por las claves foráneas): temporadas, equipos, estadios, arbitros, jornadas, partidos, jugadores, goles. Los identificadores (`*_id`) vienen ya asignados en los CSV y se cargan con `SET IDENTITY_INSERT`.

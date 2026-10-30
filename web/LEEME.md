@@ -40,7 +40,7 @@ La contraseña no se guarda en ningún sitio. En la base de datos solo queda una
 - **Cambiar la fecha o el árbitro** de un partido, y **borrar un partido** creado por error (solo si aún no se ha jugado).
 - **Dar de alta y editar jugadores** con sus estadísticas, y **añadir árbitros**.
 
-El panel avisa de dos cosas: los partidos que están **pendientes de resultado** y los partidos jugados donde **faltan goleadores** por apuntar. Por ejemplo, en el Rayo–Elche (0-3) de la jornada 10 no hay goleadores en los datos originales.
+El panel avisa de dos cosas: los partidos que están **pendientes de resultado** y los partidos jugados donde **faltan goleadores** por apuntar. Con los datos actuales (J1-J10 completas) las dos listas están vacías.
 
 Todo cambio de un marcador queda en la auditoría del proyecto (`liga.PartidoAuditoria`), con la marca `web_admin`.
 

@@ -14,7 +14,7 @@ Mini-proyecto de la certificación DP-800 de Microsoft que he cursado en el Más
 | B · SQL con ayuda de IA | Registro en [`docs/ia-log.md`](docs/ia-log.md) |
 | C · Seguridad | Roles, permisos, Row-Level Security, enmascaramiento dinámico |
 | D · Optimización | Plan de ejecución e índice antes/después |
-| E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 139 documentos con embedding |
+| E · Embeddings | `bge-m3` (Ollama) -> columna `VECTOR(1024)`: 146 documentos con embedding |
 | F · Búsqueda inteligente | Vectorial, full-text en español e híbrida (RRF) |
 | G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` y búsqueda híbrida |
 | Pruebas | `tests/tests.sql`: 72 pruebas automáticas (datos, reglas, T-SQL, seguridad, IA); `tests/tests_web.sql`: 24 de la web |
@@ -37,13 +37,13 @@ SQL Server 2025 guarda los datos y hace todo el trabajo (búsqueda y RAG incluid
 | `liga.Temporada` | 1 | 2026-27 |
 | `liga.Equipo` / `liga.Estadio` | 20 / 20 | Los 20 equipos y su estadio |
 | `liga.Arbitro` | 21 | Árbitros de la temporada |
-| `liga.Jornada` / `liga.Partido` | 10 / 100 | J1-J9 completas; J10 con 3 partidos jugados y 7 programados |
+| `liga.Jornada` / `liga.Partido` | 10 / 100 | J1-J10 completas: 100 partidos jugados |
 | `liga.Jugador` | 452 | Plantillas con minutos, goles y asistencias |
-| `liga.Gol` | 279 | Cada gol: anotador, minuto y tipo (normal, penalti, propia puerta) |
+| `liga.Gol` | 298 | Cada gol: anotador, minuto y tipo (normal, penalti, propia puerta) |
 | `liga.PartidoAuditoria` | 0 | Historial de cambios de resultado (lo rellena un trigger) |
 | `ventas.Abonado` | 2.000 | **Ficticios**, generados por script (fijos) |
 | `ventas.Entrada` | 200.824 | **Ficticias**, generadas por script para las jornadas 1-10 (fijas: no cambian al añadir jornadas) |
-| `ia.Documento` | 139 | Con `-IA`: 93 crónicas, 20 fichas, 10 resúmenes, 10 de reglamento y 6 de FAQ, cada uno con su embedding |
+| `ia.Documento` | 146 | Con `-IA`: 100 crónicas, 20 fichas, 10 resúmenes, 10 de reglamento y 6 de FAQ, cada uno con su embedding |
 
 Objetos para consultar y trabajar con los datos:
 
@@ -161,7 +161,7 @@ Bloques E, F y G (inteligencia artificial). Antes: Ollama con `bge-m3` y `qwen2.
 
 ```powershell
 sqlcmd -S localhost -E -C -b -i ai\create_external_model.sql    # modelo externo bge-m3
-sqlcmd -S localhost -E -C -b -v DataPath="$PWD\data" -i ai\generate_embeddings.sql   # 139 documentos + embeddings
+sqlcmd -S localhost -E -C -b -v DataPath="$PWD\data" -i ai\generate_embeddings.sql   # 146 documentos + embeddings
 sqlcmd -S localhost -E -C -b -i ai\vector_search.sql            # Full-Text + búsqueda híbrida
 sqlcmd -S localhost -E -C -b -i ai\rag.sql                      # RAG: la primera vez tarda ~1 minuto
 ```
@@ -192,13 +192,15 @@ FROM liga.Jornada AS j CROSS JOIN liga.Equipo AS e
 WHERE e.NombreCorto = N'Barcelona'
 ORDER BY j.Numero;
 
--- Partidos de la jornada 10 que faltan por jugar
-SELECT p.PartidoID, el.Nombre AS Local, ev.Nombre AS Visitante, p.FechaHora
+-- Resultados de la jornada 10
+SELECT p.PartidoID, el.Nombre AS Local, CONCAT(p.GolesLocal, N'-', p.GolesVisitante) AS Marcador,
+       ev.Nombre AS Visitante, p.FechaHora
 FROM liga.Partido AS p
 JOIN liga.Jornada AS j  ON j.JornadaID = p.JornadaID
 JOIN liga.Equipo  AS el ON el.EquipoID = p.EquipoLocalID
 JOIN liga.Equipo  AS ev ON ev.EquipoID = p.EquipoVisitanteID
-WHERE j.Numero = 10 AND p.Estado = 'Programado';
+WHERE j.Numero = 10
+ORDER BY p.FechaHora;
 
 -- Probar a registrar un resultado sin dejarlo guardado (marcador inventado):
 BEGIN TRANSACTION;
@@ -266,7 +268,7 @@ goalmetry/
   Las comprobaciones que se hicieron y las limitaciones conocidas están en [`docs/verificacion.md`](docs/verificacion.md). Ningún resultado, gol ni jugador es inventado.
 - **Textos para la búsqueda y el RAG:** las crónicas de partido están en `data/cronicas.csv` y solo recogen hechos de los datos (resultado, estadio, fecha, árbitro y goles); el reglamento y las preguntas frecuentes, en `data/documentos.csv`. Las fichas de equipo y los resúmenes de jornada se generan a partir de las tablas, así que siempre cuadran con la clasificación.
 - **Datos ficticios:** solo `ventas.Abonado` y `ventas.Entrada`. Los genera `03_insert_data.sql` con una semilla fija, así que salen idénticos en cada instalación. Son **fijos**: cubren las jornadas 1-10 y no cambian al añadir jornadas nuevas. Los nombres son combinaciones aleatorias; los emails usan el dominio reservado `correo.example`, y los DNI y teléfonos tienen formato válido pero no corresponden a nadie.
-- La temporada está **en curso**: la J10 está incompleta y algunas estadísticas de jugadores llegan solo hasta la J9 (columna `Jugador.UltimaJornada`).
+- La temporada está **en curso**: los resultados y goles llegan hasta la J10 (completada el 30/10/2026, ver [`data/CAMBIOS.md`](data/CAMBIOS.md)), y las estadísticas de los jugadores, hasta la J9 (columna `Jugador.UltimaJornada`).
 
 ## Solución de problemas
 
