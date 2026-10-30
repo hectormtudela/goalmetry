@@ -1,6 +1,6 @@
 /* =============================================================================
    07_indexes.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque D
+   Goalmetry (DP-800, Práctica 09) - Bloque D
    Optimización de una consulta significativa sobre ventas.Entrada (200.824 filas):
    ingresos por partido de una jornada, con lo vendido en la última semana.
      1. ANTES: sin índice de apoyo (scan del índice clúster).

@@ -1,6 +1,6 @@
 /* =============================================================================
    create_external_model.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque E (1/2)
+   Goalmetry (DP-800, Práctica 09) - Bloque E (1/2)
    Conecta SQL Server 2025 con el modelo de embeddings local (bge-m3, en Ollama):
      SQL Server --HTTPS--> Caddy (https://localhost:11443) --HTTP--> Ollama (:11434)
    Pasos:

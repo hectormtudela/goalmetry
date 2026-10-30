@@ -1,4 +1,4 @@
-"""Crea (o cambia) la cuenta de administrador de LaLigaDB.
+"""Crea (o cambia) la cuenta de administrador de Goalmetry.
 
 Uso:  doble clic en crear-admin.bat   o   .venv\\Scripts\\python crear_admin.py
 Pide el usuario y la contraseña por teclado. La contraseña no se guarda en ningún
@@ -14,7 +14,7 @@ from db import ErrorDatos, ejecutar_como_dbo
 
 
 def main():
-    print("\n  Cuenta de administrador de LaLigaDB\n")
+    print("\n  Cuenta de administrador de Goalmetry\n")
     nombre = input("  Usuario [admin]: ").strip() or "admin"
     if len(nombre) < 3:
         sys.exit("  El usuario debe tener al menos 3 caracteres.")

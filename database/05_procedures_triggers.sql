@@ -1,6 +1,6 @@
 /* =============================================================================
    05_procedures_triggers.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque A
+   Goalmetry (DP-800, Práctica 09) - Bloque A
    Procedimientos y trigger:
      - liga.trg_Partido_AuditoriaResultado : registra en liga.PartidoAuditoria todo cambio
                                              de Estado o marcador en liga.Partido.
@@ -164,14 +164,16 @@ BEGIN CATCH SELECT N'Jornada no cargada' AS Prueba, ERROR_NUMBER() AS Error, ERR
 SELECT COUNT(*) AS FilasAuditoriaTrasErrores FROM liga.PartidoAuditoria;   -- debe ser 0
 GO
 
-PRINT N'=== 3. Registrar un resultado FICTICIO en un partido programado de la J10 (se deshace) ===';
+PRINT N'=== 3. Registrar un resultado FICTICIO en el primer partido programado (se deshace) ===';
 SET XACT_ABORT ON;
+-- Con los datos de J1-J10 es un partido de la J10. Si algún día ya no queda ningún partido
+-- programado (temporada terminada), la demo se salta: nunca se toca un resultado real.
+DECLARE @Programado INT = (SELECT MIN(PartidoID) FROM liga.Partido WHERE Estado = 'Programado');
+IF @Programado IS NULL
+    PRINT N'No queda ningún partido programado: se omite la demo.';
+ELSE
+BEGIN
 BEGIN TRANSACTION;
-
-    DECLARE @Programado INT =
-        (SELECT MIN(p.PartidoID)
-         FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
-         WHERE j.Numero = 10 AND p.Estado = 'Programado');
 
     SELECT p.PartidoID, el.Nombre AS Local, ev.Nombre AS Visitante, p.Estado, p.GolesLocal, p.GolesVisitante
     FROM liga.Partido AS p
@@ -202,12 +204,12 @@ BEGIN TRANSACTION;
     WHERE p.PartidoID = @Programado;
 
 ROLLBACK TRANSACTION;
+END;
 GO
 
 PRINT N'=== 4. Tras el ROLLBACK: la BD queda como estaba ===';
 SELECT
-    (SELECT COUNT(*) FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
-     WHERE j.Numero = 10 AND p.Estado = 'Programado')     AS ProgramadosJ10,   -- 7
-    (SELECT COUNT(*) FROM liga.Partido WHERE Estado = 'Finalizado') AS Finalizados,  -- 93
+    (SELECT COUNT(*) FROM liga.Partido WHERE Estado = 'Programado') AS Programados,  -- 7 con J1-J10
+    (SELECT COUNT(*) FROM liga.Partido WHERE Estado = 'Finalizado') AS Finalizados,  -- 93 con J1-J10
     (SELECT COUNT(*) FROM liga.PartidoAuditoria)          AS FilasAuditoria;   -- 0
 GO

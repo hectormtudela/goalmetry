@@ -1,6 +1,6 @@
 /* =============================================================================
    06_security.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque C
+   Goalmetry (DP-800, Práctica 09) - Bloque C
    Seguridad con mínimo privilegio:
      1. Roles rol_admin, rol_analista y rol_ventas, con usuarios WITHOUT LOGIN (sin contraseñas).
      2. Permisos por esquema y por objeto: GRANT, DENY y REVOKE.
@@ -340,9 +340,15 @@ DROP TABLE #Revoke;
 GO
 
 PRINT N'=== 6. Auditoría: el trigger registra quién cambia un resultado (se deshace) ===';
+-- El primer partido programado (con J1-J10, el 94) o, si ya no queda ninguno, el último.
+-- @PermitirCorreccion = 1 para que funcione también con un partido ya jugado; todo se
+-- deshace con el ROLLBACK.
+DECLARE @PartidoDemo INT = COALESCE((SELECT MIN(PartidoID) FROM liga.Partido WHERE Estado = 'Programado'),
+                                    (SELECT MAX(PartidoID) FROM liga.Partido));
 BEGIN TRANSACTION;
     EXECUTE AS USER = N'u_admin';
-    EXEC liga.usp_RegistrarResultado @PartidoID = 94, @GolesLocal = 1, @GolesVisitante = 1, @Estado = 'En juego';
+    EXEC liga.usp_RegistrarResultado @PartidoID = @PartidoDemo, @GolesLocal = 1, @GolesVisitante = 1, @Estado = 'En juego',
+                                     @PermitirCorreccion = 1;
     REVERT;
     SELECT PartidoID, EstadoAnterior, EstadoNuevo, GolesLocalNuevo, GolesVisitanteNuevo, Usuario
     FROM liga.PartidoAuditoria;
@@ -364,5 +370,5 @@ ORDER BY Columna;
 SELECT (SELECT COUNT(*) FROM ventas.Abonado)    AS Abonados,         -- 2000
        (SELECT COUNT(*) FROM ventas.Entrada)    AS Entradas,         -- 200824
        (SELECT COUNT(*) FROM liga.PartidoAuditoria) AS FilasAuditoria, -- 0
-       (SELECT Estado FROM liga.Partido WHERE PartidoID = 94) AS EstadoPartido94;  -- Programado
+       (SELECT Estado FROM liga.Partido WHERE PartidoID = 94) AS EstadoPartido94;  -- el de los CSV (Programado con J1-J10)
 GO

@@ -1,6 +1,6 @@
 /* =============================================================================
    consultas_avanzadas.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque A
+   Goalmetry (DP-800, Práctica 09) - Bloque A
    Consultas T-SQL avanzadas (solo lectura, no modifican datos):
      1. CTE + window functions: puntos acumulados y posición tras cada jornada.
      2. Window functions: goles por 90 minutos (>= 270 minutos jugados).

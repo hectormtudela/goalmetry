@@ -1,6 +1,6 @@
 /* =============================================================================
    rag.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque G
+   Goalmetry (DP-800, Práctica 09) - Bloque G
    RAG (Retrieval-Augmented Generation) con modelos locales, todo desde T-SQL:
      pregunta -> embedding + Full-Text (ia.usp_BuscarDocumentos, híbrida)
               -> contexto (documentos recuperados + clasificación si se pregunta por ella)
@@ -135,11 +135,20 @@ UNION ALL
 SELECT N'Cambios por equipo (reglamento)', N'5 cambios en un máximo de 3 ventanas';
 GO
 
+-- El líder y el goleador esperados salen de las tablas (no se escriben a mano): así la
+-- comparación sigue valiendo cuando se añaden jornadas nuevas.
+DECLARE @lider NVARCHAR(60), @pts INT, @goleador NVARCHAR(100), @golesRM INT;
+SELECT TOP (1) @lider = Equipo, @pts = Pts FROM liga.vw_Clasificacion ORDER BY Posicion, Equipo;
+SELECT TOP (1) @goleador = Anotador, @golesRM = Goles FROM liga.vw_MaximosGoleadores
+WHERE Equipo = N'Real Madrid' ORDER BY Posicion, Anotador;
+DECLARE @apellido NVARCHAR(100) = RIGHT(@goleador, CHARINDEX(N' ', REVERSE(@goleador) + N' ') - 1);
+
 DECLARE @preguntas TABLE (N INT IDENTITY, Pregunta NVARCHAR(200), Esperado NVARCHAR(200), Clave NVARCHAR(200));
 INSERT INTO @preguntas (Pregunta, Esperado, Clave) VALUES
  (N'¿Cómo quedó el partido entre el Valencia y el Celta Vigo?', N'0-0 (jornada 2)',                 N'0-0|0 a 0|0 - 0|sin goles|empate'),
- (N'¿Quién lidera la clasificación y cuántos puntos tiene?',     N'Barcelona con 27 puntos',          N'Barcelona.*27|27.*Barcelona'),
- (N'¿Quién es el máximo goleador del Real Madrid?',              N'Kylian Mbappé (9 goles)',          N'Mbapp'),
+ (N'¿Quién lidera la clasificación y cuántos puntos tiene?',     CONCAT(@lider, N' con ', @pts, N' puntos'),
+                                                                 CONCAT(@lider, N'.*', @pts, N'|', @pts, N'.*', @lider)),
+ (N'¿Quién es el máximo goleador del Real Madrid?',              CONCAT(@goleador, N' (', @golesRM, N' goles)'), @apellido),
  (N'¿Cuántos cambios puede hacer cada equipo en un partido?',    N'5 cambios en 3 ventanas',          N'(5|cinco).*cambios|cambios.*(5|cinco)|sustituciones.*(5|cinco)'),
  (N'¿Quién ganó el Balón de Oro 2026?',                          N'Sin datos: el modelo debe negarse', N'no tengo datos|no dispongo|no (se|sé)|no aparece|no figura');
 

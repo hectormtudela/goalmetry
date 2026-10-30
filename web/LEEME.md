@@ -1,6 +1,6 @@
-# LaLigaDB · la web
+# Goalmetry · la web
 
-Una página web para consultar LaLigaDB sin abrir ninguna consola, y para que el administrador meta los datos nuevos de cada jornada.
+Goalmetry es la página web para consultar la base de datos LigaDB sin abrir ninguna consola. Tiene además un panel de administración para hacer correcciones en tu instalación; los datos nuevos llegan por los CSV de `data/` (ver más abajo).
 
 ## Cómo se usa
 
@@ -44,10 +44,13 @@ El panel avisa de dos cosas: los partidos que están **pendientes de resultado**
 
 Todo cambio de un marcador queda en la auditoría del proyecto (`liga.PartidoAuditoria`), con la marca `web_admin`.
 
-## Importante: dónde se guardan los datos que metes
-Los datos que metas desde la web se guardan en la base de datos LigaDB. Pero **`instalar.ps1` borra LigaDB y la vuelve a crear a partir de los CSV de `data/`**. Si reinstalas, se pierde lo que hayas metido desde la web, y también la cuenta de administrador, que habría que volver a crear con `crear-admin.bat`.
+## Importante: el panel no es la vía principal para meter datos
+La fuente de verdad de Goalmetry son los **CSV de `data/`**: las jornadas nuevas se publican ahí, y cada usuario las carga con `git pull` y `actualizar.ps1`. El panel de administración sirve para corregir algo o hacer pruebas en tu propia instalación, pero lo que metas desde él **solo existe en tu base de datos**:
 
-Mientras no exista una opción para exportar a CSV, **no reinstales** si has metido datos que quieras conservar. Para hacer pruebas sin miedo, `tests\tests_web.sql` lo comprueba todo y lo deshace al final.
+- `actualizar.ps1` compara la base de datos con los CSV. Si encuentra filas que no están en los CSV (por ejemplo, un partido o un árbitro creado desde el panel), **se para sin cambiar nada** y te enseña cuáles son. Para seguir, o las añades a los CSV, o reinstalas.
+- `instalar.ps1` borra LigaDB y la vuelve a crear desde los CSV, así que se pierde lo metido desde la web y también la cuenta de administrador (se vuelve a crear con `crear-admin.bat`).
+
+Para hacer pruebas sin miedo, `tests\tests_web.sql` lo comprueba todo y lo deshace al final.
 
 ## Cómo funciona por dentro
 
@@ -94,4 +97,3 @@ Todo puede seguir funcionando en tu ordenador, incluidos SQL Server, Caddy y Oll
 1. Activar `LALIGADB_HTTPS=1`.
 2. Hacer que los límites de uso miren la IP real del visitante, que llega a través del túnel.
 3. Asumir que la IA solo responde mientras tu ordenador esté encendido.
-4. Revisar el nombre: «LaLiga» es una marca registrada. Para algo público conviene un nombre propio.

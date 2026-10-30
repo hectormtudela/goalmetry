@@ -1,4 +1,4 @@
-// LaLigaDB - comportamiento de las páginas (sin librerías externas).
+// Goalmetry - comportamiento de las páginas (sin librerías externas).
 "use strict";
 
 const csrf = document.querySelector('meta[name="csrf"]').content;
@@ -142,7 +142,7 @@ if (formPregunta) {
     try {
       const r = await pedir("/api/preguntar", { pregunta, comparar });
       zona.replaceChildren();
-      pintar("Respuesta con los datos de LaLigaDB", r.rag, false);
+      pintar("Respuesta con los datos de la liga", r.rag, false);
       if (r.solo) pintar("IA sin consultar la base de datos", r.solo, true);
     } catch (error) {
       mostrarError(zona, error.message);

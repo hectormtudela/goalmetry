@@ -1,6 +1,6 @@
 /* =============================================================================
    01_create_database.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque A
+   Goalmetry (DP-800, Práctica 09) - Bloque A
    Crea la base de datos LigaDB desde cero y sus esquemas.
 
    Ejecución:  sqlcmd -S localhost -E -C -b -i database\01_create_database.sql

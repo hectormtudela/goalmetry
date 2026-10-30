@@ -1,6 +1,6 @@
 /* =============================================================================
    08_web.sql
-   LaLigaDB - Base de datos para la web (carpeta web/)
+   Goalmetry - Base de datos para la web (carpeta web/)
    Crea lo que necesita la aplicación web, sin tocar nada de los scripts 01-07:
      1. Esquema web y tabla web.Usuario (la cuenta de administrador; solo se guarda
         el hash de la contraseña, nunca la contraseña).

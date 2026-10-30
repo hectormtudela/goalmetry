@@ -1,6 +1,6 @@
 /* =============================================================================
    04_views_functions.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque A
+   Goalmetry (DP-800, Práctica 09) - Bloque A
    Vistas y funciones de consulta:
      - liga.vw_Clasificacion      : tabla de clasificación (CTE + RANK()).
      - liga.vw_MaximosGoleadores  : ranking de goleadores a partir de liga.Gol.

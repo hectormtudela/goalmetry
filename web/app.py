@@ -1,4 +1,4 @@
-"""LaLigaDB - aplicación web.
+"""Goalmetry - aplicación web.
 
 Arranque:  iniciar-web.bat (doble clic)  o  .venv\\Scripts\\python app.py
 Abre http://localhost:8080. Solo escucha en este ordenador (127.0.0.1).
@@ -21,7 +21,7 @@ from werkzeug.security import check_password_hash
 from db import ErrorDatos, consultar, filas
 
 CARPETA = Path(__file__).resolve().parent
-NOMBRE_APP = "LaLigaDB"
+NOMBRE_APP = "Goalmetry"
 
 
 # ---------------------------------------------------------------- configuración

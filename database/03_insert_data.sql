@@ -1,6 +1,6 @@
 /* =============================================================================
    03_insert_data.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque A
+   Goalmetry (DP-800, Práctica 09) - Bloque A
    1) Carga los CSV verificados de data/ (temporada 2026-27, J1-J10):
       CSV -> staging (todo texto) -> tablas finales con IDENTITY_INSERT y CONVERT.
    2) Genera los únicos datos sintéticos del proyecto, de forma reproducible:
@@ -171,18 +171,20 @@ SELECT CONVERT(INT, gol_id),
 FROM staging.goles;
 SET IDENTITY_INSERT liga.Gol OFF;
 
--- Recuentos esperados (docs/verificacion.md). Si alguno no cuadra, se deshace la carga.
+-- Cada tabla debe tener exactamente las filas de su CSV (ninguna perdida por el camino).
+-- Si alguna no cuadra, se deshace la carga. Con los datos de J1-J10 son 1, 20, 20, 21, 10,
+-- 100, 452 y 279 (docs/verificacion.md); no se fijan aquí para poder añadir jornadas.
 DECLARE @Errores NVARCHAR(MAX) =
 (
-    SELECT STRING_AGG(CONCAT(Tabla, N': ', Real, N' (esperado ', Esperado, N')'), N'; ')
-    FROM (VALUES (N'Temporada', (SELECT COUNT(*) FROM liga.Temporada),   1),
-                 (N'Equipo',    (SELECT COUNT(*) FROM liga.Equipo),     20),
-                 (N'Estadio',   (SELECT COUNT(*) FROM liga.Estadio),    20),
-                 (N'Arbitro',   (SELECT COUNT(*) FROM liga.Arbitro),    21),
-                 (N'Jornada',   (SELECT COUNT(*) FROM liga.Jornada),    10),
-                 (N'Partido',   (SELECT COUNT(*) FROM liga.Partido),   100),
-                 (N'Jugador',   (SELECT COUNT(*) FROM liga.Jugador),   452),
-                 (N'Gol',       (SELECT COUNT(*) FROM liga.Gol),       279)) AS v (Tabla, Real, Esperado)
+    SELECT STRING_AGG(CONCAT(Tabla, N': ', Real, N' (en el CSV: ', Esperado, N')'), N'; ')
+    FROM (VALUES (N'Temporada', (SELECT COUNT(*) FROM liga.Temporada), (SELECT COUNT(*) FROM staging.temporadas)),
+                 (N'Equipo',    (SELECT COUNT(*) FROM liga.Equipo),    (SELECT COUNT(*) FROM staging.equipos)),
+                 (N'Estadio',   (SELECT COUNT(*) FROM liga.Estadio),   (SELECT COUNT(*) FROM staging.estadios)),
+                 (N'Arbitro',   (SELECT COUNT(*) FROM liga.Arbitro),   (SELECT COUNT(*) FROM staging.arbitros)),
+                 (N'Jornada',   (SELECT COUNT(*) FROM liga.Jornada),   (SELECT COUNT(*) FROM staging.jornadas)),
+                 (N'Partido',   (SELECT COUNT(*) FROM liga.Partido),   (SELECT COUNT(*) FROM staging.partidos)),
+                 (N'Jugador',   (SELECT COUNT(*) FROM liga.Jugador),   (SELECT COUNT(*) FROM staging.jugadores)),
+                 (N'Gol',       (SELECT COUNT(*) FROM liga.Gol),       (SELECT COUNT(*) FROM staging.goles))) AS v (Tabla, Real, Esperado)
     WHERE Real <> Esperado
 );
 IF @Errores IS NOT NULL
@@ -192,7 +194,10 @@ BEGIN
 END;
 
 COMMIT TRANSACTION;
-PRINT N'Carga de los CSV correcta: recuentos 1/20/20/21/10/100/452/279.';
+DECLARE @Partidos INT = (SELECT COUNT(*) FROM liga.Partido), @Goles INT = (SELECT COUNT(*) FROM liga.Gol),
+        @Jugadores INT = (SELECT COUNT(*) FROM liga.Jugador);
+PRINT CONCAT(N'Carga de los CSV correcta: ', @Partidos, N' partidos, ', @Goles, N' goles y ',
+             @Jugadores, N' jugadores, igual que en los CSV.');
 GO
 
 /* ===================== 4. Datos sintéticos de ventas (reproducibles) ===================== */
@@ -272,7 +277,12 @@ WITH Pares AS
                  CONCAT(@Semilla, N'|cantidad|', a.AbonadoID, N'|', p.PartidoID)), 1, 6)) % 19 AS Cantidad
     FROM ventas.Abonado AS a
     JOIN liga.Partido   AS p ON a.EquipoID IN (p.EquipoLocalID, p.EquipoVisitanteID)
+    JOIN liga.Jornada   AS j ON j.JornadaID = p.JornadaID
     JOIN liga.Estadio   AS e ON e.EstadioID = p.EstadioID
+    -- Las ventas son ficticias y FIJAS: solo las jornadas 1-10, aunque los CSV traigan jornadas
+    -- nuevas. Así siempre se generan las mismas entradas (mismo checksum) y no cambian las
+    -- mediciones del Bloque D. actualizar.ps1 tampoco toca el esquema ventas.
+    WHERE j.Numero BETWEEN 1 AND 10
 ),
 Filas AS
 (

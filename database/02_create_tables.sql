@@ -1,6 +1,6 @@
 /* =============================================================================
    02_create_tables.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque A
+   Goalmetry (DP-800, Práctica 09) - Bloque A
    Crea las tablas de los esquemas liga, ventas e ia según docs/modelo-datos.md (v2),
    con PK, FK, CHECK, UNIQUE y DEFAULT con nombre explícito, y los índices básicos.
 

@@ -1,6 +1,6 @@
 /* =============================================================================
    vector_search.sql
-   Proyecto LigaDB (DP-800, Práctica 09) - Bloque F
+   Goalmetry (DP-800, Práctica 09) - Bloque F
    Búsqueda inteligente sobre ia.Documento (139 textos con embedding):
      1. Índice Full-Text en español (LCID 3082) con una lista de palabras vacías propia.
      2. ia.usp_BuscarDocumentos @Consulta, @Modo, @Top, @Tipo, @Candidatos:

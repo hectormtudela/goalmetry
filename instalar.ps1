@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Crea LigaDB desde cero y la deja cargada y lista para usar.
+    Goalmetry: crea la base de datos LigaDB desde cero y la deja cargada y lista para usar.
 
 .DESCRIPTION
     Ejecuta con sqlcmd, en orden, todos los scripts database\0*.sql (01_create_database,
@@ -12,6 +12,9 @@
     no toca ninguna otra base de datos de la instancia).
 
     Usa autenticación de Windows (-E): no hace falta ni se guarda ninguna contraseña.
+
+    Solo para la primera instalación. Para cargar jornadas nuevas de data\ (tras un
+    git pull) sin borrar nada, usa actualizar.ps1.
 
 .PARAMETER Servidor
     Instancia de SQL Server 2025. Por defecto, la instancia local por defecto (localhost).
@@ -26,7 +29,11 @@
     proxy HTTPS (Caddy) configurados como se explica en el README.
 
 .PARAMETER Tests
-    Al terminar, ejecuta tests\tests.sql (72 pruebas). Con -IA, comprueba también la búsqueda y el RAG.
+    Al terminar, ejecuta tests\tests.sql (72 pruebas) y tests\tests_web.sql (24). Con -IA,
+    comprueba también la búsqueda y el RAG.
+
+.PARAMETER CarpetaDatos
+    Carpeta con los CSV. Por defecto, data\ del repositorio.
 
 .PARAMETER Forzar
     No pide confirmación antes de borrar y volver a crear LigaDB.
@@ -43,12 +50,13 @@ param(
     [switch] $Consultas,
     [switch] $IA,
     [switch] $Tests,
-    [switch] $Forzar
+    [switch] $Forzar,
+    [string] $CarpetaDatos
 )
 
 $ErrorActionPreference = 'Stop'
 $raiz     = $PSScriptRoot
-$dataPath = Join-Path $raiz 'data'
+$dataPath = if ($CarpetaDatos) { (Resolve-Path $CarpetaDatos).Path } else { Join-Path $raiz 'data' }
 
 function Escribir-Paso([string] $texto) { Write-Host "`n==> $texto" -ForegroundColor Cyan }
 
@@ -84,6 +92,7 @@ if ($IA) {
 
 if ($Tests) {
     $scripts += Get-Item (Join-Path $raiz 'tests\tests.sql')
+    $scripts += Get-Item (Join-Path $raiz 'tests\tests_web.sql')
 }
 
 Escribir-Paso 'Scripts que se van a ejecutar, en este orden'
@@ -104,7 +113,7 @@ foreach ($s in $scripts) {
     $relativo = $s.FullName.Substring($raiz.Length + 1)
     Escribir-Paso $relativo
     $t = [System.Diagnostics.Stopwatch]::StartNew()
-    # La variable DataPath solo la usa 03_insert_data.sql; al resto no le afecta.
+    # DataPath la usan 03_insert_data.sql, generate_embeddings.sql y tests.sql; al resto no le afecta.
     & sqlcmd -S $Servidor -E -C -b -W -v DataPath="$dataPath" -i $s.FullName
     if ($LASTEXITCODE -ne 0) {
         Write-Host "`nERROR en $relativo (código $LASTEXITCODE). Se detiene la instalación." -ForegroundColor Red
@@ -114,7 +123,7 @@ foreach ($s in $scripts) {
 }
 
 # ---------- Resumen ----------
-Escribir-Paso 'Resumen de LigaDB'
+Escribir-Paso 'Resumen de la base de datos LigaDB'
 & sqlcmd -S $Servidor -E -C -b -W -d LigaDB -Q @"
 SET NOCOUNT ON;
 SELECT s.name + '.' + t.name AS Tabla, SUM(p.rows) AS Filas
@@ -125,5 +134,5 @@ WHERE s.name IN ('liga', 'ventas', 'ia')
 GROUP BY s.name, t.name
 ORDER BY s.name, t.name;
 "@
-Write-Host ("`nLigaDB instalada en '{0}' en {1:N1} s." -f $Servidor, $total.Elapsed.TotalSeconds) -ForegroundColor Green
+Write-Host ("`nGoalmetry instalado (base de datos LigaDB) en '{0}' en {1:N1} s." -f $Servidor, $total.Elapsed.TotalSeconds) -ForegroundColor Green
 Write-Host "Prueba, por ejemplo:  sqlcmd -S $Servidor -E -C -d LigaDB -Q `"SELECT * FROM liga.vw_Clasificacion ORDER BY Posicion`""

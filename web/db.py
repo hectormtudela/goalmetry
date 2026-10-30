@@ -1,4 +1,4 @@
-"""Acceso a SQL Server para la web de LaLigaDB.
+"""Acceso a SQL Server para la web de Goalmetry.
 
 Cada petición abre su propia conexión (autenticación de Windows, sin contraseñas)
 y se pone en la piel de un usuario de mínimo privilegio con EXECUTE AS USER:
