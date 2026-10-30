@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Administración{% endblock %}
+{% block contenido %}
+{% include "admin/_menu.html" %}
+<section class="portada"><div><p class="etiqueta">Administración</p><h1>Jornadas y partidos</h1></div></section>
+
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Jornadas</h2></div>
+    <table class="tabla">
+      <thead><tr><th>Jornada</th><th class="num">Partidos</th><th class="num">Jugados</th><th></th></tr></thead>
+      <tbody>
+      {% for j in lista %}
+        <tr>
+          <td>Jornada {{ j.Numero }}</td>
+          <td class="num">{{ j.Partidos }}</td>
+          <td class="num">{{ j.Finalizados }}</td>
+          <td class="derecha"><a href="{{ url_for('admin_jornada', jornada_id=j.JornadaID) }}">Gestionar</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <form method="post" action="{{ url_for('crear_jornada') }}" class="formulario en-linea separado">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <label>Nueva jornada nº <input name="numero" type="number" min="1" max="38" value="{{ siguiente }}" required class="corto"></label>
+      <button class="boton boton-principal">Crear jornada</button>
+    </form>
+  </section>
+
+  <div class="columna">
+    <section class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Pendientes de resultado</h2></div>
+      <ul class="lista-enlaces">
+        {% for p in pendientes %}
+          <li><a href="{{ url_for('admin_partido', partido_id=p.PartidoID) }}">
+            <span>J{{ p.Numero }} · {{ p.Local }} – {{ p.Visitante }}</span>
+            <small>{{ p.FechaHora.strftime('%d/%m %H:%M') if p.FechaHora else 'sin fecha' }}</small></a></li>
+        {% else %}
+          <li class="vacio">No hay partidos pendientes.</li>
+        {% endfor %}
+      </ul>
+    </section>
+    <section class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Goles por completar</h2></div>
+      <p class="nota">Partidos finalizados donde los goles apuntados no suman el marcador.</p>
+      <ul class="lista-enlaces">
+        {% for d in descuadres %}
+          <li><a href="{{ url_for('admin_partido', partido_id=d.PartidoID) }}">
+            <span>J{{ d.Numero }} · {{ d.Local }} – {{ d.Visitante }}</span>
+            <small>{{ d.Registrados }} de {{ d.Marcador }} goles</small></a></li>
+        {% else %}
+          <li class="vacio">Todo cuadra.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block titulo %}Jugadores{% endblock %}
+{% block contenido %}
+{% include "admin/_menu.html" %}
+<section class="portada"><div><p class="etiqueta">Administración</p><h1>Jugadores</h1></div>
+  <form method="get" class="en-linea">
+    <label for="equipo">Equipo</label>
+    <select id="equipo" name="equipo" data-auto-enviar>
+      {% for e in equipos %}<option value="{{ e.EquipoID }}" {% if e.EquipoID == equipo %}selected{% endif %}>{{ e.Nombre }}</option>{% endfor %}
+    </select>
+    <noscript><button class="boton">Ver</button></noscript>
+  </form>
+</section>
+
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tabla-scroll">
+    <table class="tabla">
+      <thead><tr><th>Jugador</th><th>Pos.</th><th class="num">Min.</th><th class="num">Goles</th><th class="num">Asist.</th><th></th></tr></thead>
+      <tbody>
+      {% for j in jugadores %}
+        <tr {% if editar and editar.JugadorID == j.JugadorID %}class="fila-activa"{% endif %}>
+          <td>{{ j.Nombre }}</td><td>{{ j.Posicion or '—' }}</td>
+          <td class="num">{{ j.MinutosJugados }}</td><td class="num">{{ j.Goles }}</td><td class="num">{{ j.Asistencias }}</td>
+          <td class="derecha"><a href="{{ url_for('admin_jugadores', equipo=equipo, editar=j.JugadorID) }}">Editar</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="vacio">Este equipo no tiene jugadores.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>{% if editar %}Editar jugador{% else %}Nuevo jugador{% endif %}</h2>
+      {% if editar %}<a href="{{ url_for('admin_jugadores', equipo=equipo) }}">Cancelar</a>{% endif %}</div>
+    <form method="post" action="{{ url_for('guardar_jugador') }}" class="formulario">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <input type="hidden" name="jugador" value="{{ editar.JugadorID if editar else '' }}">
+      <label>Nombre <input name="nombre" required maxlength="100" value="{{ editar.Nombre if editar else '' }}"></label>
+      <label>Equipo
+        <select name="equipo">
+          {% for e in equipos %}<option value="{{ e.EquipoID }}" {% if e.EquipoID == (editar.EquipoID if editar else equipo) %}selected{% endif %}>{{ e.Nombre }}</option>{% endfor %}
+        </select></label>
+      <label>Posición
+        <select name="posicion">
+          {% set pos = editar.Posicion if editar else '' %}
+          <option value="">Sin indicar</option>
+          {% for v, n in [('PT','Portero'),('DF','Defensa'),('MC','Centrocampista'),('DL','Delantero')] %}
+            <option value="{{ v }}" {% if pos == v %}selected{% endif %}>{{ n }}</option>{% endfor %}
+        </select></label>
+      <div class="rejilla-formulario">
+        <label>Minutos <input type="number" name="minutos" min="0" value="{{ editar.MinutosJugados if editar else 0 }}"></label>
+        <label>Goles <input type="number" name="goles" min="0" value="{{ editar.Goles if editar else 0 }}"></label>
+        <label>Asistencias <input type="number" name="asistencias" min="0" value="{{ editar.Asistencias if editar else 0 }}"></label>
+        <label>Datos hasta la jornada <input type="number" name="ultima" min="1" max="38" value="{{ editar.UltimaJornada if editar and editar.UltimaJornada else '' }}"></label>
+      </div>
+      <button class="boton boton-principal">Guardar jugador</button>
+    </form>
+    <p class="nota">Minutos, goles y asistencias son las estadísticas acumuladas de la ficha del jugador. Los goles de la clasificación de goleadores salen de los partidos.</p>
+  </section>
+</div>
+{% endblock %}

@@ -58,6 +58,12 @@ WITH (
 );
 GO
 
+-- Si está instalada la web (database\08_web.sql), su rol necesita usar el modelo.
+-- Al volver a crear el modelo se pierde el permiso, por eso se da aquí otra vez.
+IF DATABASE_PRINCIPAL_ID(N'rol_web_publico') IS NOT NULL
+    GRANT EXECUTE ON EXTERNAL MODEL::bge_m3_ollama TO rol_web_publico;
+GO
+
 PRINT N'--- Modelo registrado ---';
 SELECT CAST(name AS NVARCHAR(30)) AS Nombre, CAST(api_format AS NVARCHAR(10)) AS ApiFormat,
        CAST(model_type_desc AS NVARCHAR(12)) AS Tipo, CAST(model AS NVARCHAR(10)) AS Modelo,

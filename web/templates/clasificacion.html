@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block titulo %}Clasificación{% endblock %}
+{% block contenido %}
+<section class="portada">
+  <div>
+    <p class="etiqueta">Temporada {{ resumen.Temporada }}</p>
+    <h1>Clasificación</h1>
+  </div>
+  <div class="cifras">
+    <div><b>{{ resumen.Jugados }}</b><span>partidos jugados</span></div>
+    <div><b>{{ resumen.Goles }}</b><span>goles</span></div>
+    <div><b>{{ resumen.Pendientes }}</b><span>por jugar</span></div>
+  </div>
+</section>
+
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera">
+      <h2>{% if hasta %}Hasta la jornada {{ hasta }}{% else %}Tabla actual{% endif %}</h2>
+      <form method="get" class="en-linea">
+        <label for="hasta">Ver hasta la jornada</label>
+        <select id="hasta" name="hasta" data-auto-enviar>
+          <option value="">Actual</option>
+          {% for n in jugadas %}<option value="{{ n }}" {% if n == hasta %}selected{% endif %}>J{{ n }}</option>{% endfor %}
+        </select>
+        <noscript><button class="boton">Ver</button></noscript>
+      </form>
+    </div>
+    <div class="tabla-scroll">
+    <table class="tabla clasificacion">
+      <thead><tr>
+        <th class="num">#</th><th>Equipo</th>
+        <th class="num" title="Partidos jugados">PJ</th><th class="num" title="Ganados">G</th>
+        <th class="num" title="Empatados">E</th><th class="num" title="Perdidos">P</th>
+        <th class="num ocultar-movil" title="Goles a favor">GF</th><th class="num ocultar-movil" title="Goles en contra">GC</th>
+        <th class="num" title="Diferencia de goles">DG</th><th class="num">Pts</th>
+      </tr></thead>
+      <tbody>
+      {% set total = tabla|length %}
+      {% for f in tabla %}
+        <tr class="{% if loop.index <= 4 %}zona-champions{% elif loop.index <= 6 %}zona-europa{% elif loop.index > total - 3 and total >= 18 %}zona-descenso{% endif %}">
+          <td class="num">{{ f.Posicion }}</td>
+          <td class="equipo">{{ f.Equipo }}</td>
+          <td class="num">{{ f.PJ }}</td><td class="num">{{ f.G }}</td><td class="num">{{ f.E }}</td><td class="num">{{ f.P }}</td>
+          <td class="num ocultar-movil">{{ f.GF }}</td><td class="num ocultar-movil">{{ f.GC }}</td>
+          <td class="num">{{ '%+d'|format(f.DG) if f.DG else 0 }}</td>
+          <td class="num puntos">{{ f.Pts }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="10" class="vacio">Todavía no hay partidos jugados.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <ul class="leyenda">
+      <li><i class="marca-champions"></i>Puestos 1-4</li>
+      <li><i class="marca-europa"></i>Puestos 5-6</li>
+      <li><i class="marca-descenso"></i>Descenso</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Máximos goleadores</h2></div>
+    <ol class="goleadores">
+      {% for g in goleadores %}
+        <li>
+          <span class="pos">{{ g.Posicion }}</span>
+          <span class="quien"><b>{{ g.Anotador }}</b><small>{{ g.Equipo }}</small></span>
+          <span class="goles">{{ g.Goles }}{% if g.Penaltis %}<small> ({{ g.Penaltis }} p.)</small>{% endif %}</span>
+        </li>
+      {% else %}
+        <li class="vacio">Sin goles registrados.</li>
+      {% endfor %}
+    </ol>
+    <p class="nota">Goles en propia puerta no incluidos. «p.» = de penalti.</p>
+  </section>
+</div>
+{% endblock %}

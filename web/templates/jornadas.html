@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Jornada {{ actual.Numero if actual else '' }}{% endblock %}
+{% block contenido %}
+<section class="portada">
+  <div>
+    <p class="etiqueta">Resultados y calendario</p>
+    <h1>{% if actual %}Jornada {{ actual.Numero }}{% else %}Jornadas{% endif %}</h1>
+  </div>
+</section>
+
+{% if lista %}
+<nav class="pestanas" aria-label="Jornadas">
+  {% for j in lista %}
+    <a href="{{ url_for('ver_jornadas', numero=j.Numero) }}"
+       class="{% if j.Finalizados == 0 %}sin-jugar{% endif %}"
+       {% if actual and j.Numero == actual.Numero %}aria-current="page"{% endif %}>J{{ j.Numero }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+
+<div class="partidos">
+{% for p in partidos %}
+  {% include "_partido.html" %}
+{% else %}
+  <p class="tarjeta vacio">Esta jornada todavía no tiene partidos.</p>
+{% endfor %}
+</div>
+{% endblock %}

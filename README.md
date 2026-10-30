@@ -125,6 +125,7 @@ sqlcmd -S localhost -E -C -b -i database\04_views_functions.sql
 sqlcmd -S localhost -E -C -b -i database\05_procedures_triggers.sql
 sqlcmd -S localhost -E -C -b -i database\06_security.sql
 sqlcmd -S localhost -E -C -b -i database\07_indexes.sql
+sqlcmd -S localhost -E -C -b -i database\08_web.sql                  # usuarios y procedimientos de la web
 sqlcmd -S localhost -E -C -b -i database\consultas_avanzadas.sql     # opcional, solo lectura
 ```
 
@@ -199,13 +200,18 @@ EXEC ia.usp_PreguntarLiga N'¿Quién es el máximo goleador del Real Madrid?', @
 
 En [`database/consultas_avanzadas.sql`](database/consultas_avanzadas.sql) hay más ejemplos: posición de cada equipo tras cada jornada, goles por 90 minutos, fichas de partido en JSON, validación con expresiones regulares y búsqueda aproximada de nombres. Puedes ejecutar y modificar lo que quieras: si rompes algo, `instalar.ps1` deja la base de datos como nueva en unos segundos.
 
+## Web: LaLigaDB en el navegador
+
+Para usarla sin consola: doble clic en **`web\iniciar-web.bat`** y se abre `http://localhost:8080`, con la clasificación, las jornadas, el buscador y las preguntas a la IA. El administrador entra con usuario y contraseña y mete jornadas, partidos, resultados, goles, jugadores y árbitros. Cómo crear la cuenta y cómo funciona por dentro: [`web/LEEME.md`](web/LEEME.md).
+
 ## Estructura del repositorio
 
 ```
 goalmetry/
 ├── instalar.ps1               Instalación completa en un solo paso
+├── web/                       Aplicación web (Flask): iniciar-web.bat y LEEME.md
 ├── data/                      CSV verificados de la temporada (J1-J10) + LEEME-datos.md
-├── database/                  Scripts SQL numerados (01 -> 07) + consultas_avanzadas.sql
+├── database/                  Scripts SQL numerados (01 -> 08) + consultas_avanzadas.sql
 ├── ai/                        Bloques E-G: create_external_model, generate_embeddings, vector_search, rag
 │   └── https/Caddyfile        Proxy HTTPS local delante de Ollama
 ├── docs/
@@ -215,7 +221,7 @@ goalmetry/
 │   ├── modelo-datos.md        Modelo de datos y diagrama
 │   ├── verificacion.md        Fuentes y comprobaciones de los datos
 │   └── ia-log.md              Registro del desarrollo asistido por IA (Bloque B)
-├── tests/tests.sql            72 pruebas automáticas
+├── tests/tests.sql            72 pruebas automáticas (+ tests_web.sql: 24 de la web)
 └── presentation/dp800-project.pptx   Presentación (8 diapositivas, con notas del orador)
 ```
 

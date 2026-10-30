@@ -1,0 +1,12 @@
+<div class="barra-admin">
+  <nav>
+    <a href="{{ url_for('panel') }}">Jornadas y partidos</a>
+    <a href="{{ url_for('admin_jugadores') }}">Jugadores</a>
+    <a href="{{ url_for('admin_arbitros') }}">Árbitros</a>
+  </nav>
+  <form method="post" action="{{ url_for('salir') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <span>Sesión: <b>{{ admin }}</b></span>
+    <button class="boton boton-secundario boton-pequeno">Salir</button>
+  </form>
+</div>

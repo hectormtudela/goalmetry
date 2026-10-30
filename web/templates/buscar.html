@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titulo %}Buscador{% endblock %}
+{% block contenido %}
+<section class="portada">
+  <div>
+    <p class="etiqueta">Crónicas, fichas, reglamento y más</p>
+    <h1>Buscador</h1>
+  </div>
+</section>
+
+<div class="aviso aviso-info oculto" data-estado-ia></div>
+
+<form class="tarjeta buscador" data-buscador>
+  <div class="caja-busqueda">
+    <input type="search" name="consulta" maxlength="300" required autocomplete="off"
+           placeholder="Ej.: remontada en el descuento, penalti polémico, Gil Manzano…" aria-label="Qué quieres buscar">
+    <button class="boton boton-principal" type="submit">Buscar</button>
+  </div>
+  <div class="opciones">
+    <fieldset class="segmentos">
+      <legend>Cómo buscar</legend>
+      <label><input type="radio" name="modo" value="hibrida" checked><span>Inteligente + palabras</span></label>
+      <label><input type="radio" name="modo" value="vectorial"><span>Por significado</span></label>
+      <label><input type="radio" name="modo" value="texto"><span>Por palabras exactas</span></label>
+    </fieldset>
+    <label class="en-linea">Tipo
+      <select name="tipo">
+        {% for valor, nombre in tipos.items() %}<option value="{{ valor }}">{{ nombre }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+</form>
+
+<div class="resultados" data-resultados aria-live="polite"></div>
+
+<template id="plantilla-resultado">
+  <article class="tarjeta resultado">
+    <header><span class="chip"></span><span class="puntuacion"></span></header>
+    <h3></h3>
+    <p></p>
+  </article>
+</template>
+{% endblock %}

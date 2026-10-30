@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block titulo %}{{ p.Local }} – {{ p.Visitante }}{% endblock %}
+{% block contenido %}
+{% include "admin/_menu.html" %}
+<section class="portada">
+  <div>
+    <p class="etiqueta"><a href="{{ url_for('admin_jornada', jornada_id=p.JornadaID) }}">Jornada {{ p.Numero }}</a> · {{ p.Estadio }}</p>
+    <h1>{{ p.Local }} {% if p.Estado != 'Programado' %}{{ p.GolesLocal }}-{{ p.GolesVisitante }}{% else %}vs{% endif %} {{ p.Visitante }}</h1>
+  </div>
+  <span class="estado-grande estado-{{ p.Estado|lower|replace(' ', '-') }}">{{ p.Estado }}</span>
+</section>
+
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>1. Resultado</h2></div>
+    <form method="post" action="{{ url_for('guardar_resultado', partido_id=p.PartidoID) }}" class="formulario">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <div class="marcador-formulario">
+        <label>{{ p.Local }} <input type="number" name="local" min="0" max="30" required value="{{ p.GolesLocal if p.GolesLocal is not none else '' }}"></label>
+        <span>-</span>
+        <label>{{ p.Visitante }} <input type="number" name="visitante" min="0" max="30" required value="{{ p.GolesVisitante if p.GolesVisitante is not none else '' }}"></label>
+      </div>
+      <label>Estado
+        <select name="estado">
+          <option value="Finalizado" {% if p.Estado != 'En juego' %}selected{% endif %}>Finalizado</option>
+          <option value="En juego" {% if p.Estado == 'En juego' %}selected{% endif %}>En juego</option>
+        </select></label>
+      {% if p.Estado == 'Finalizado' %}
+        <label class="casilla"><input type="checkbox" name="correccion" required> Confirmo que quiero corregir un partido ya finalizado</label>
+      {% endif %}
+      <button class="boton boton-principal">Guardar resultado</button>
+    </form>
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Fecha y árbitro</h2></div>
+    <form method="post" action="{{ url_for('editar_partido', partido_id=p.PartidoID) }}" class="formulario">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <label>Fecha y hora <input type="datetime-local" name="fecha" value="{{ p.FechaHora.strftime('%Y-%m-%dT%H:%M') if p.FechaHora else '' }}"></label>
+      <label>Árbitro
+        <select name="arbitro"><option value="">Sin designar</option>
+          {% for a in arbitros %}<option value="{{ a.ArbitroID }}" {% if a.ArbitroID == p.ArbitroPrincipalID %}selected{% endif %}>{{ a.Nombre }}</option>{% endfor %}
+        </select></label>
+      <button class="boton boton-secundario">Guardar cambios</button>
+    </form>
+    {% if p.Estado == 'Programado' %}
+    <form method="post" action="{{ url_for('borrar_partido', partido_id=p.PartidoID) }}" class="separado" data-confirmar="¿Seguro que quieres borrar este partido?">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <input type="hidden" name="jornada" value="{{ p.JornadaID }}">
+      <button class="boton boton-peligro boton-pequeno">Borrar partido</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>2. Goles</h2>
+    {% if p.Estado != 'Programado' %}<span class="nota">{{ goles|length }} de {{ p.GolesLocal + p.GolesVisitante }} apuntados</span>{% endif %}
+  </div>
+  {% if p.Estado == 'Programado' %}
+    <p class="nota">Guarda primero el resultado; después podrás apuntar quién marcó cada gol.</p>
+  {% else %}
+  <table class="tabla">
+    <thead><tr><th class="num">Min.</th><th>Anotador</th><th>Equipo</th><th>Tipo</th><th></th></tr></thead>
+    <tbody>
+    {% for g in goles %}
+      <tr>
+        <td class="num">{{ g.Minuto }}'</td>
+        <td>{{ g.Anotador }}</td>
+        <td>{{ p.Local if g.EquipoID == p.EquipoLocalID else p.Visitante }}</td>
+        <td>{{ {'Normal': 'Normal', 'Penalti': 'Penalti', 'PropiaPuerta': 'En propia puerta'}[g.Tipo] }}</td>
+        <td class="derecha">
+          <form method="post" action="{{ url_for('borrar_gol', gol_id=g.GolID) }}" data-confirmar="¿Borrar este gol?">
+            <input type="hidden" name="csrf" value="{{ csrf_token }}">
+            <input type="hidden" name="partido" value="{{ p.PartidoID }}">
+            <button class="boton-texto">Borrar</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="vacio">Aún no hay goles apuntados.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post" action="{{ url_for('anadir_gol', partido_id=p.PartidoID) }}" class="formulario rejilla-formulario separado" data-formulario-gol>
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <label>Gol para
+      <select name="equipo" required>
+        <option value="{{ p.EquipoLocalID }}">{{ p.Local }}</option>
+        <option value="{{ p.EquipoVisitanteID }}">{{ p.Visitante }}</option>
+      </select></label>
+    <label>Tipo
+      <select name="tipo">
+        <option value="Normal">Normal</option>
+        <option value="Penalti">Penalti</option>
+        <option value="PropiaPuerta">En propia puerta</option>
+      </select></label>
+    <label>Minuto <input type="number" name="minuto" min="1" max="130" required class="corto"></label>
+    <label>Jugador
+      <select name="jugador">
+        <option value="">— No está en la lista —</option>
+        {% for j in jugadores %}<option value="{{ j.JugadorID }}" data-equipo="{{ j.EquipoID }}">{{ j.Nombre }}{% if j.Posicion %} ({{ j.Posicion }}){% endif %}</option>{% endfor %}
+      </select></label>
+    <label>Nombre del anotador <input name="anotador" maxlength="100" placeholder="Solo si no está en la lista"></label>
+    <button class="boton boton-principal">Añadir gol</button>
+  </form>
+  <p class="nota">En propia puerta: elige el equipo al que <b>sube</b> el gol; la lista muestra entonces los jugadores del rival.</p>
+  {% endif %}
+</section>
+{% endblock %}

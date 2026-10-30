@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Jornada {{ actual.Numero }}{% endblock %}
+{% block contenido %}
+{% include "admin/_menu.html" %}
+<section class="portada"><div><p class="etiqueta">Administración</p><h1>Jornada {{ actual.Numero }}</h1></div></section>
+
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Añadir partido</h2></div>
+  {% if libres|length >= 2 %}
+  <form method="post" action="{{ url_for('crear_partido') }}" class="formulario rejilla-formulario">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <input type="hidden" name="jornada" value="{{ actual.JornadaID }}">
+    <label>Local
+      <select name="local" required><option value="">Elige…</option>
+        {% for e in libres %}<option value="{{ e.EquipoID }}">{{ e.Nombre }}</option>{% endfor %}</select></label>
+    <label>Visitante
+      <select name="visitante" required><option value="">Elige…</option>
+        {% for e in libres %}<option value="{{ e.EquipoID }}">{{ e.Nombre }}</option>{% endfor %}</select></label>
+    <label>Fecha y hora <input type="datetime-local" name="fecha"></label>
+    <label>Árbitro
+      <select name="arbitro"><option value="">Sin designar</option>
+        {% for a in arbitros %}<option value="{{ a.ArbitroID }}">{{ a.Nombre }}</option>{% endfor %}</select></label>
+    <button class="boton boton-principal">Añadir partido</button>
+  </form>
+  <p class="nota">El estadio se pone solo: el del equipo local. Solo aparecen los equipos que aún no juegan esta jornada.</p>
+  {% else %}
+  <p class="nota">Todos los equipos tienen ya partido en esta jornada.</p>
+  {% endif %}
+</section>
+
+<div class="partidos">
+{% for p in partidos %}
+  {% include "_partido.html" %}
+{% else %}
+  <p class="tarjeta vacio">Esta jornada todavía no tiene partidos.</p>
+{% endfor %}
+</div>
+{% endblock %}

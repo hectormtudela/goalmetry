@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block titulo %}Aviso{% endblock %}
+{% block contenido %}
+<section class="tarjeta error-pagina">
+  <h1>Algo no ha ido bien</h1>
+  <p>{{ mensaje }}</p>
+  <a class="boton boton-principal" href="{{ url_for('clasificacion') }}">Volver al inicio</a>
+</section>
+{% endblock %}

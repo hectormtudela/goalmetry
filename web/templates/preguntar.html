@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Pregunta a la IA{% endblock %}
+{% block contenido %}
+<section class="portada">
+  <div>
+    <p class="etiqueta">Respuestas con los datos reales de la liga</p>
+    <h1>Pregunta a la IA</h1>
+  </div>
+</section>
+
+<div class="aviso aviso-info oculto" data-estado-ia></div>
+
+<form class="tarjeta pregunta" data-pregunta>
+  <label for="texto-pregunta" class="titulo-campo">Tu pregunta</label>
+  <textarea id="texto-pregunta" name="pregunta" rows="2" maxlength="400" required
+            placeholder="Ej.: ¿Quién lidera la clasificación y cuántos puntos tiene?"></textarea>
+  <div class="sugerencias">
+    <button type="button" class="chip-boton">¿Cómo quedó el partido entre el Valencia y el Celta Vigo?</button>
+    <button type="button" class="chip-boton">¿Quién es el máximo goleador del Real Madrid?</button>
+    <button type="button" class="chip-boton">¿Cuántos cambios puede hacer cada equipo en un partido?</button>
+  </div>
+  <div class="fila-acciones">
+    <label class="casilla"><input type="checkbox" name="comparar"> Comparar con una IA que no consulta la base de datos</label>
+    <button class="boton boton-principal" type="submit">Preguntar</button>
+  </div>
+</form>
+
+<div class="respuestas" data-respuestas aria-live="polite"></div>
+
+<template id="plantilla-respuesta">
+  <article class="tarjeta respuesta">
+    <header><span class="chip"></span><span class="tiempo"></span></header>
+    <p class="texto"></p>
+    <details class="fuentes"><summary>Fuentes consultadas</summary><ol></ol></details>
+  </article>
+</template>
+{% endblock %}

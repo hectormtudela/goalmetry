@@ -1,0 +1,33 @@
+{# Tarjeta de un partido. Necesita la variable p (con p.Goles). #}
+<article class="partido estado-{{ p.Estado|lower|replace(' ', '-') }}">
+  <header>
+    <span class="fecha">{% if p.FechaHora %}{{ p.FechaHora.strftime('%d/%m/%Y · %H:%M') }}{% else %}Fecha por confirmar{% endif %}</span>
+    <span class="estado">{{ p.Estado }}</span>
+  </header>
+  <div class="marcador">
+    <span class="local">{{ p.Local }}</span>
+    <span class="resultado">
+      {% if p.Estado == 'Programado' %}vs{% else %}{{ p.GolesLocal }}<i>-</i>{{ p.GolesVisitante }}{% endif %}
+    </span>
+    <span class="visitante">{{ p.Visitante }}</span>
+  </div>
+  {% if p.Goles %}
+  <div class="goles-partido">
+    <ul class="lado-local">
+      {% for g in p.Goles if g.EquipoID == p.EquipoLocalID %}
+        <li>{{ g.Minuto }}' {{ g.Anotador }}{% if g.Tipo == 'Penalti' %} <abbr title="Penalti">(p.)</abbr>{% elif g.Tipo == 'PropiaPuerta' %} <abbr title="En propia puerta">(p.p.)</abbr>{% endif %}</li>
+      {% endfor %}
+    </ul>
+    <ul class="lado-visitante">
+      {% for g in p.Goles if g.EquipoID == p.EquipoVisitanteID %}
+        <li>{{ g.Minuto }}' {{ g.Anotador }}{% if g.Tipo == 'Penalti' %} <abbr title="Penalti">(p.)</abbr>{% elif g.Tipo == 'PropiaPuerta' %} <abbr title="En propia puerta">(p.p.)</abbr>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <footer>
+    <span>{{ p.Estadio }}</span>
+    {% if p.Arbitro %}<span>Árbitro: {{ p.Arbitro }}</span>{% endif %}
+    {% if admin %}<a class="enlace-admin" href="{{ url_for('admin_partido', partido_id=p.PartidoID) }}">Editar</a>{% endif %}
+  </footer>
+</article>
