@@ -260,12 +260,15 @@ def api_buscar():
 
 
 def responder(pregunta, sin_contexto):
-    _, documentos, _, respuesta = consultar(
+    _, documentos, contexto, respuesta = consultar(
         "EXEC ia.usp_PreguntarLiga @Pregunta = ?, @SinContexto = ?, @Mostrar = 1;",
         (pregunta, 1 if sin_contexto else 0))
+    fuentes = [{"Titulo": d["Titulo"], "Tipo": TIPOS_DOCUMENTO.get(d["Tipo"], d["Tipo"])} for d in documentos]
+    # Datos exactos de las tablas que añadió ia.usp_DatosOficiales (equipos, jugadores...)
+    if "[Datos oficiales]" in (contexto[0]["Contexto"] or ""):
+        fuentes.insert(0, {"Titulo": "Datos oficiales de la base de datos", "Tipo": "tablas de la liga"})
     return {"respuesta": respuesta[0]["Respuesta"], "segundos": round(respuesta[0]["Milisegundos"] / 1000, 1),
-            "fuentes": [{"Titulo": d["Titulo"], "Tipo": TIPOS_DOCUMENTO.get(d["Tipo"], d["Tipo"])}
-                        for d in documentos]}
+            "fuentes": fuentes}
 
 
 @app.post("/api/preguntar")
