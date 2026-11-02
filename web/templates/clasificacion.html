@@ -18,6 +18,28 @@
   {% for c in curiosidades %}<a class="tarjeta tarjeta-dato tarjeta-enlace" href="{{ url_for('curiosidades') }}"><p class="etiqueta">{{ c.Titulo }}</p><p>{{ c.Texto }}</p></a>{% endfor %}
 </div>
 {% endif %}
+<section class="tarjeta mi-equipo separado-abajo" data-mi-equipo>
+  <div class="tarjeta-cabecera">
+    <h2>Mi equipo</h2>
+    <label class="en-linea">Elige tu equipo
+      <select>
+        <option value="">Ninguno</option>
+        {% for nombre, id in ids|dictsort %}<option value="{{ id }}">{{ nombre }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <p class="nota sin-margen">Se recuerda solo en este navegador.</p>
+  <div class="aviso aviso-error oculto" data-error role="alert"></div>
+  <div class="oculto" data-resumen>
+    <h3><a data-ficha><span data-nombre></span></a></h3>
+    <p data-puesto></p>
+    <p data-ultimo></p>
+    <div class="fila-acciones">
+      <button class="boton" type="button" data-descargar="partido">Descargar imagen del último partido</button>
+      <button class="boton" type="button" data-descargar="clasificacion">Descargar imagen de la clasificación</button>
+    </div>
+  </div>
+</section>
 <div class="rejilla-2">
   <section class="tarjeta">
     <div class="tarjeta-cabecera">
@@ -43,7 +65,7 @@
       <tbody>
       {% set total = tabla|length %}
       {% for f in tabla %}
-        <tr class="{% if loop.index <= 4 %}zona-champions{% elif loop.index <= 6 %}zona-europa{% elif loop.index > total - 3 and total >= 18 %}zona-descenso{% endif %}">
+        <tr data-equipo-id="{{ ids[f.Equipo] }}" class="{% if loop.index <= 4 %}zona-champions{% elif loop.index <= 6 %}zona-europa{% elif loop.index > total - 3 and total >= 18 %}zona-descenso{% endif %}">
           <td class="num">{{ f.Posicion }}</td>
           <td class="equipo"><a class="enlace-equipo" href="{{ url_for('equipo', equipo_id=ids[f.Equipo]) }}">{{ f.Equipo }}</a></td>
           <td class="num">{{ f.PJ }}</td><td class="num">{{ f.G }}</td><td class="num">{{ f.E }}</td><td class="num">{{ f.P }}</td>

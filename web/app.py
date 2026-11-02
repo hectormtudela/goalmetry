@@ -100,6 +100,7 @@ class Limitador:
 
 limite_login = Limitador(10, 15 * 60)
 limite_ia = Limitador(8, 60)
+limite_lectura = Limitador(60, 60)
 modelo_ocupado = threading.Semaphore(1)  # el modelo local atiende una pregunta cada vez
 
 
@@ -432,6 +433,29 @@ def parecidos():
             abort(404)
         jugador = datos[0]
     return render_template("parecidos.html", opciones=list(opciones.items()), jugador=jugador, parecidos=cercanos)
+
+
+@app.get("/api/mi-equipo/<int:equipo_id>")
+def api_mi_equipo(equipo_id):
+    if not limite_lectura.permitir(request.remote_addr):
+        return jsonify(error="Demasiadas peticiones seguidas. Espera un minuto."), 429
+    tabla = filas("""SELECT Posicion, EquipoID, Equipo, PJ, G, E, P, GF, GC, Pts
+                     FROM liga.vw_Clasificacion ORDER BY Posicion, Equipo""")
+    mio = next((f for f in tabla if f["EquipoID"] == equipo_id), None)
+    if mio is None:
+        return jsonify(error="Ese equipo no existe."), 404
+    _, partidos, _ = consultar("EXEC analisis.usp_FichaEquipo @EquipoID = ?;", (equipo_id,))
+    ultimo = None
+    if partidos:
+        u = partidos[-1]
+        ultimo = {"jornada": u["Jornada"], "fecha": u["FechaHora"].strftime("%d/%m/%Y"), "rival": u["Rival"], "local": bool(u["EsLocal"]),
+                  "gf": u["GF"], "gc": u["GC"], "resultado": {"V": "Victoria", "E": "Empate", "D": "Derrota"}[u["Resultado"]]}
+    jornada = filas("""SELECT MAX(j.Numero) AS N FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
+                       WHERE p.Estado = 'Finalizado'""")[0]["N"]
+    return jsonify(id=equipo_id, equipo=mio["Equipo"], posicion=mio["Posicion"], pts=mio["Pts"], g=mio["G"], e=mio["E"], p=mio["P"],
+                   gf=mio["GF"], gc=mio["GC"], ultimo=ultimo, jornada=jornada,
+                   clasificacion=[{"id": f["EquipoID"], "pos": f["Posicion"], "equipo": f["Equipo"], "pj": f["PJ"],
+                                   "dg": f["GF"] - f["GC"], "pts": f["Pts"]} for f in tabla])
 
 
 @app.get("/equipo/<int:equipo_id>")

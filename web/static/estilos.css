@@ -350,3 +350,9 @@ svg.pares { display: block; width: 100%; max-width: 560px; height: auto; margin:
 .pares-b { fill: #6C8A7A; }
 .pares-cab { font: 600 13px "Segoe UI", system-ui, sans-serif; fill: var(--texto, #1B2A22); }
 .pares-dato, .pares-num { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
+
+/* ---------- Mi equipo ---------- */
+.mi-equipo h3 { margin: 12px 0 4px; }
+.mi-equipo [data-resumen] p { margin: 4px 0; }
+.mi-equipo .fila-acciones { margin-top: 12px; flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
+tr.fila-mi-equipo td { background: #FDF3D0; font-weight: 600; }
