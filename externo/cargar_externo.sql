@@ -120,6 +120,10 @@ LEFT JOIN externo.Alias AS al ON al.Fuente = 'openfootball' AND al.NombreExterno
 LEFT JOIN externo.Alias AS av ON av.Fuente = 'openfootball' AND av.NombreExterno = h.Visitante COLLATE DATABASE_DEFAULT;
 GO
 
+-- Lo que depende de estos datos se recalcula en cuanto llegan.
+IF OBJECT_ID(N'simulacion.usp_RecalcularModelos', N'P') IS NOT NULL EXEC simulacion.usp_RecalcularModelos;
+GO
+
 SELECT N'Partidos con estadísticas' AS Dato, COUNT(*) AS N FROM externo.PartidoExtra
 UNION ALL SELECT N'Partidos con cuotas', COUNT(*) FROM externo.Cuota
 UNION ALL SELECT N'Calendario pendiente', COUNT(*) FROM externo.PartidoFuturo

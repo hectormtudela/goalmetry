@@ -25,7 +25,26 @@
     <li><b>Congelada:</b> guardada antes de que empezara el partido. Son las que cuentan de verdad: {{ congeladas }} hasta ahora.</li>
     <li><b>Brier y log-loss:</b> miden cuánto se equivocan las probabilidades. Menos es mejor. Un tercio para cada resultado da 0,667 de Brier.</li>
   </ul>
-  {# COMPARACION #}
+</section>
+
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Otros modelos, sobre los mismos partidos</h2></div>
+  {% if comparacion %}
+  <p class="nota sin-margen">Usan <b>datos de fuente externa</b>, separados de los datos de la liga. Todos se miden sobre los mismos {{ comparacion[0].Partidos }} partidos, con predicciones retrospectivas.</p>
+  <div class="tabla-scroll separado"><table class="tabla">
+    <thead><tr><th>Modelo</th><th class="num" title="Menos es mejor">Brier</th><th class="num" title="Menos es mejor">Log-loss</th><th class="num">Aciertos</th><th class="num" title="Brier del modelo menos Brier de Poisson, con margen de error">Frente a Poisson</th><th>Conclusión</th></tr></thead>
+    <tbody>{% for m in comparacion %}
+      <tr>
+        <td><b>{{ m.Nombre }}</b><br><small class="nota">{{ m.Explicacion }}</small></td>
+        <td class="num">{{ n(m.Brier) }}</td><td class="num">{{ n(m.LogLoss) }}</td><td class="num">{{ m.Aciertos }}</td>
+        <td class="num">{% if m.Modelo == 'Poisson' %}—{% else %}{{ '%+.3f'|format(m.DifBrier)|replace('.', ',') }} ± {{ n(m.MargenDif) }}{% endif %}</td>
+        <td>{{ m.Veredicto }}</td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="nota">Si la diferencia es menor que su margen de error, con tan pocos partidos no se puede decir que un modelo sea mejor. Predicciones usa siempre Poisson.</p>
+  {% else %}
+  <p class="vacio">No hay datos de fuentes externas: se importan al ejecutar <code>actualizar.ps1</code> con Internet.</p>
+  {% endif %}
 </section>
 
 <section class="tarjeta">

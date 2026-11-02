@@ -14,9 +14,13 @@
       <tr><td>Victorias del equipo local</td><td class="num">{{ n(a.PctLocal, 1) }} %</td><td class="num">{{ n(m.PctLocal, 1) }} %</td></tr>
       <tr><td>Goles por partido</td><td class="num">{{ n(a.GolesPorPartido) }}</td><td class="num">{{ n(m.GolesPorPartido) }}</td></tr>
       <tr><td>Penaltis marcados por partido</td><td class="num">{{ n(a.PenaltisPorPartido) }}</td><td class="num">{{ n(m.PenaltisPorPartido) }}</td></tr>
-      {# TARJETAS #}
+      {% if tarjetas.Partidos %}
+      <tr><td>Amarillas por partido <small class="nota">(fuente externa)</small></td><td class="num">{{ n(tarjetas.Amarillas) }}</td><td class="num">{{ n(tarjetas.AmarillasLiga) }}</td></tr>
+      <tr><td>Rojas por partido <small class="nota">(fuente externa)</small></td><td class="num">{{ n(tarjetas.Rojas) }}</td><td class="num">{{ n(tarjetas.RojasLiga) }}</td></tr>
+      {% endif %}
     </tbody>
   </table></div>
+  {% if tarjetas.Partidos %}<p class="nota">Tarjetas: fuente externa (football-data.co.uk), una sola fuente y sin contrastar; no están en los datos verificados. Calculadas sobre {{ tarjetas.Partidos }} partidos.</p>{% else %}<p class="nota">Sin datos de tarjetas: solo llegan de una fuente externa, que no está disponible.</p>{% endif %}
   <p class="nota">Solo describe lo que pasó en sus {{ a.Partidos }} partidos. Depende sobre todo de qué equipos jugaban, y con tan pocos partidos las diferencias con la media pueden ser casualidad. Los penaltis son los que acabaron en gol: los datos no recogen los fallados.</p>
 </section>
 <section class="tarjeta">

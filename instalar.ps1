@@ -127,6 +127,11 @@ foreach ($s in $scripts) {
     Write-Host ("    OK ({0:N1} s)" -f $t.Elapsed.TotalSeconds) -ForegroundColor Green
 }
 
+# ---------- Datos externos: opcionales. Sin Internet se sigue y la aplicación lo dice ----------
+Escribir-Paso 'Datos de fuentes externas (calendario, estadísticas, cuotas)'
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $raiz 'externo\importar_externo.ps1') -Servidor $Servidor | Out-Null
+if ($LASTEXITCODE -ne 0) { Write-Host '    AVISO: no se han podido importar. La aplicación funciona sin ellos.' -ForegroundColor Yellow }
+
 # ---------- Resumen ----------
 Escribir-Paso 'Resumen de la base de datos LigaDB'
 & sqlcmd -S $Servidor -E -C -b -W -d LigaDB -Q @"

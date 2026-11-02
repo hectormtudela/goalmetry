@@ -376,7 +376,8 @@ def arbitro(arbitro_id):
     if not filas("SELECT 1 AS Hay FROM liga.Arbitro WHERE ArbitroID = ?", (arbitro_id,)):
         abort(404)
     perfil, media, partidos = consultar("EXEC analisis.usp_PerfilArbitro @ArbitroID = ?;", (arbitro_id,))
-    return render_template("arbitro.html", a=perfil[0], m=media[0], partidos=partidos)
+    tarjetas = filas("EXEC analisis.usp_TarjetasArbitro @ArbitroID = ?;", (arbitro_id,))[0]
+    return render_template("arbitro.html", a=perfil[0], m=media[0], partidos=partidos, tarjetas=tarjetas)
 
 
 @app.get("/posiciones")
@@ -408,19 +409,33 @@ MODELOS = {
     "Poisson": ("Poisson", "El modelo de Predicciones: goles a favor y en contra de cada equipo."),
     "Frecuencias": ("Frecuencias de la liga", "Referencia simple: da a todos los partidos el reparto medio de 1, X y 2."),
     "Un tercio": ("Un tercio cada resultado", "Referencia simple: no sabe nada."),
-    #@@MODELOS@@
+    "Poisson+tiros": ("Poisson con tiros a puerta", "Fuente externa: el ataque y la defensa salen de los tiros a puerta."),
+    "Elo": ("Elo", "Fuente externa: parte de las temporadas 2024-25 y 2025-26 y sigue con esta."),
+    "Cuotas": ("Cuotas de apuestas", "Referencia externa: media de las casas, sin su margen. No es un consejo para apostar."),
 }
 
 
 @app.get("/fiabilidad")
 def fiabilidad():
-    modelos = filas("SELECT Modelo, Tipo, Partidos, Brier, LogLoss, Aciertos FROM simulacion.vw_FiabilidadModelo ORDER BY Tipo, Brier")
+    modelos = filas("""SELECT Modelo, Tipo, Partidos, Brier, LogLoss, Aciertos FROM simulacion.vw_FiabilidadModelo
+                         WHERE Modelo IN ('Poisson', 'Frecuencias', 'Un tercio') ORDER BY Tipo, Brier""")
     for m in modelos:
         m["Nombre"], m["Explicacion"] = MODELOS.get(m["Modelo"], (m["Modelo"], ""))
     calibracion = filas("SELECT Tramo, Casos, Previsto, Ocurrido FROM simulacion.vw_Calibracion WHERE Modelo = 'Poisson' ORDER BY Tramo")
     total = max((m["Partidos"] for m in modelos), default=0)
     congeladas = sum(m["Partidos"] for m in modelos if m["Tipo"] == "Congelada" and m["Modelo"] == "Poisson")
-    return render_template("fiabilidad.html", modelos=modelos, calibracion=calibracion, total=total, congeladas=congeladas)
+    comparacion = filas("SELECT Modelo, Partidos, Brier, LogLoss, Aciertos, DifBrier, MargenDif FROM simulacion.vw_ComparacionModelos ORDER BY Brier")
+    for m in comparacion:
+        m["Nombre"], m["Explicacion"] = MODELOS.get(m["Modelo"], (m["Modelo"], ""))
+        if m["Modelo"] == "Poisson":
+            m["Veredicto"] = "Es el modelo de referencia"
+        elif abs(m["DifBrier"]) <= m["MargenDif"]:
+            m["Veredicto"] = "No se distingue de Poisson"
+        else:
+            m["Veredicto"] = "Mejor que Poisson" if m["DifBrier"] < 0 else "Peor que Poisson"
+    externos = any(m["Modelo"] in ("Elo", "Cuotas", "Poisson+tiros") for m in comparacion)
+    return render_template("fiabilidad.html", modelos=modelos, calibracion=calibracion, total=total, congeladas=congeladas,
+                           comparacion=comparacion if externos else [])
 
 
 @app.get("/proxima-jornada")
