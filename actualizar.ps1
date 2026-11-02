@@ -153,10 +153,20 @@ if ($Tests) {
     if ($conWeb) { $lista += 'tests\tests_web.sql' }
     if ($conPredicciones) { $lista += 'tests\tests_simulacion.sql' }
     $lista += 'tests\tests_analisis.sql'
+    if ($conIA) { $lista += 'tests\tests_temas.sql' }
     foreach ($p in $lista) {
         Escribir-Paso $p
         & sqlcmd -S $Servidor -E -C -b -W -v DataPath="$dataPath" -i (Join-Path $raiz $p)
         if ($LASTEXITCODE -ne 0) { Write-Host "`nFallan pruebas en $p." -ForegroundColor Red; exit $LASTEXITCODE }
+    }
+    # Pruebas de las pantallas, si la web está instalada
+    $python = Join-Path $raiz 'web\.venv\Scripts\python.exe'
+    if (Test-Path $python) {
+        foreach ($p in 'tests\tests_pantallas.py', 'tests\tests_asistente.py') {
+            Escribir-Paso $p
+            & $python (Join-Path $raiz $p) | Select-Object -Last 1
+            if ($LASTEXITCODE -ne 0) { Write-Host "`nFallan pruebas en $p." -ForegroundColor Red; exit $LASTEXITCODE }
+        }
     }
 }
 

@@ -31,6 +31,10 @@ El `.bat` también enciende Caddy, el puente HTTPS de la IA, si no lo estaba. Ol
 
 Son estimaciones, no resultados reales. Al final de la página está cómo se calculan y cuánto fiarse.
 
+### Pantallas de análisis y asistente
+
+Están explicadas en la sección «Pantallas nuevas» del README de la raíz. Sus pruebas: `tests\tests_analisis.sql`, `tests\tests_pantallas.py` y `tests\tests_asistente.py`. Las de la IA: `tests\tests_temas.sql` (sin modelo) y `tests\intenciones_evaluacion.sql` (solo embeddings).
+
 ### La cuenta de administrador
 Solo hay una cuenta y se crea así:
 1. Abre la web una vez con `iniciar-web.bat` y ciérrala.

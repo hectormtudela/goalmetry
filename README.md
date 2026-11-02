@@ -240,6 +240,32 @@ En [`database/consultas_avanzadas.sql`](database/consultas_avanzadas.sql) hay m�
 
 Para usarla sin consola: doble clic en **`web\iniciar-web.bat`** y se abre `http://localhost:8080`, con la clasificación, las jornadas, el buscador y las preguntas a la IA. El administrador entra con usuario y contraseña y mete jornadas, partidos, resultados, goles, jugadores y árbitros. Cómo crear la cuenta y cómo funciona por dentro: [`web/LEEME.md`](web/LEEME.md).
 
+## Pantallas nuevas
+
+Todas salen de SQL Server. Lo que es una estimación o viene de fuera lo dice en pantalla. Con solo 10 jornadas, la muestra es pequeña.
+
+| Pantalla | Qué hace | Cómo se usa |
+|---|---|---|
+| Ficha de equipo (`/equipo/4`) | Puesto, racha, resultados, goleadores y minutos en los que marca y encaja | Pulsa un equipo en la clasificación |
+| Rankings (`/rankings`) | Goles y asistencias por 90 minutos | Filtra por posición y minutos mínimos |
+| Árbitros (`/arbitros`) | Partidos, goles y victorias locales frente a la media; tarjetas de fuente externa | Pulsa un árbitro para ver su ficha |
+| Posiciones (`/posiciones`) | Puesto de cada equipo jornada a jornada | Pulsa una línea para dejarla marcada |
+| Curiosidades (`/curiosidades`) | Mayor goleada, gol más tardío, rachas y remontadas | Entra desde Análisis |
+| Fiabilidad (`/fiabilidad`) | Aciertos, Brier y calibración de las predicciones; otros modelos sobre los mismos partidos | Entra desde Análisis o Predicciones |
+| Parecidos (`/parecidos`) | Jugadores más cercanos por goles, asistencias y minutos, con `VECTOR_DISTANCE`. Es similitud estadística | Elige un jugador |
+| Próxima jornada (`/proxima-jornada`) | Estimación 1X2 y marcador más probable de cada partido | Entra desde Análisis o Predicciones |
+| Mi equipo (portada) | Resalta tu equipo y descarga una imagen del último partido o de la clasificación | Elígelo en la portada; se recuerda en ese navegador |
+| Pregunta a la IA (`/preguntar`) | Tarjetas directas sin modelo cuando reconoce la pregunta, «No tengo ese dato» si no hay datos, desplegable «Datos usados» y cobertura | Escribe tu pregunta. Desde una tarjeta, «Preguntar a la IA» |
+| Asistente de jornada (`/admin/asistente`) | Valida unos CSV sin guardar nada y, al confirmar, los fusiona en `data/` con copia previa y lanza `actualizar.ps1`. Exporta a CSV lo escrito en el panel | Entra como administrador |
+
+### Datos de fuentes externas
+
+`externo\importar_externo.ps1` descarga de football-data.co.uk (estadísticas, cuotas y próximos partidos) y openfootball (calendario y temporadas anteriores), sin registro. Lo ejecutan `instalar.ps1` y `actualizar.ps1`; sin Internet se sigue y la aplicación lo dice.
+
+- Van al esquema `externo`, con su columna `Fuente`. **Nunca entran en `liga.*` ni en `data/*.csv`.**
+- Lo descargado queda en `data\_externo`, ignorada por git.
+- Lo que no cuadra con `liga.Partido` no se usa y queda en `externo.PendienteRevision`.
+
 ## Predicciones
 
 SQL Server juega 10.000 veces los partidos que faltan (menos de un minuto, también desde la web, con una pantalla de carga de curiosidades de la liga) y cuenta en cuántas temporadas acaba cada equipo en cada puesto.
