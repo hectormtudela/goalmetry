@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}{{ a.Nombre }}{% endblock %}
+{% macro n(v, d=2) %}{{ ('%.' ~ d ~ 'f')|format(v)|replace('.', ',') if v is not none else '—' }}{% endmacro %}
+{% block contenido %}
+<section class="portada">
+  <div><p class="etiqueta"><a href="{{ url_for('arbitros') }}">Árbitros</a></p><h1>{{ a.Nombre }}</h1></div>
+  <div class="cifras"><div><b>{{ a.Partidos }}</b><span>partidos dirigidos</span></div></div>
+</section>
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Comparado con la media de la liga</h2></div>
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th></th><th class="num">En sus partidos</th><th class="num">Media de la liga</th></tr></thead>
+    <tbody>
+      <tr><td>Victorias del equipo local</td><td class="num">{{ n(a.PctLocal, 1) }} %</td><td class="num">{{ n(m.PctLocal, 1) }} %</td></tr>
+      <tr><td>Goles por partido</td><td class="num">{{ n(a.GolesPorPartido) }}</td><td class="num">{{ n(m.GolesPorPartido) }}</td></tr>
+      <tr><td>Penaltis marcados por partido</td><td class="num">{{ n(a.PenaltisPorPartido) }}</td><td class="num">{{ n(m.PenaltisPorPartido) }}</td></tr>
+      {# TARJETAS #}
+    </tbody>
+  </table></div>
+  <p class="nota">Solo describe lo que pasó en sus {{ a.Partidos }} partidos. Depende sobre todo de qué equipos jugaban, y con tan pocos partidos las diferencias con la media pueden ser casualidad. Los penaltis son los que acabaron en gol: los datos no recogen los fallados.</p>
+</section>
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Partidos dirigidos</h2></div>
+  <div class="tabla-scroll"><table class="tabla"><tbody>
+    {% for p in partidos %}
+      <tr><td>J{{ p.Jornada }}</td><td><a href="{{ url_for('equipo', equipo_id=p.LocalID) }}">{{ p.Local }}</a> {{ p.GolesLocal }}-{{ p.GolesVisitante }} <a href="{{ url_for('equipo', equipo_id=p.VisitanteID) }}">{{ p.Visitante }}</a></td></tr>
+    {% else %}<tr><td class="vacio">Todavía no ha dirigido ningún partido.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

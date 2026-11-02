@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Rankings{% endblock %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta"><a href="{{ url_for('analisis') }}">Análisis</a></p><h1>Rankings por 90 minutos</h1></div></section>
+<section class="tarjeta">
+  <form method="get" class="formulario rejilla-formulario">
+    <label>Posición
+      <select name="posicion">
+        <option value="">Todas</option>
+        {% for v, n in [('PT','Porteros'),('DF','Defensas'),('MC','Centrocampistas'),('DL','Delanteros')] %}
+          <option value="{{ v }}" {% if posicion == v %}selected{% endif %}>{{ n }}</option>{% endfor %}
+      </select></label>
+    <label>Mínimo de minutos <input type="number" name="minutos" min="0" max="4000" step="30" value="{{ minutos }}"></label>
+    <label>Ordenar por
+      <select name="orden">
+        <option value="ga" {% if orden == 'ga' %}selected{% endif %}>Goles + asistencias por 90</option>
+        <option value="minutos" {% if orden == 'minutos' %}selected{% endif %}>Minutos por gol</option>
+      </select></label>
+    <button class="boton boton-principal">Ver ranking</button>
+  </form>
+  <p class="aviso aviso-info">Muestra pequeña: la temporada lleva 10 jornadas y las fichas de jugadores llegan, en general, hasta la J9. Un gol de más cambia mucho estas cifras, sobre todo con pocos minutos.</p>
+</section>
+<section class="tarjeta">
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th class="num">#</th><th>Jugador</th><th>Equipo</th><th>Pos.</th><th class="num">Min.</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">G+A/90</th><th class="num">Goles/90</th><th class="num">Min./gol</th></tr></thead>
+    <tbody>
+    {% for j in jugadores %}
+      <tr><td class="num">{{ j.N }}</td>
+        <td><a href="{{ url_for('parecidos', jugador=j.JugadorID) }}" title="Ver jugadores parecidos">{{ j.Nombre }}</a></td>
+        <td><a href="{{ url_for('equipo', equipo_id=j.EquipoID) }}">{{ j.Equipo }}</a></td>
+        <td>{{ j.Posicion or '—' }}</td><td class="num">{{ j.MinutosJugados }}</td><td class="num">{{ j.Goles }}</td><td class="num">{{ j.Asistencias }}</td>
+        <td class="num puntos-fuerte">{{ j.GAPor90 }}</td><td class="num">{{ j.GolesPor90 }}</td><td class="num">{{ j.MinutosPorGol if j.MinutosPorGol is not none else '—' }}</td></tr>
+    {% else %}<tr><td colspan="10" class="vacio">Ningún jugador cumple esos filtros.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  <p class="nota">Datos de la ficha de cada jugador (fuente de jugadores), que pueden diferir del recuento de goles por partido.</p>
+</section>
+{% endblock %}

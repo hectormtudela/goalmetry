@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Árbitros{% endblock %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta"><a href="{{ url_for('analisis') }}">Análisis</a></p><h1>Árbitros</h1></div></section>
+<section class="tarjeta">
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th>Árbitro</th><th class="num">Partidos</th><th class="num">Goles por partido</th><th class="num">Penaltis marcados</th></tr></thead>
+    <tbody>{% for a in arbitros %}
+      <tr><td><a href="{{ url_for('arbitro', arbitro_id=a.ArbitroID) }}">{{ a.Nombre }}</a></td><td class="num">{{ a.Partidos }}</td>
+        <td class="num">{{ '%.2f'|format(a.Goles / a.Partidos)|replace('.', ',') if a.Partidos else '—' }}</td><td class="num">{{ a.PenaltisMarcados }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <p class="nota">Datos descriptivos de los partidos dirigidos. Con tan pocos partidos no permiten sacar conclusiones sobre ningún árbitro.</p>
+</section>
+{% endblock %}

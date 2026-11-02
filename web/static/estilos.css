@@ -301,3 +301,10 @@ svg.minutos .base { stroke: #C3D4CA; stroke-width: 1; }
 .barra-contra, .marca-contra { fill: var(--naranja); background: var(--naranja); }
 svg.minutos .valor { font: 600 12px "Segoe UI", system-ui, sans-serif; fill: var(--texto); }
 svg.minutos .eje { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
+
+/* ---------- Análisis ---------- */
+.tarjetas-enlace { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.tarjeta-enlace { display: block; margin: 0; color: var(--texto); text-decoration: none; }
+.tarjeta-enlace:hover { border-color: var(--verde); color: var(--texto); }
+.tarjeta-enlace p { margin: 8px 0 0; color: var(--gris); font-size: .92rem; }
+.puntos-fuerte { font-weight: 700; color: var(--verde); }

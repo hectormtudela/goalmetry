@@ -293,6 +293,45 @@ def api_preguntar():
 
 
 # ------------------------------------------------------------------------ análisis
+SECCIONES_ANALISIS = [
+    ("Rankings por 90 minutos", "/rankings", "Goles y asistencias por 90 minutos, con filtros por posición y minutos."),
+    ("Árbitros", "/arbitros", "Partidos dirigidos, goles y victorias locales, junto a la media de la liga."),
+    #@@SECCIONES@@
+]
+
+
+@app.get("/analisis")
+def analisis():
+    return render_template("analisis.html", secciones=SECCIONES_ANALISIS)
+
+
+@app.get("/rankings")
+def rankings():
+    posicion = request.args.get("posicion") if request.args.get("posicion") in ("PT", "DF", "MC", "DL") else None
+    minutos = max(0, min(4000, entero(request.args.get("minutos"), 360)))
+    orden = "minutos" if request.args.get("orden") == "minutos" else "ga"
+    jugadores = filas("EXEC analisis.usp_Rankings @Posicion = ?, @MinMinutos = ?, @Orden = ?;", (posicion, minutos, orden))
+    return render_template("rankings.html", jugadores=jugadores, posicion=posicion, minutos=minutos, orden=orden)
+
+
+@app.get("/arbitros")
+def arbitros():
+    return render_template("arbitros.html", arbitros=filas("SELECT * FROM analisis.vw_Arbitro ORDER BY Partidos DESC, Nombre"))
+
+
+@app.get("/arbitro/<int:arbitro_id>")
+def arbitro(arbitro_id):
+    if not filas("SELECT 1 AS Hay FROM liga.Arbitro WHERE ArbitroID = ?", (arbitro_id,)):
+        abort(404)
+    perfil, media, partidos = consultar("EXEC analisis.usp_PerfilArbitro @ArbitroID = ?;", (arbitro_id,))
+    return render_template("arbitro.html", a=perfil[0], m=media[0], partidos=partidos)
+
+
+@app.get("/parecidos")
+def parecidos():
+    return redirect(url_for("analisis"))   # se sustituye en la idea 9
+
+
 @app.get("/equipo/<int:equipo_id>")
 def equipo(equipo_id):
     if not filas("SELECT 1 AS Hay FROM liga.Equipo WHERE EquipoID = ?", (equipo_id,)):
