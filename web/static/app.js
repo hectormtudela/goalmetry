@@ -128,6 +128,23 @@ if (formPregunta) {
     } else {
       n.querySelector(".fuentes").remove();
     }
+    const cob = n.querySelector("[data-cobertura]");
+    cob.textContent = r.cobertura.texto;
+    cob.classList.add(`cobertura-${r.cobertura.nivel}`);
+    if (r.cifras_sin_respaldo.length) {
+      const av = n.querySelector("[data-cifras]");
+      av.textContent = `Revisa esta respuesta: ${r.cifras_sin_respaldo.join(", ")} no aparece en los datos usados.`;
+      av.classList.remove("oculto");
+    }
+    const usados = n.querySelector(".datos-usados");
+    if (r.datos.oficiales || r.datos.documentos) {
+      for (const [clave, campo] of [["oficiales", "oficiales"], ["documentos", "documentos"]]) {
+        if (r.datos[campo]) n.querySelector(`[data-${clave}]`).textContent = r.datos[campo];
+        else { n.querySelector(`[data-${clave}]`).remove(); n.querySelector(`[data-${clave}-titulo]`).remove(); }
+      }
+    } else {
+      usados.remove();
+    }
     zona.append(n);
   };
 

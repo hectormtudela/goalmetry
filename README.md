@@ -166,7 +166,9 @@ Bloques E, F y G (inteligencia artificial). Antes: Ollama con `bge-m3` y `qwen2.
 sqlcmd -S localhost -E -C -b -i ai\create_external_model.sql    # modelo externo bge-m3
 sqlcmd -S localhost -E -C -b -v DataPath="$PWD\data" -i ai\generate_embeddings.sql   # 146 documentos + embeddings
 sqlcmd -S localhost -E -C -b -i ai\vector_search.sql            # Full-Text + búsqueda híbrida
-sqlcmd -S localhost -E -C -b -i ai\rag.sql                      # RAG: la primera vez tarda ~1 minuto
+sqlcmd -S localhost -E -C -b -i ai\temas.sql                    # temas de los que no hay datos
+sqlcmd -S localhost -E -C -b -i ai\rag.sql                      # procedimientos del RAG
+sqlcmd -S localhost -E -C -b -i ai\rag_demo.sql                 # demo del RAG: la primera vez tarda ~1 minuto
 ```
 
 - `-E`: autenticación de Windows (sin contraseña) · `-C`: confía en el certificado local del servidor · `-b`: devuelve un error si algo falla.

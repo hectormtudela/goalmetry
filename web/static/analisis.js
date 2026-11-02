@@ -11,3 +11,7 @@ document.querySelectorAll("[data-bump] .bump-linea").forEach((g) => {
   g.addEventListener("click", alternar);
   g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); alternar(); } });
 });
+
+// Jugadores parecidos: elegir un jugador lleva directamente a su comparación.
+document.querySelectorAll("[data-enviar-al-cambiar]").forEach((s) =>
+  s.addEventListener("change", () => { if (s.value) s.form.requestSubmit(); }));

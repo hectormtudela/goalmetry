@@ -5,6 +5,7 @@ Abre http://localhost:8080. Solo escucha en este ordenador (127.0.0.1).
 """
 import json
 import os
+import re
 import secrets
 import socket
 import sys
@@ -263,16 +264,36 @@ def api_buscar():
     return jsonify(resultados=resultados, segundos=round(time.perf_counter() - inicio, 1))
 
 
+def cobertura(sin_contexto, texto, oficiales, documentos):
+    """Cuánto respaldo tiene la respuesta, para decirlo en pantalla sin adornos."""
+    if sin_contexto:
+        return {"nivel": "ninguna", "texto": "Sin respaldo: esta IA no ha consultado la base de datos."}
+    if texto.startswith("No tengo ese dato") or texto.startswith("No tengo datos"):
+        return {"nivel": "ninguna", "texto": "Sin datos sobre esto: no se ha podido responder."}
+    if oficiales:
+        return {"nivel": "alta", "texto": "Datos exactos de las tablas de la liga."}
+    if documentos:
+        return {"nivel": "media", "texto": "Solo documentos (crónicas o reglamento), sin datos exactos de las tablas."}
+    return {"nivel": "ninguna", "texto": "Sin respaldo en la base de datos."}
+
+
 def responder(pregunta, sin_contexto):
     _, documentos, contexto, respuesta = consultar(
         "EXEC ia.usp_PreguntarLiga @Pregunta = ?, @SinContexto = ?, @Mostrar = 1;",
         (pregunta, 1 if sin_contexto else 0))
     fuentes = [{"Titulo": d["Titulo"], "Tipo": TIPOS_DOCUMENTO.get(d["Tipo"], d["Tipo"])} for d in documentos]
-    # Datos exactos de las tablas que añadió ia.usp_DatosOficiales (equipos, jugadores...)
-    if "[Datos oficiales]" in (contexto[0]["Contexto"] or ""):
+    # Lo que SQL pasó de verdad al modelo: documentos y datos exactos de ia.usp_DatosOficiales.
+    usado, _, oficiales = (contexto[0]["Contexto"] or "").partition("[Datos oficiales]")
+    usado, oficiales = usado.strip(), oficiales.strip()
+    if oficiales:
         fuentes.insert(0, {"Titulo": "Datos oficiales de la base de datos", "Tipo": "tablas de la liga"})
-    return {"respuesta": respuesta[0]["Respuesta"], "segundos": round(respuesta[0]["Milisegundos"] / 1000, 1),
-            "fuentes": fuentes}
+    texto = respuesta[0]["Respuesta"] or ""
+    # Cifras de la respuesta que no están en lo que se le pasó ni en la pregunta.
+    conocidas = set(re.findall(r"\d+", f"{usado} {oficiales} {pregunta}"))
+    sin_respaldo = [] if sin_contexto else sorted(set(re.findall(r"\d+", texto)) - conocidas, key=int)
+    return {"respuesta": texto, "segundos": round(respuesta[0]["Milisegundos"] / 1000, 1), "fuentes": fuentes,
+            "datos": {"oficiales": oficiales, "documentos": usado},
+            "cobertura": cobertura(sin_contexto, texto, oficiales, usado), "cifras_sin_respaldo": sin_respaldo}
 
 
 @app.post("/api/preguntar")
@@ -301,6 +322,7 @@ SECCIONES_ANALISIS = [
     ("Posición jornada a jornada", "/posiciones", "Cómo ha subido y bajado cada equipo en la clasificación."),
     ("Curiosidades y remontadas", "/curiosidades", "Mayor goleada, gol más tardío, rachas y partidos remontados."),
     ("¿Cuánto fiarse de las predicciones?", "/fiabilidad", "Aciertos, Brier y calibración frente a referencias simples."),
+    ("Jugadores parecidos", "/parecidos", "Los más cercanos por goles, asistencias y minutos. Similitud estadística."),
     #@@SECCIONES@@
 ]
 
@@ -378,7 +400,19 @@ def fiabilidad():
 
 @app.get("/parecidos")
 def parecidos():
-    return redirect(url_for("analisis"))   # se sustituye en la idea 9
+    grupos = {"PT": "Porteros", "DF": "Defensas", "MC": "Centrocampistas", "DL": "Delanteros"}
+    opciones = {}
+    for j in filas("EXEC analisis.usp_JugadoresConPerfil;"):
+        opciones.setdefault(grupos[j["Posicion"]], []).append(j)
+    jugador, cercanos = None, []
+    jugador_id = entero(request.args.get("jugador"))
+    if jugador_id is not None:
+        try:
+            datos, cercanos = consultar("EXEC analisis.usp_Parecidos @JugadorID = ?;", (jugador_id,))
+        except ErrorDatos:
+            abort(404)
+        jugador = datos[0]
+    return render_template("parecidos.html", opciones=list(opciones.items()), jugador=jugador, parecidos=cercanos)
 
 
 @app.get("/equipo/<int:equipo_id>")

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Jugadores parecidos{% endblock %}
+{% macro n2(v) %}{{ '%.2f'|format(v)|replace('.', ',') if v is not none else '—' }}{% endmacro %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta">Similitud estadística</p><h1>Jugadores parecidos</h1></div></section>
+<p class="aviso aviso-info">Compara solo tres números: goles por 90 minutos, asistencias por 90 minutos y minutos jugados. No dice nada de cómo juega cada uno. Muestra pequeña: datos de unas pocas jornadas.</p>
+
+<form class="tarjeta formulario separado en-linea" method="get" action="{{ url_for('parecidos') }}">
+  <label>Jugador
+    <select name="jugador" data-enviar-al-cambiar>
+      <option value="">Elige un jugador…</option>
+      {% for grupo, lista in opciones %}
+        <optgroup label="{{ grupo }}">
+          {% for o in lista %}<option value="{{ o.JugadorID }}"{% if jugador and o.JugadorID == jugador.JugadorID %} selected{% endif %}>{{ o.Nombre }} ({{ o.Equipo }})</option>{% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="boton boton-principal" type="submit">Ver parecidos</button>
+</form>
+
+{% if jugador %}
+<section class="tarjeta">
+  <div class="tarjeta-cabecera">
+    <h2>{{ jugador.Nombre }}</h2>
+    <a href="{{ url_for('equipo', equipo_id=jugador.EquipoID) }}">{{ jugador.Equipo }}</a>
+  </div>
+  <p class="nota sin-margen">{{ jugador.MinutosJugados }} minutos · {{ jugador.Goles }} goles ({{ n2(jugador.GolesPor90) }} por 90) · {{ jugador.Asistencias }} asistencias ({{ n2(jugador.AsistenciasPor90) }} por 90){% if jugador.UltimaJornada %} · hasta la jornada {{ jugador.UltimaJornada }}{% endif %}</p>
+  {% if not jugador.TienePerfil %}
+    <p class="vacio">No hay datos suficientes: hacen falta al menos 270 minutos y una posición conocida para comparar.</p>
+  {% else %}
+  <div class="tabla-scroll separado"><table class="tabla">
+    <thead><tr><th>Jugador</th><th>Equipo</th><th class="num">Similitud estadística</th><th class="num">Goles/90</th><th class="num">Asist./90</th><th class="num">Minutos</th></tr></thead>
+    <tbody>{% for p in parecidos %}
+      <tr>
+        <td><a href="{{ url_for('parecidos', jugador=p.JugadorID) }}">{{ p.Nombre }}</a></td>
+        <td><a href="{{ url_for('equipo', equipo_id=p.EquipoID) }}">{{ p.Equipo }}</a></td>
+        <td class="num">{{ '%.0f'|format(p.Similitud) }} %</td>
+        <td class="num">{{ n2(p.GolesPor90) }}</td><td class="num">{{ n2(p.AsistenciasPor90) }}</td><td class="num">{{ p.MinutosJugados }}</td>
+      </tr>{% else %}<tr><td colspan="6" class="vacio">No hay otros jugadores comparables.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="nota">100 % sería un perfil idéntico. Solo se compara con jugadores de su misma posición y con al menos 270 minutos.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

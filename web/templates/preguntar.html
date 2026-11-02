@@ -31,7 +31,14 @@
   <article class="tarjeta respuesta">
     <header><span class="chip"></span><span class="tiempo"></span></header>
     <p class="texto"></p>
+    <p class="cobertura" data-cobertura></p>
+    <p class="aviso aviso-error oculto" data-cifras></p>
     <details class="fuentes"><summary>Fuentes consultadas</summary><ol></ol></details>
+    <details class="fuentes datos-usados"><summary>Datos usados</summary>
+      <p class="nota">Exactamente lo que la base de datos le pasó al modelo para responder.</p>
+      <h3 data-oficiales-titulo>Datos oficiales de las tablas</h3><pre data-oficiales></pre>
+      <h3 data-documentos-titulo>Documentos</h3><pre data-documentos></pre>
+    </details>
   </article>
 </template>
 {% endblock %}

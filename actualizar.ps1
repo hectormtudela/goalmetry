@@ -113,6 +113,12 @@ if ($conIA) {
 }
 
 # ---------- 2b. Objetos nuevos ----------
+if ($conIA) {
+    foreach ($nombre in 'temas.sql', 'rag.sql') {
+        & sqlcmd -S $Servidor -E -C -b -W -i (Join-Path $raiz "ai\$nombre") | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-Host "    AVISO: no se ha podido aplicar ai\$nombre." -ForegroundColor Yellow }
+    }
+}
 # Si el repositorio trae scripts de análisis nuevos (10_ y siguientes), se aplican: son idempotentes.
 Escribir-Paso 'Aplicando los scripts de análisis'
 Get-ChildItem (Join-Path $raiz 'database') -Filter '*.sql' | Where-Object { $_.Name -match '^(09|[1-9]\d)_' } | Sort-Object Name | ForEach-Object {
