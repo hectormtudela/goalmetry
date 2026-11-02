@@ -118,6 +118,11 @@ if ($conIA) {
     }
 }
 
+# ---------- 2c. Datos externos: se contrastan con los resultados recién cargados ----------
+if ((Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.schemas WHERE name = N'externo'") -eq '1' -and (Test-Path (Join-Path $raiz 'data\_externo'))) {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $raiz 'externo\importar_externo.ps1') -Servidor $Servidor -SinDescargar | Out-Null
+}
+
 # ---------- 2b. Objetos nuevos ----------
 if ($conIA) {
     foreach ($nombre in 'temas.sql', 'rag.sql', 'intenciones.sql') {

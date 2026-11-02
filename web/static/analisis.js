@@ -15,3 +15,18 @@ document.querySelectorAll("[data-bump] .bump-linea").forEach((g) => {
 // Jugadores parecidos: elegir un jugador lleva directamente a su comparación.
 document.querySelectorAll("[data-enviar-al-cambiar]").forEach((s) =>
   s.addEventListener("change", () => { if (s.value) s.form.requestSubmit(); }));
+
+// Asistente de jornada: seguir la actualización en marcha.
+const zonaProceso = document.querySelector("[data-proceso]");
+if (zonaProceso) {
+  const seguir = async () => {
+    try {
+      const r = await fetch(zonaProceso.dataset.url);
+      const e = await r.json();
+      zonaProceso.querySelector("[data-proceso-estado]").textContent = e.texto;
+      zonaProceso.querySelector("[data-proceso-registro]").textContent = e.registro;
+      if (!e.terminado) setTimeout(seguir, 3000);
+    } catch { setTimeout(seguir, 8000); }
+  };
+  seguir();
+}

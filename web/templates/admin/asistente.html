@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Asistente de jornada nueva{% endblock %}
+{% block contenido %}
+{% include "admin/_menu.html" %}
+<section class="portada"><div><p class="etiqueta">Administración</p><h1>Asistente de jornada nueva</h1></div></section>
+
+{% if proceso %}
+<section class="tarjeta separado-abajo" data-proceso data-url="{{ url_for('asistente_estado') }}">
+  <div class="tarjeta-cabecera"><h2>Actualizando la base de datos</h2></div>
+  <p data-proceso-estado>{{ proceso.texto }}</p>
+  <pre class="registro" data-proceso-registro>{{ proceso.registro }}</pre>
+</section>
+{% endif %}
+
+{% if informe %}
+<section class="tarjeta separado-abajo">
+  <div class="tarjeta-cabecera"><h2>Informe de validación</h2></div>
+  {% if informe.errores %}
+    <p class="aviso aviso-error">{{ informe.errores|length }} errores: hay que corregirlos y volver a subir los ficheros. No se ha guardado nada.</p>
+    <ul class="lista-informe">{% for e in informe.errores %}<li>{{ e }}</li>{% endfor %}</ul>
+  {% else %}
+    <p class="aviso aviso-info">Sin errores. Todavía no se ha guardado nada: revisa el resumen y confirma.</p>
+  {% endif %}
+  <ul class="lista-informe">
+    {% if informe.jornadas_nuevas %}<li>Jornadas nuevas: {{ informe.jornadas_nuevas|join(', ') }}</li>{% endif %}
+    <li>Partidos: {{ informe.partidos_nuevos|length }} nuevos, {{ informe.partidos_cambian|length }} cambian, {{ informe.partidos_sin_cambio }} iguales.</li>
+    <li>Goles: {{ informe.goles_nuevos|length }} nuevos, {{ informe.goles_cambian|length }} cambian, {{ informe.goles_sin_cambio }} iguales.</li>
+  </ul>
+  {% if informe.partidos_cambian %}<details class="fuentes" open><summary>Partidos que cambian</summary><ul class="lista-informe">{% for c in informe.partidos_cambian %}<li>{{ c }}</li>{% endfor %}</ul></details>{% endif %}
+  {% if informe.partidos_nuevos %}<details class="fuentes"><summary>Partidos nuevos</summary><ul class="lista-informe">{% for c in informe.partidos_nuevos %}<li>{{ c }}</li>{% endfor %}</ul></details>{% endif %}
+  {% if informe.avisos %}<details class="fuentes" open><summary>Avisos: revísalos ({{ informe.avisos|length }})</summary><ul class="lista-informe">{% for c in informe.avisos %}<li>{{ c }}</li>{% endfor %}</ul></details>{% endif %}
+  {% if token %}
+  <form method="post" action="{{ url_for('asistente_confirmar') }}" class="separado">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}"><input type="hidden" name="token" value="{{ token }}">
+    <button class="boton boton-principal">Confirmar y actualizar</button>
+    <p class="nota">Antes se guarda una copia en <code>data/_copias</code>. Después se ejecuta <code>actualizar.ps1</code>, que tarda unos minutos.</p>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>1. Sube los ficheros</h2></div>
+    <p class="nota sin-margen">Con las mismas columnas que <code>data/partidos.csv</code> y <code>data/goles.csv</code>, separados por comas y en UTF-8. Basta con las filas nuevas o cambiadas. Los goleadores y los minutos se escriben a mano: esta pantalla no los trae de ninguna web. Tamaño máximo: 500 KB.</p>
+    <form method="post" action="{{ url_for('asistente_validar') }}" enctype="multipart/form-data" class="formulario separado">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <label>Partidos <input type="file" name="partidos" accept=".csv"></label>
+      <label>Goles <input type="file" name="goles" accept=".csv"></label>
+      <button class="boton boton-principal">Comprobar, sin guardar nada</button>
+    </form>
+    <p class="nota">Después de cargar, revisa también <code>data/jugadores.csv</code>: sus minutos y asistencias no se actualizan aquí.</p>
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Exportar lo del panel a CSV</h2></div>
+    <p class="nota sin-margen">Lo que escribes en el panel solo está en la base de datos: si la reinstalas, se pierde. Esto lo convierte en CSV para guardarlo en <code>data/</code>.</p>
+    <ul class="lista-informe">{% for nombre, r in diferencias.items() %}<li>{{ nombre }}: {{ r.nuevas }} filas nuevas, {{ r.cambian }} cambian.</li>{% endfor %}</ul>
+    <a class="boton" href="{{ url_for('asistente_exportar') }}">Descargar ZIP con los CSV</a>
+  </section>
+</div>
+{% endblock %}

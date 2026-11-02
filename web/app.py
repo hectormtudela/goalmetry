@@ -4,22 +4,26 @@ Arranque:  iniciar-web.bat (doble clic)  o  .venv\\Scripts\\python app.py
 Abre http://localhost:8080. Solo escucha en este ordenador (127.0.0.1).
 """
 import json
+import io
 import os
 import re
 import secrets
 import socket
+import subprocess
 import sys
 import threading
 import time
 import webbrowser
+import zipfile
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 
-from flask import (Flask, abort, flash, jsonify, redirect, render_template, request,
+from flask import (Flask, abort, flash, jsonify, redirect, render_template, request, send_file,
                    session, url_for)
 from werkzeug.security import check_password_hash
 
+import asistente
 from db import ErrorDatos, consultar, filas
 
 CARPETA = Path(__file__).resolve().parent
@@ -51,7 +55,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=os.environ.get("LALIGADB_HTTPS") == "1",  # activar al publicarla con HTTPS
     PERMANENT_SESSION_LIFETIME=timedelta(hours=2),
-    MAX_CONTENT_LENGTH=64 * 1024,
+    MAX_CONTENT_LENGTH=512 * 1024,   # lo necesita el asistente de jornada; las preguntas se recortan aparte
 )
 
 
@@ -670,6 +674,137 @@ def admin_sql(sql, parametros=(), ok=None):
     except ErrorDatos as error:
         flash(str(error), "error")
         return None
+
+
+# ------------------------------------------------------------------ asistente de jornada
+RAIZ = Path(__file__).resolve().parent.parent
+CARPETA_DATOS = RAIZ / "data"
+limite_asistente = Limitador(30, 60 * 60)
+pendientes_asistente = {}      # token -> (admin, partidos, goles): lo validado, a la espera de confirmar
+proceso_actualizar = {"popen": None, "registro": None}
+cerrojo_actualizar = threading.Lock()
+
+
+def filas_bd_para_csv():
+    """La base de datos, con las columnas y el formato de los CSV."""
+    def texto(v):
+        if v is None:
+            return ""
+        if isinstance(v, bool):
+            return "1" if v else "0"
+        if isinstance(v, datetime):
+            return v.strftime("%Y-%m-%d %H:%M:%S")
+        return str(v)
+
+    partidos, goles, jornadas_bd = consultar("""
+        SELECT PartidoID AS partido_id, JornadaID AS jornada_id, EquipoLocalID AS equipo_local_id, EquipoVisitanteID AS equipo_visitante_id,
+               EstadioID AS estadio_id, ArbitroPrincipalID AS arbitro_principal_id, FechaHora AS fecha_hora,
+               GolesLocal AS goles_local, GolesVisitante AS goles_visitante, Estado AS estado
+        FROM liga.Partido ORDER BY PartidoID;
+        SELECT GolID AS gol_id, PartidoID AS partido_id, EquipoID AS equipo_id, JugadorID AS jugador_id, Anotador AS anotador, Minuto AS minuto, Tipo AS tipo
+        FROM liga.Gol ORDER BY GolID;
+        SELECT JornadaID AS jornada_id, TemporadaID AS temporada_id, Numero AS numero FROM liga.Jornada ORDER BY JornadaID;""", usuario="web_admin")
+    limpiar = lambda lista: [{k: texto(v) for k, v in f.items()} for f in lista]
+    return limpiar(partidos), limpiar(goles), limpiar(jornadas_bd)
+
+
+def estado_proceso():
+    p = proceso_actualizar["popen"]
+    if p is None:
+        return None
+    registro = ""
+    if proceso_actualizar["registro"] and proceso_actualizar["registro"].exists():
+        registro = proceso_actualizar["registro"].read_text(encoding="utf-8", errors="replace")[-3000:]
+    codigo = p.poll()
+    if codigo is None:
+        return {"terminado": False, "correcto": False, "texto": "En marcha. Puedes dejar esta página abierta; tarda unos minutos.", "registro": registro}
+    if codigo == 0:
+        return {"terminado": True, "correcto": True, "texto": "Terminado: la base de datos ya tiene los datos nuevos.", "registro": registro}
+    return {"terminado": True, "correcto": False,
+            "texto": f"Ha fallado (código {codigo}). Los CSV están guardados: revisa el registro y ejecuta actualizar.ps1 de nuevo.", "registro": registro}
+
+
+def pagina_asistente(informe=None, token=None):
+    _, resumen = asistente.exportar(CARPETA_DATOS, *filas_bd_para_csv())
+    return render_template("admin/asistente.html", informe=informe, token=token, diferencias=resumen, proceso=estado_proceso())
+
+
+@app.get("/admin/asistente")
+@solo_admin
+def asistente_inicio():
+    return pagina_asistente()
+
+
+@app.post("/admin/asistente/validar")
+@solo_admin
+def asistente_validar():
+    if not limite_asistente.permitir(request.remote_addr):
+        flash("Demasiados intentos. Espera un rato.", "error")
+        return redirect(url_for("asistente_inicio"))
+    textos = {}
+    for campo in ("partidos", "goles"):
+        fichero = request.files.get(campo)
+        textos[campo] = ""
+        if fichero and fichero.filename:
+            texto = asistente.decodificar(fichero.read())
+            if texto is None:
+                flash(f"El fichero de {campo} no está en UTF-8. En Excel, guárdalo como «CSV UTF-8».", "error")
+                return redirect(url_for("asistente_inicio"))
+            textos[campo] = texto
+    informe = asistente.validar(CARPETA_DATOS, textos["partidos"], textos["goles"])
+    token = None
+    if informe.valido and informe.hay_cambios:
+        token = secrets.token_urlsafe(24)
+        pendientes_asistente.clear()   # solo una subida pendiente cada vez
+        pendientes_asistente[token] = (session["admin"], textos["partidos"], textos["goles"])
+    return pagina_asistente(informe, token)
+
+
+@app.post("/admin/asistente/confirmar")
+@solo_admin
+def asistente_confirmar():
+    pendiente = pendientes_asistente.get(request.form.get("token", ""))
+    if not pendiente or pendiente[0] != session["admin"]:
+        flash("Esa subida ya no está pendiente. Vuelve a subir los ficheros.", "error")
+        return redirect(url_for("asistente_inicio"))
+    with cerrojo_actualizar:
+        p = proceso_actualizar["popen"]
+        if p is not None and p.poll() is None:
+            flash("Ya hay una actualización en marcha.", "error")
+            return redirect(url_for("asistente_inicio"))
+        pendientes_asistente.clear()
+        # Se valida otra vez: los CSV pueden haber cambiado desde que se subió.
+        informe, copia = asistente.aplicar(CARPETA_DATOS, pendiente[1], pendiente[2])
+        if not copia:
+            return pagina_asistente(informe)
+        # Orden fija, sin nada que venga de la petición.
+        registro = copia / "actualizar.log"
+        with registro.open("w", encoding="utf-8") as salida:
+            proceso_actualizar["popen"] = subprocess.Popen(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(RAIZ / "actualizar.ps1")],
+                cwd=str(RAIZ), stdout=salida, stderr=subprocess.STDOUT)
+        proceso_actualizar["registro"] = registro
+    flash(f"CSV guardados, con copia en data/_copias/{copia.name}.", "ok")
+    return redirect(url_for("asistente_inicio"))
+
+
+@app.get("/admin/asistente/estado")
+@solo_admin
+def asistente_estado():
+    return jsonify(estado_proceso() or {"terminado": True, "correcto": True, "texto": "", "registro": ""})
+
+
+@app.get("/admin/asistente/exportar")
+@solo_admin
+def asistente_exportar():
+    textos, _ = asistente.exportar(CARPETA_DATOS, *filas_bd_para_csv())
+    salida = io.BytesIO()
+    with zipfile.ZipFile(salida, "w", zipfile.ZIP_DEFLATED) as z:
+        for nombre, texto in textos.items():
+            z.writestr(nombre, texto.encode("utf-8"))
+    salida.seek(0)
+    return send_file(salida, mimetype="application/zip", as_attachment=True,
+                     download_name=f"goalmetry-csv-{datetime.now():%Y%m%d}.zip")
 
 
 @app.get("/admin")
