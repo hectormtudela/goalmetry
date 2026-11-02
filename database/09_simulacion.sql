@@ -380,67 +380,14 @@ BEGIN
 END;
 GO
 
-/* ---------- 5. Curiosidades para la pantalla de carga: todas salen de los datos reales ---------- */
+/* ---------- 5. Curiosidades para la pantalla de carga: salen de analisis.Curiosidad
+   (database\14_posiciones_curiosidades.sql), calculadas con los datos reales ---------- */
 CREATE OR ALTER PROCEDURE simulacion.usp_Curiosidades
 WITH EXECUTE AS OWNER
 AS
 BEGIN
     SET NOCOUNT ON;
-    DECLARE @C TABLE (Texto NVARCHAR(400));
-
-    SELECT p.PartidoID, j.Numero, l.Nombre AS Local, v.Nombre AS Visitante, CAST(p.GolesLocal AS INT) AS GL, CAST(p.GolesVisitante AS INT) AS GV,
-           CONCAT(l.Nombre, N' ', p.GolesLocal, N'-', p.GolesVisitante, N' ', v.Nombre, N' (jornada ', j.Numero, N')') AS Titulo
-    INTO #M
-    FROM liga.Partido AS p
-    JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
-    JOIN liga.Equipo  AS l ON l.EquipoID = p.EquipoLocalID
-    JOIN liga.Equipo  AS v ON v.EquipoID = p.EquipoVisitanteID
-    WHERE p.Estado = 'Finalizado';
-    IF NOT EXISTS (SELECT 1 FROM #M) BEGIN SELECT Texto FROM @C; RETURN; END;
-
-    INSERT @C SELECT CONCAT(N'En ', COUNT(*), N' partidos se han marcado ', SUM(GL + GV), N' goles: ',
-                            FORMAT(SUM(GL + GV) * 1.0 / COUNT(*), 'N2', 'es-ES'), N' por partido.') FROM #M;
-    INSERT @C SELECT CONCAT(N'Jugar en casa pesa: los locales han ganado ', SUM(CASE WHEN GL > GV THEN 1 ELSE 0 END),
-                            N' de ', COUNT(*), N' partidos, y los visitantes, ', SUM(CASE WHEN GL < GV THEN 1 ELSE 0 END), N'.') FROM #M;
-    INSERT @C SELECT CONCAT(N'Ha habido ', SUM(CASE WHEN GL = GV THEN 1 ELSE 0 END), N' empates, y ',
-                            SUM(CASE WHEN GL + GV = 0 THEN 1 ELSE 0 END), N' de ellos han acabado 0-0.') FROM #M;
-    INSERT @C SELECT CONCAT(N'Más goles en un partido (', MAX(GL + GV), N'): ',
-                            (SELECT STRING_AGG(Titulo, N'; ') FROM #M WHERE GL + GV = (SELECT MAX(GL + GV) FROM #M)), N'.') FROM #M;
-    INSERT @C SELECT CONCAT(N'Mayor goleada, por ', MAX(ABS(GL - GV)), N' goles de diferencia: ',
-                            (SELECT STRING_AGG(Titulo, N'; ') FROM #M WHERE ABS(GL - GV) = (SELECT MAX(ABS(GL - GV)) FROM #M)), N'.') FROM #M;
-
-    SELECT g.Minuto, g.Anotador, m.Titulo, g.Tipo, g.PartidoID, g.EquipoID INTO #G FROM liga.Gol AS g JOIN #M AS m ON m.PartidoID = g.PartidoID;
-    INSERT @C SELECT CONCAT(N'El gol más tardío llegó en el minuto ', MAX(Minuto), N': ',
-                            (SELECT STRING_AGG(CONCAT(Anotador, N', en el ', Titulo), N'; ') FROM #G WHERE Minuto = (SELECT MAX(Minuto) FROM #G)), N'.') FROM #G;
-    INSERT @C SELECT CONCAT(N'El gol más madrugador llegó en el minuto ', MIN(Minuto), N': ',
-                            (SELECT STRING_AGG(CONCAT(Anotador, N', en el ', Titulo), N'; ') FROM #G WHERE Minuto = (SELECT MIN(Minuto) FROM #G)), N'.') FROM #G;
-
-    DECLARE @tripletes INT = (SELECT COUNT(*) FROM (SELECT PartidoID, Anotador FROM #G WHERE Tipo <> 'PropiaPuerta' GROUP BY PartidoID, Anotador HAVING COUNT(*) >= 3) AS x);
-    INSERT @C SELECT CONCAT(N'Tres goles o más de un mismo jugador en un partido: ', @tripletes, N' veces esta temporada.');
-    INSERT @C SELECT CONCAT(N'Goles en propia puerta esta temporada: ', COUNT(*), N'.') FROM #G WHERE Tipo = 'PropiaPuerta';
-
-    INSERT @C
-    SELECT TOP (1) CONCAT(N'Más goles de penalti: ', Anotador, N' (', Equipo, N'), con ', Penaltis, N'.')
-    FROM liga.vw_MaximosGoleadores ORDER BY Penaltis DESC, Goles DESC, Anotador;
-    INSERT @C
-    SELECT TOP (1) CONCAT(N'Equipo más goleador: ', Equipo, N', con ', GF, N' goles.') FROM liga.vw_Clasificacion ORDER BY GF DESC, Equipo;
-    INSERT @C
-    SELECT TOP (1) CONCAT(N'Equipo menos goleado: ', Equipo, N', con ', GC, N' goles en contra.') FROM liga.vw_Clasificacion ORDER BY GC, Equipo;
-    INSERT @C
-    SELECT TOP (1) CONCAT(N'Equipo que más empata: ', Equipo, N', con ', E, N' empates en ', PJ, N' partidos.') FROM liga.vw_Clasificacion ORDER BY E DESC, Equipo;
-    INSERT @C
-    SELECT TOP (1) CONCAT(N'Jornada con más goles: la ', Numero, N', con ', SUM(GL + GV), N'.') FROM #M GROUP BY Numero ORDER BY SUM(GL + GV) DESC, Numero;
-    INSERT @C
-    SELECT TOP (1) CONCAT(N'Árbitro con más partidos: ', a.Nombre, N', con ', COUNT(*), N'.')
-    FROM liga.Partido AS p JOIN liga.Arbitro AS a ON a.ArbitroID = p.ArbitroPrincipalID
-    WHERE p.Estado = 'Finalizado' GROUP BY a.Nombre ORDER BY COUNT(*) DESC, a.Nombre;
-
-    -- Y una sobre la propia simulación
-    DECLARE @falta INT = 380 - (SELECT COUNT(*) FROM #M);
-    INSERT @C SELECT CONCAT(N'Cada simulación juega ', FORMAT(@falta * 10000, 'N0', 'es-ES'), N' partidos. A 90 minutos cada uno, serían ',
-                            FORMAT(@falta * 10000.0 * 90 / 60 / 24 / 365, 'N0', 'es-ES'), N' años de fútbol sin parar.');
-
-    SELECT Texto FROM @C WHERE Texto IS NOT NULL;
+    SELECT CONCAT(Titulo, N': ', Texto) AS Texto FROM analisis.Curiosidad;
 END;
 GO
 

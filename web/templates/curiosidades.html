@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titulo %}Curiosidades{% endblock %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta"><a href="{{ url_for('analisis') }}">Análisis</a></p><h1>Curiosidades y remontadas</h1></div></section>
+<div class="tarjetas-enlace">
+  {% for c in curiosidades %}
+    <article class="tarjeta tarjeta-dato"><p class="etiqueta">{{ c.Titulo }}</p><p>{{ c.Texto }}</p></article>
+  {% endfor %}
+</div>
+<section class="tarjeta separado">
+  <div class="tarjeta-cabecera"><h2>Remontadas</h2></div>
+  <p class="nota sin-margen">Partidos que ganó quien llegó a ir perdiendo. Se reconstruyen con los minutos de los goles: no es el marcador real al descanso, sino cómo fue cambiando el resultado gol a gol.</p>
+  <div class="tabla-scroll"><table class="tabla separado">
+    <thead><tr><th>Partido</th><th class="num">Desventaja remontada</th></tr></thead>
+    <tbody>{% for r in remontadas %}
+      <tr><td>{{ r.Titulo }}</td><td class="num">{{ r.MaxDesventaja }} {{ 'gol' if r.MaxDesventaja == 1 else 'goles' }}</td></tr>
+    {% else %}<tr><td colspan="2" class="vacio">Todavía no hay remontadas.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}

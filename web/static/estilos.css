@@ -308,3 +308,20 @@ svg.minutos .eje { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gri
 .tarjeta-enlace:hover { border-color: var(--verde); color: var(--texto); }
 .tarjeta-enlace p { margin: 8px 0 0; color: var(--gris); font-size: .92rem; }
 .puntos-fuerte { font-weight: 700; color: var(--verde); }
+
+/* ---------- Posiciones y curiosidades ---------- */
+svg.bump { display: block; width: 100%; min-width: 760px; height: auto; }
+.bump .eje { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
+.bump .zona-alta { fill: var(--verde-claro); }
+.bump .zona-baja { fill: #FBEFE5; }
+.bump-linea { cursor: pointer; outline: none; }
+.bump-linea .toque { fill: none; stroke: transparent; stroke-width: 12; }
+.bump-linea .linea { fill: none; stroke: #BCCBC2; stroke-width: 1.5; stroke-linejoin: round; }
+.bump-linea circle { fill: #BCCBC2; }
+.bump-linea .nombre { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
+.bump-linea:hover .linea, .bump-linea:focus .linea, .bump-linea.fijada .linea { stroke: var(--verde); stroke-width: 3; }
+.bump-linea:hover circle, .bump-linea:focus circle, .bump-linea.fijada circle { fill: var(--verde); }
+.bump-linea:hover .nombre, .bump-linea:focus .nombre, .bump-linea.fijada .nombre { fill: var(--texto); font-weight: 700; }
+.tarjeta-dato { margin: 0; }
+.tarjeta-dato p:last-child { margin: 4px 0 0; color: var(--texto); font-size: .95rem; }
+.separado-abajo { margin-bottom: 20px; }

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Posiciones por jornada{% endblock %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta"><a href="{{ url_for('analisis') }}">Análisis</a></p><h1>Posición jornada a jornada</h1></div></section>
+<section class="tarjeta">
+  <p class="nota sin-margen">Pasa el ratón por una línea, o pulsa el nombre de un equipo para dejarla marcada.</p>
+  <div class="tabla-scroll">
+    <svg class="bump" viewBox="0 0 {{ ancho }} {{ alto }}" role="img" aria-label="Puesto de cada equipo tras cada jornada" data-bump>
+      <rect class="zona-alta" x="{{ x0 }}" y="{{ y0 - fila / 2 }}" width="{{ xn - x0 }}" height="{{ fila * 4 }}"></rect>
+      <rect class="zona-baja" x="{{ x0 }}" y="{{ y0 + fila * 16.5 }}" width="{{ xn - x0 }}" height="{{ fila * 3 }}"></rect>
+      {% for j in jornadas %}<text class="eje" x="{{ '%.1f'|format(x0 + (xn - x0) * loop.index0 / ((jornadas|length - 1) or 1)) }}" y="{{ y0 - fila + 2 }}" text-anchor="middle">J{{ j }}</text>{% endfor %}
+      {% for n in range(1, 21) %}<text class="eje" x="{{ x0 - 22 }}" y="{{ y0 + fila * (n - 1) + 4 }}" text-anchor="end">{{ n }}</text>{% endfor %}
+      {% for s in series %}
+        <g class="bump-linea" data-equipo="{{ s.id }}" tabindex="0">
+          <path class="toque" d="{{ s.d }}"></path>
+          <path class="linea" d="{{ s.d }}"></path>
+          {% for p in s.puntos %}<circle cx="{{ p.x }}" cy="{{ p.y }}" r="3.5"><title>{{ s.nombre }}, tras la J{{ p.j }}: {{ p.pos }}º, {{ p.pts }} puntos</title></circle>{% endfor %}
+          <text class="nombre" x="{{ xn + 12 }}" y="{{ s.yfin + 4 }}">{{ s.nombre }}</text>
+        </g>
+      {% endfor %}
+    </svg>
+  </div>
+  <ul class="leyenda">
+    <li><i class="marca-champions"></i>Puestos 1-4</li>
+    <li><i class="marca-descenso"></i>Descenso</li>
+  </ul>
+  <p class="nota">Los desempates son los de la clasificación: puntos, diferencia de goles y goles a favor. Si aun así dos equipos empatan, comparten puesto y se dibujan por orden alfabético.</p>
+</section>
+{% endblock %}

@@ -171,8 +171,10 @@ def clasificacion():
                               (SELECT Nombre FROM liga.Temporada
                                WHERE TemporadaID = (SELECT MAX(TemporadaID) FROM liga.Temporada)) AS Temporada""")[0]
     ids = {e["Nombre"]: e["EquipoID"] for e in filas("SELECT EquipoID, Nombre FROM liga.Equipo")}
-    return render_template("clasificacion.html", tabla=tabla, goleadores=goleadores,
-                           jugadas=jugadas, hasta=hasta, resumen=resumen, ids=ids)
+    datos_curiosos = filas("""SELECT TOP (3) Titulo, Texto FROM analisis.Curiosidad
+                               WHERE Categoria <> 'Simulacion' ORDER BY NEWID()""")
+    return render_template("clasificacion.html", tabla=tabla, goleadores=goleadores, jugadas=jugadas,
+                           hasta=hasta, resumen=resumen, ids=ids, curiosidades=datos_curiosos)
 
 
 SQL_PARTIDOS = """
@@ -296,6 +298,8 @@ def api_preguntar():
 SECCIONES_ANALISIS = [
     ("Rankings por 90 minutos", "/rankings", "Goles y asistencias por 90 minutos, con filtros por posición y minutos."),
     ("Árbitros", "/arbitros", "Partidos dirigidos, goles y victorias locales, junto a la media de la liga."),
+    ("Posición jornada a jornada", "/posiciones", "Cómo ha subido y bajado cada equipo en la clasificación."),
+    ("Curiosidades y remontadas", "/curiosidades", "Mayor goleada, gol más tardío, rachas y partidos remontados."),
     #@@SECCIONES@@
 ]
 
@@ -325,6 +329,31 @@ def arbitro(arbitro_id):
         abort(404)
     perfil, media, partidos = consultar("EXEC analisis.usp_PerfilArbitro @ArbitroID = ?;", (arbitro_id,))
     return render_template("arbitro.html", a=perfil[0], m=media[0], partidos=partidos)
+
+
+@app.get("/posiciones")
+def posiciones():
+    datos = filas("SELECT Jornada, EquipoID, Nombre, Pts, Posicion, Fila FROM analisis.vw_PosicionJornada ORDER BY EquipoID, Jornada")
+    jornadas_vistas = sorted({d["Jornada"] for d in datos})
+    ancho, fila, x0, y0, xn = 900, 26, 60, 40, 710
+    def x(j):
+        return round(x0 + (xn - x0) * jornadas_vistas.index(j) / ((len(jornadas_vistas) - 1) or 1), 1)
+    series = {}
+    for d in datos:
+        s = series.setdefault(d["EquipoID"], {"id": d["EquipoID"], "nombre": d["Nombre"], "puntos": []})
+        s["puntos"].append({"x": x(d["Jornada"]), "y": y0 + fila * (d["Fila"] - 1), "j": d["Jornada"], "pos": d["Posicion"], "pts": d["Pts"]})
+    for s in series.values():
+        s["d"] = " ".join(f"{'M' if i == 0 else 'L'}{p['x']} {p['y']}" for i, p in enumerate(s["puntos"]))
+        s["yfin"] = s["puntos"][-1]["y"] if s["puntos"] else y0
+    return render_template("posiciones.html", series=list(series.values()), jornadas=jornadas_vistas, ancho=ancho,
+                           alto=y0 + fila * 20, fila=fila, x0=x0, y0=y0, xn=xn)
+
+
+@app.get("/curiosidades")
+def curiosidades():
+    datos = filas("SELECT Titulo, Texto FROM analisis.Curiosidad WHERE Categoria <> 'Simulacion' ORDER BY CuriosidadID")
+    remontadas = filas("SELECT Titulo, MaxDesventaja FROM analisis.Remontada ORDER BY MaxDesventaja DESC, Jornada DESC")
+    return render_template("curiosidades.html", curiosidades=datos, remontadas=remontadas)
 
 
 @app.get("/parecidos")

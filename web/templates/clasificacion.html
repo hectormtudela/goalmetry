@@ -13,6 +13,11 @@
   </div>
 </section>
 
+{% if curiosidades %}
+<div class="tarjetas-enlace separado-abajo">
+  {% for c in curiosidades %}<a class="tarjeta tarjeta-dato tarjeta-enlace" href="{{ url_for('curiosidades') }}"><p class="etiqueta">{{ c.Titulo }}</p><p>{{ c.Texto }}</p></a>{% endfor %}
+</div>
+{% endif %}
 <div class="rejilla-2">
   <section class="tarjeta">
     <div class="tarjeta-cabecera">

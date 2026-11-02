@@ -8,6 +8,7 @@
   <link rel="icon" href="{{ url_for('static', filename='icono.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='analisis.js') }}" defer></script>
 </head>
 <body>
 <header class="cabecera">
@@ -22,7 +23,7 @@
       <a href="{{ url_for('clasificacion') }}" {% if ruta == '/' %}aria-current="page"{% endif %}>Clasificación</a>
       <a href="{{ url_for('ver_jornadas') }}" {% if ruta.startswith('/jornadas') %}aria-current="page"{% endif %}>Jornadas</a>
       <a href="{{ url_for('predicciones') }}" {% if ruta == '/predicciones' %}aria-current="page"{% endif %}>Predicciones</a>
-      <a href="{{ url_for('analisis') }}" {% if ruta in ['/analisis', '/rankings'] or ruta.startswith('/arbitro') %}aria-current="page"{% endif %}>Análisis</a>
+      <a href="{{ url_for('analisis') }}" {% if ruta in ['/analisis', '/rankings', '/posiciones', '/curiosidades'] or ruta.startswith('/arbitro') %}aria-current="page"{% endif %}>Análisis</a>
       <a href="{{ url_for('buscar') }}" {% if ruta == '/buscar' %}aria-current="page"{% endif %}>Buscador</a>
       <a href="{{ url_for('preguntar') }}" {% if ruta == '/preguntar' %}aria-current="page"{% endif %}>Pregunta a la IA</a>
       {% if admin %}
