@@ -284,3 +284,20 @@ textarea { resize: vertical; }
 .grafico-ayuda { position: absolute; pointer-events: none; background: var(--texto); color: #fff; font-size: .82rem;
   padding: 6px 10px; border-radius: 8px; transform: translate(-50%, -110%); white-space: nowrap; z-index: 2; }
 @media (prefers-reduced-motion: reduce) { .barra span { transition: none; } }
+
+/* ---------- Ficha de equipo ---------- */
+.enlace-equipo { color: inherit; text-decoration: none; }
+.enlace-equipo:hover { color: var(--verde-vivo); text-decoration: underline; }
+svg.forma { display: block; width: 100%; height: auto; }
+svg.forma .rejilla { stroke: #E4ECE7; stroke-width: 1; }
+svg.forma .serie { fill: none; stroke: var(--verde); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.forma-marca text { font: 700 12px "Segoe UI", system-ui, sans-serif; fill: #fff; }
+.forma-V rect { fill: var(--verde-vivo); }
+.forma-E rect { fill: var(--gris); }
+.forma-D rect { fill: var(--naranja); }
+svg.minutos { display: block; width: 100%; height: auto; }
+svg.minutos .base { stroke: #C3D4CA; stroke-width: 1; }
+.barra-favor, .marca-favor { fill: var(--verde); background: var(--verde); }
+.barra-contra, .marca-contra { fill: var(--naranja); background: var(--naranja); }
+svg.minutos .valor { font: 600 12px "Segoe UI", system-ui, sans-serif; fill: var(--texto); }
+svg.minutos .eje { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }

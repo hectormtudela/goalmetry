@@ -170,8 +170,9 @@ def clasificacion():
                               (SELECT COUNT(*) FROM liga.Gol) AS Goles,
                               (SELECT Nombre FROM liga.Temporada
                                WHERE TemporadaID = (SELECT MAX(TemporadaID) FROM liga.Temporada)) AS Temporada""")[0]
+    ids = {e["Nombre"]: e["EquipoID"] for e in filas("SELECT EquipoID, Nombre FROM liga.Equipo")}
     return render_template("clasificacion.html", tabla=tabla, goleadores=goleadores,
-                           jugadas=jugadas, hasta=hasta, resumen=resumen)
+                           jugadas=jugadas, hasta=hasta, resumen=resumen, ids=ids)
 
 
 SQL_PARTIDOS = """
@@ -289,6 +290,25 @@ def api_preguntar():
         return jsonify(resultado)
     finally:
         modelo_ocupado.release()
+
+
+# ------------------------------------------------------------------------ análisis
+@app.get("/equipo/<int:equipo_id>")
+def equipo(equipo_id):
+    if not filas("SELECT 1 AS Hay FROM liga.Equipo WHERE EquipoID = ?", (equipo_id,)):
+        abort(404)
+    ficha, partidos, goleadores = consultar("EXEC analisis.usp_FichaEquipo @EquipoID = ?;", (equipo_id,))
+    f = ficha[0]
+    racha = None
+    if f["RachaPartidos"]:
+        n = f["RachaPartidos"]
+        palabra = {"V": ("victoria", "victorias seguidas"), "E": ("empate", "empates seguidos"),
+                   "D": ("derrota", "derrotas seguidas")}[f["RachaTipo"]]
+        racha = f"Última racha: {n} {palabra[0] if n == 1 else palabra[1]}"
+        if f["PartidosSinPerder"] > n:
+            racha += f" · {f['PartidosSinPerder']} sin perder"
+    tramos = filas("EXEC analisis.usp_MinutosGol @EquipoID = ?;", (equipo_id,))
+    return render_template("equipo.html", f=f, partidos=partidos, goleadores=goleadores, racha=racha, tramos=tramos)
 
 
 # ------------------------------------------------------------------ predicciones

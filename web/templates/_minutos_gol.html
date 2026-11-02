@@ -1,0 +1,24 @@
+{# Barras agrupadas de goles por tramo. Necesita la variable tramos. #}
+{% set maximo = (tramos|map(attribute='AFavor')|list + tramos|map(attribute='EnContra')|list + [1])|max %}
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>¿Cuándo marca y cuándo encaja?</h2></div>
+  <svg class="minutos" viewBox="0 0 640 230" role="img" aria-label="Goles a favor y en contra por tramos de 15 minutos">
+    {% for t in tramos %}
+      {% set x = 30 + loop.index0 * 100 %}
+      {% set hf = 160 * t.AFavor / maximo %}{% set hc = 160 * t.EnContra / maximo %}
+      <g><title>Minutos {{ t.Etiqueta }}: {{ t.AFavor }} a favor y {{ t.EnContra }} en contra</title>
+        <rect class="barra-favor" x="{{ x }}" y="{{ '%.1f'|format(190 - hf) }}" width="36" height="{{ '%.1f'|format(hf) }}" rx="4"></rect>
+        <rect class="barra-contra" x="{{ x + 40 }}" y="{{ '%.1f'|format(190 - hc) }}" width="36" height="{{ '%.1f'|format(hc) }}" rx="4"></rect>
+        <text class="valor" x="{{ x + 18 }}" y="{{ '%.1f'|format(184 - hf) }}" text-anchor="middle">{{ t.AFavor }}</text>
+        <text class="valor" x="{{ x + 58 }}" y="{{ '%.1f'|format(184 - hc) }}" text-anchor="middle">{{ t.EnContra }}</text>
+        <text class="eje" x="{{ x + 38 }}" y="212" text-anchor="middle">{{ t.Etiqueta }}'</text>
+      </g>
+    {% endfor %}
+    <line class="base" x1="20" x2="630" y1="190" y2="190"></line>
+  </svg>
+  <ul class="leyenda">
+    <li><i class="marca-favor"></i>A favor</li>
+    <li><i class="marca-contra"></i>En contra</li>
+  </ul>
+  <p class="nota">Muestra pequeña: solo {{ f.PJ }} partidos. Una diferencia de pocos goles entre tramos puede ser casualidad.</p>
+</section>

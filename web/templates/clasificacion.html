@@ -40,7 +40,7 @@
       {% for f in tabla %}
         <tr class="{% if loop.index <= 4 %}zona-champions{% elif loop.index <= 6 %}zona-europa{% elif loop.index > total - 3 and total >= 18 %}zona-descenso{% endif %}">
           <td class="num">{{ f.Posicion }}</td>
-          <td class="equipo">{{ f.Equipo }}</td>
+          <td class="equipo"><a class="enlace-equipo" href="{{ url_for('equipo', equipo_id=ids[f.Equipo]) }}">{{ f.Equipo }}</a></td>
           <td class="num">{{ f.PJ }}</td><td class="num">{{ f.G }}</td><td class="num">{{ f.E }}</td><td class="num">{{ f.P }}</td>
           <td class="num ocultar-movil">{{ f.GF }}</td><td class="num ocultar-movil">{{ f.GC }}</td>
           <td class="num">{{ '%+d'|format(f.DG) if f.DG else 0 }}</td>

@@ -79,7 +79,8 @@ if ([int]$mayor -lt 17) {
 }
 
 # ---------- Lista de scripts ----------
-$scripts = @(Get-ChildItem (Join-Path $raiz 'database') -Filter '0*.sql' | Sort-Object Name)
+# Todos los scripts numerados (01_... 10_... 15_...), en orden.
+$scripts = @(Get-ChildItem (Join-Path $raiz 'database') -Filter '*.sql' | Where-Object { $_.Name -match '^\d\d_' } | Sort-Object Name)
 if ($Consultas) {
     $scripts += Get-Item (Join-Path $raiz 'database\consultas_avanzadas.sql')
 }
@@ -95,6 +96,7 @@ if ($Tests) {
     $scripts += Get-Item (Join-Path $raiz 'tests\tests.sql')
     $scripts += Get-Item (Join-Path $raiz 'tests\tests_web.sql')
     $scripts += Get-Item (Join-Path $raiz 'tests\tests_simulacion.sql')
+    $scripts += Get-Item (Join-Path $raiz 'tests\tests_analisis.sql')
 }
 
 Escribir-Paso 'Scripts que se van a ejecutar, en este orden'

@@ -105,6 +105,15 @@ if ($conIA) {
     }
 }
 
+# ---------- 2b. Objetos nuevos ----------
+# Si el repositorio trae scripts de análisis nuevos (10_ y siguientes), se aplican: son idempotentes.
+Escribir-Paso 'Aplicando los scripts de análisis'
+Get-ChildItem (Join-Path $raiz 'database') -Filter '*.sql' | Where-Object { $_.Name -match '^(09|[1-9]\d)_' } | Sort-Object Name | ForEach-Object {
+    & sqlcmd -S $Servidor -E -C -b -W -i $_.FullName | Out-Null
+    if ($LASTEXITCODE -ne 0) { Write-Host "    AVISO: ha fallado $($_.Name)." -ForegroundColor Yellow }
+}
+$conPredicciones = (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.schemas WHERE name = N'simulacion'") -eq '1'
+
 # ---------- 3. Predicciones ----------
 if ($conPredicciones -and -not $SinPredicciones) {
     Escribir-Paso 'Simulando la temporada con los datos nuevos'
@@ -119,6 +128,7 @@ if ($Tests) {
     $lista = @('tests\tests.sql')
     if ($conWeb) { $lista += 'tests\tests_web.sql' }
     if ($conPredicciones) { $lista += 'tests\tests_simulacion.sql' }
+    $lista += 'tests\tests_analisis.sql'
     foreach ($p in $lista) {
         Escribir-Paso $p
         & sqlcmd -S $Servidor -E -C -b -W -v DataPath="$dataPath" -i (Join-Path $raiz $p)

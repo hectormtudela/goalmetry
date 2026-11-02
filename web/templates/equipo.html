@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block titulo %}{{ f.Nombre }}{% endblock %}
+{% block contenido %}
+<section class="portada">
+  <div>
+    <p class="etiqueta">{{ f.Ciudad }} · {{ f.Estadio }}{% if f.Capacidad %} ({{ '{:,}'.format(f.Capacidad).replace(',', '.') }} espectadores){% endif %}</p>
+    <h1>{{ f.Nombre }}</h1>
+  </div>
+  <div class="cifras">
+    <div><b>{% if f.Posicion %}{{ f.Posicion }}º{% else %}—{% endif %}</b><span>puesto</span></div>
+    <div><b>{{ f.Pts }}</b><span>puntos</span></div>
+    <div><b>{{ f.GF }}-{{ f.GC }}</b><span>goles a favor y en contra</span></div>
+  </div>
+</section>
+
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Forma reciente</h2>
+      {% if racha %}<span class="nota sin-margen">{{ racha }}</span>{% endif %}
+    </div>
+    {% if partidos %}
+    {% set n = partidos|length %}
+    {% set ancho = 640 %}{% set alto = 120 %}{% set maximo = n * 3 %}
+    <svg class="forma" viewBox="0 0 {{ ancho }} {{ alto + 34 }}" role="img" aria-label="Puntos acumulados de {{ f.Nombre }} partido a partido">
+      <line class="rejilla" x1="30" x2="{{ ancho - 10 }}" y1="{{ alto }}" y2="{{ alto }}"></line>
+      {% set ns = namespace(acum=0, d='') %}
+      {% for p in partidos %}
+        {% set ns.acum = ns.acum + p.Puntos %}
+        {% set x = 40 + (ancho - 70) * loop.index0 / ((n - 1) if n > 1 else 1) %}
+        {% set y = alto - (alto - 12) * ns.acum / maximo %}
+        {% set ns.d = ns.d ~ ('M' if loop.first else 'L') ~ ('%.1f'|format(x)) ~ ' ' ~ ('%.1f'|format(y)) ~ ' ' %}
+      {% endfor %}
+      <path class="serie" d="{{ ns.d }}"></path>
+      {% for p in partidos %}
+        {% set x = 40 + (ancho - 70) * loop.index0 / ((n - 1) if n > 1 else 1) %}
+        <g class="forma-marca forma-{{ p.Resultado }}">
+          <title>J{{ p.Jornada }}: {{ 'vs' if p.EsLocal else 'en' }} {{ p.Rival }} {{ p.GF }}-{{ p.GC }}</title>
+          <rect x="{{ '%.1f'|format(x - 11) }}" y="{{ alto + 8 }}" width="22" height="22" rx="4"></rect>
+          <text x="{{ '%.1f'|format(x) }}" y="{{ alto + 23 }}" text-anchor="middle">{{ p.Resultado }}</text>
+        </g>
+      {% endfor %}
+    </svg>
+    <p class="nota">Línea: puntos acumulados. V victoria, E empate, D derrota, por orden de fecha.</p>
+    {% else %}<p class="vacio">Todavía no ha jugado ningún partido.</p>{% endif %}
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Máximos goleadores</h2></div>
+    <ol class="goleadores">
+      {% for g in goleadores %}
+        <li><span class="pos">{{ loop.index }}</span>
+          <span class="quien"><b>{{ g.Anotador }}</b></span>
+          <span class="goles">{{ g.Goles }}{% if g.Penaltis %}<small> ({{ g.Penaltis }} p.)</small>{% endif %}</span></li>
+      {% else %}<li class="vacio">Sin goles registrados.</li>{% endfor %}
+    </ol>
+  </section>
+</div>
+
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>En casa y fuera</h2></div>
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th></th><th class="num">PJ</th><th class="num">G</th><th class="num">E</th><th class="num">P</th><th class="num">GF</th><th class="num">GC</th><th class="num">Pts</th></tr></thead>
+    <tbody>
+      <tr><td>En casa</td><td class="num">{{ f.LocalPJ }}</td><td class="num">{{ f.LocalG or 0 }}</td><td class="num">{{ f.LocalE or 0 }}</td><td class="num">{{ f.LocalP or 0 }}</td><td class="num">{{ f.LocalGF or 0 }}</td><td class="num">{{ f.LocalGC or 0 }}</td><td class="num">{{ f.LocalPts or 0 }}</td></tr>
+      <tr><td>Fuera</td><td class="num">{{ f.FueraPJ }}</td><td class="num">{{ f.FueraG or 0 }}</td><td class="num">{{ f.FueraE or 0 }}</td><td class="num">{{ f.FueraP or 0 }}</td><td class="num">{{ f.FueraGF or 0 }}</td><td class="num">{{ f.FueraGC or 0 }}</td><td class="num">{{ f.FueraPts or 0 }}</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+{% if f.PJ %}{% include "_minutos_gol.html" %}{% endif %}
+{% if partidos %}
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Partidos</h2></div>
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th>Jornada</th><th>Rival</th><th></th><th class="num">Resultado</th></tr></thead>
+    <tbody>{% for p in partidos|reverse %}
+      <tr><td>J{{ p.Jornada }}</td><td><a href="{{ url_for('equipo', equipo_id=p.RivalID) }}">{{ p.Rival }}</a></td><td>{{ 'En casa' if p.EsLocal else 'Fuera' }}</td><td class="num">{{ p.GF }}-{{ p.GC }} ({{ p.Resultado }})</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+</section>
+{% endif %}
+{% endblock %}
