@@ -36,6 +36,7 @@ GO
      - Jornada N: sus resultados y goles.
      - Rankings (líder, último, puntos, "qué equipo..."): la clasificación completa.
      - Goleadores ("pichichi", "máximo goleador"...): los 10 primeros.
+     - Futuro ("qué opciones tiene...", "va a descender..."): las predicciones, como ESTIMACIÓN.
    Reconocimiento: se normaliza la pregunta (sin signos; la collation CI_AI ignora tildes y
    mayúsculas) y se buscan los nombres completos, los nombres cortos, algunos apodos y las
    partes del nombre que son únicas (p. ej. "Mbappé"), de más largo a más corto: así
@@ -259,6 +260,53 @@ BEGIN
                       STRING_AGG(CONCAT(t.Posicion, N'º ', t.Anotador, N' (', t.Equipo, N'), ', t.Goles, N' goles'), N'; ')
                       WITHIN GROUP (ORDER BY t.Posicion, t.Anotador), N'.')
         FROM (SELECT TOP (10) Posicion, Anotador, Equipo, Goles FROM liga.vw_MaximosGoleadores ORDER BY Posicion, Anotador) AS t;
+
+    -- Predicciones (database\09_simulacion.sql): solo si se pregunta por el futuro, y siempre
+    -- marcadas como estimación para que nunca se confundan con un resultado.
+    IF OBJECT_ID(N'simulacion.Ejecucion') IS NOT NULL
+       AND REGEXP_LIKE(@Pregunta, N'opciones|probabilidad|predicci|posibilidad|ganar[aá]?\s+la\s+liga|ser[aá]?\s+campe[oó]n|va\s+a\s+(ganar|descender|bajar)|descender|bajar[aá]?\s+a\s+segunda|se\s+salva|salvarse|acabar[aá]|terminar[aá]', 'i')
+    BEGIN
+        DECLARE @Ej INT = (SELECT TOP (1) EjecucionID FROM simulacion.Ejecucion
+                           WHERE Tipo = 'Principal' AND Estado = 'Terminada' ORDER BY EjecucionID DESC);
+        IF @Ej IS NOT NULL
+        BEGIN
+            ;WITH R AS
+            (
+                SELECT p.EquipoID, q.Nombre, x.Temporadas,
+                       100.0 * SUM(CASE WHEN p.Puesto = 1 THEN p.Veces ELSE 0 END) / x.Temporadas AS Campeon,
+                       100.0 * SUM(CASE WHEN p.Puesto <= 4 THEN p.Veces ELSE 0 END) / x.Temporadas AS Top4,
+                       100.0 * SUM(CASE WHEN p.Puesto >= 18 THEN p.Veces ELSE 0 END) / x.Temporadas AS Descenso,
+                       1.0 * SUM(p.SumaPuntos) / x.Temporadas AS Puntos
+                FROM simulacion.Probabilidad AS p
+                JOIN simulacion.Ejecucion AS x ON x.EjecucionID = p.EjecucionID
+                JOIN liga.Equipo AS q ON q.EquipoID = p.EquipoID
+                WHERE p.EjecucionID = @Ej
+                GROUP BY p.EquipoID, q.Nombre, x.Temporadas
+            )
+            INSERT @Lineas (Texto)
+            SELECT CONCAT(N'ESTIMACIÓN (simulación, no es un resultado real) de ', r.Nombre,
+                          N'. Opciones de ser campeón: ', FORMAT(r.Campeon, 'N1', 'es-ES'), N' %. ',
+                          N'Opciones de acabar entre los 4 primeros: ', FORMAT(r.Top4, 'N1', 'es-ES'), N' %. ',
+                          N'Opciones de descender: ', FORMAT(r.Descenso, 'N1', 'es-ES'), N' %. ',
+                          N'Puntos previstos al final: ', FORMAT(r.Puntos, 'N0', 'es-ES'), N'.')
+            FROM R AS r
+            WHERE r.EquipoID IN (SELECT ID FROM @Hallado WHERE Tipo = 'E')
+               OR (NOT EXISTS (SELECT 1 FROM @Hallado WHERE Tipo = 'E')
+                   AND r.EquipoID IN (SELECT TOP (3) EquipoID FROM R ORDER BY Campeon DESC));
+
+            IF NOT EXISTS (SELECT 1 FROM @Hallado WHERE Tipo = 'E') AND REGEXP_LIKE(@Pregunta, N'descen|bajar|salva', 'i')
+                INSERT @Lineas (Texto)
+                SELECT CONCAT(N'ESTIMACIÓN (simulación, no es un resultado real). Equipos con más opciones de descender: ',
+                              STRING_AGG(CONCAT(t.Nombre, N' ', FORMAT(t.Descenso, 'N1', 'es-ES'), N' %'), N'; ')
+                              WITHIN GROUP (ORDER BY t.Descenso DESC), N'.')
+                FROM (SELECT TOP (5) q.Nombre,
+                             100.0 * SUM(CASE WHEN p.Puesto >= 18 THEN p.Veces ELSE 0 END) / MAX(x.Temporadas) AS Descenso
+                      FROM simulacion.Probabilidad AS p
+                      JOIN simulacion.Ejecucion AS x ON x.EjecucionID = p.EjecucionID
+                      JOIN liga.Equipo AS q ON q.EquipoID = p.EquipoID
+                      WHERE p.EjecucionID = @Ej GROUP BY q.Nombre ORDER BY Descenso DESC) AS t;
+        END;
+    END;
 
     SELECT @Datos = STRING_AGG(Texto, CHAR(10)) WITHIN GROUP (ORDER BY Orden) FROM @Lineas;
     SET @Datos = LEFT(@Datos, 7000);   -- tope: que quepa en el contexto del modelo (num_ctx 4096)

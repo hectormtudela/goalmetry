@@ -29,7 +29,8 @@
     proxy HTTPS (Caddy) configurados como se explica en el README.
 
 .PARAMETER Tests
-    Al terminar, ejecuta tests\tests.sql (72 pruebas) y tests\tests_web.sql (24). Con -IA,
+    Al terminar, ejecuta tests\tests.sql (72 pruebas), tests\tests_web.sql (24) y
+    tests\tests_simulacion.sql (que deja hecha la primera simulación). Con -IA,
     comprueba también la búsqueda y el RAG.
 
 .PARAMETER CarpetaDatos
@@ -93,6 +94,7 @@ if ($IA) {
 if ($Tests) {
     $scripts += Get-Item (Join-Path $raiz 'tests\tests.sql')
     $scripts += Get-Item (Join-Path $raiz 'tests\tests_web.sql')
+    $scripts += Get-Item (Join-Path $raiz 'tests\tests_simulacion.sql')
 }
 
 Escribir-Paso 'Scripts que se van a ejecutar, en este orden'

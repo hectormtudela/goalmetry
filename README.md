@@ -19,7 +19,8 @@ Mini-proyecto de la certificación DP-800 de Microsoft que he cursado en el Más
 | G · RAG | Preguntas en lenguaje natural con `qwen2.5:3b` y búsqueda híbrida |
 | Pruebas | `tests/tests.sql`: 72 pruebas automáticas (datos, reglas, T-SQL, seguridad, IA); `tests/tests_web.sql`: 24 de la web |
 | Actualización | `actualizar.ps1`: carga las jornadas nuevas de `data/` sin reinstalar y solo recalcula los embeddings que cambian |
-| Web | Aplicación web con clasificación, jornadas, buscador, preguntas a la IA y panel de administración |
+| Web | Aplicación web con clasificación, jornadas, predicciones, buscador, preguntas a la IA y panel de administración |
+| Predicciones | Simula 10.000 veces lo que queda de temporada: opciones de cada equipo, evolución por jornada y «¿y si...?» |
 | Informe y presentación | Informe técnico de 8 páginas (PDF) y presentación de 8 diapositivas (PPTX) |
 
 Ahora mismo se pueden instalar y usar los todos los bloques de la base de datos y de la IA (A a G; del E al G con `-IA`). Todo está terminado: bloques de código, informe técnico ([`docs/proyecto.pdf`](docs/proyecto.pdf)) y presentación ([`presentation/dp800-project.pptx`](presentation/dp800-project.pptx)).
@@ -130,7 +131,8 @@ powershell -ExecutionPolicy Bypass -File .\actualizar.ps1            # aplica la
 1. Valida los CSV y, en **una sola transacción**, inserta las filas nuevas y actualiza solo las que han cambiado (un partido que pasa de Programado a Finalizado, las estadísticas de los jugadores...). Si algo falla, no cambia nada.
 2. Si la base de datos tiene filas que **no están en los CSV** (por ejemplo, metidas desde el panel de la web), se para sin tocar nada y te las enseña.
 3. Con la IA instalada, pone al día las crónicas, fichas y resúmenes y **calcula solo los embeddings de los documentos nuevos o modificados**. Si Ollama o Caddy no están encendidos, los datos se actualizan igual y los embeddings quedan pendientes para la siguiente vez.
-4. **No toca las ventas**: son ficticias y fijas.
+4. Vuelve a simular la temporada para las predicciones (menos de un minuto; con `-SinPredicciones` se omite).
+5. **No toca las ventas**: son ficticias y fijas.
 
 Opciones: `-Simular`, `-Tests` (ejecuta las pruebas al terminar), `-Servidor` y `-CarpetaDatos`. Cuándo usar cada script:
 
@@ -154,6 +156,7 @@ sqlcmd -S localhost -E -C -b -i database\05_procedures_triggers.sql
 sqlcmd -S localhost -E -C -b -i database\06_security.sql
 sqlcmd -S localhost -E -C -b -i database\07_indexes.sql
 sqlcmd -S localhost -E -C -b -i database\08_web.sql                  # usuarios y procedimientos de la web
+sqlcmd -S localhost -E -C -b -i database\09_simulacion.sql           # objetos de las predicciones (no calcula nada)
 sqlcmd -S localhost -E -C -b -i database\consultas_avanzadas.sql     # opcional, solo lectura
 ```
 
@@ -234,6 +237,17 @@ En [`database/consultas_avanzadas.sql`](database/consultas_avanzadas.sql) hay m�
 
 Para usarla sin consola: doble clic en **`web\iniciar-web.bat`** y se abre `http://localhost:8080`, con la clasificación, las jornadas, el buscador y las preguntas a la IA. El administrador entra con usuario y contraseña y mete jornadas, partidos, resultados, goles, jugadores y árbitros. Cómo crear la cuenta y cómo funciona por dentro: [`web/LEEME.md`](web/LEEME.md).
 
+## Predicciones
+
+SQL Server juega 10.000 veces los partidos que faltan (menos de un minuto, también desde la web, con una pantalla de carga de curiosidades de la liga) y cuenta en cuántas temporadas acaba cada equipo en cada puesto.
+
+```sql
+EXEC simulacion.usp_ActualizarPredicciones;   -- simula y guarda el resultado
+EXEC simulacion.usp_YSi N'[{"L":16,"V":4,"S":"1"}]';   -- ¿y si el Real Madrid gana al Barcelona en casa? (S: 1, X o 2)
+```
+
+Son **estimaciones, no resultados**: viven en el esquema `simulacion` y no tocan la liga, las ventas ni los CSV. El modelo usa los goles a favor y en contra de cada equipo y la ventaja de jugar en casa; no sabe de lesiones, fichajes ni calendario. Se ha probado contra resultados reales con [`tests/simulacion_validacion.sql`](tests/simulacion_validacion.sql): en 80 partidos predichos sin mirarlos, gana a dos referencias simples (Brier 0,606 frente a 0,666 y 0,667), pero acierta quién gana solo un poco más (38 de 80 frente a 36). La clasificación final no se podrá comprobar hasta que acabe la temporada.
+
 ## Estructura del repositorio
 
 ```
@@ -243,7 +257,7 @@ goalmetry/
 ├── web/                       Aplicación web (Flask): iniciar-web.bat y LEEME.md
 ├── data/                      Fuente de verdad: CSV verificados, cronicas.csv, documentos.csv,
 │                              LEEME-datos.md (formato y cómo añadir una jornada) y CAMBIOS.md
-├── database/                  Scripts SQL numerados (01 -> 08), actualizar_datos.sql y consultas_avanzadas.sql
+├── database/                  Scripts SQL numerados (01 -> 09), actualizar_datos.sql y consultas_avanzadas.sql
 ├── ai/                        Bloques E-G: create_external_model, generate_embeddings, vector_search, rag
 │   └── https/Caddyfile        Proxy HTTPS local delante de Ollama
 ├── docs/
@@ -253,7 +267,8 @@ goalmetry/
 │   ├── modelo-datos.md        Modelo de datos y diagrama
 │   ├── verificacion.md        Fuentes y comprobaciones de los datos
 │   └── ia-log.md              Registro del desarrollo asistido por IA (Bloque B)
-├── tests/                     tests.sql (72 pruebas), tests_web.sql (24) y huella_datos.sql
+├── tests/                     tests.sql (72 pruebas), tests_web.sql (24), tests_simulacion.sql, huella_datos.sql,
+│                              rag_evaluacion*.sql y simulacion_validacion.sql (miden la calidad)
 │                              (checksums para comparar dos instalaciones)
 └── presentation/dp800-project.pptx   Presentación (8 diapositivas, con notas del orador)
 ```

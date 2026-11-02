@@ -11,6 +11,8 @@
       2. ai\generate_embeddings.sql (si la IA está instalada): pone al día las fichas,
          resúmenes, crónicas y textos del reglamento, y calcula los embeddings SOLO de
          los documentos nuevos o modificados.
+      3. simulacion.usp_ActualizarPredicciones: vuelve a simular la temporada con los datos
+         nuevos (menos de un minuto). Con -SinPredicciones se omite.
     Las ventas (abonados y entradas) son ficticias y fijas: no se tocan.
 
     Flujo habitual:   git pull   y después   .\actualizar.ps1
@@ -26,6 +28,9 @@
 .PARAMETER Tests
     Al terminar, ejecuta tests\tests.sql (y tests\tests_web.sql si la web está instalada).
 
+.PARAMETER SinPredicciones
+    No recalcula las predicciones. Se podrá hacer luego desde la web.
+
 .PARAMETER CarpetaDatos
     Carpeta con los CSV. Por defecto, data\ del repositorio.
 
@@ -40,6 +45,7 @@ param(
     [string] $Servidor = 'localhost',
     [switch] $Simular,
     [switch] $Tests,
+    [switch] $SinPredicciones,
     [string] $CarpetaDatos
 )
 
@@ -68,6 +74,7 @@ if ((Valor-Sql "SELECT CASE WHEN DB_ID(N'LigaDB') IS NULL THEN 0 ELSE 1 END") -n
 }
 $conIA = (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.external_models WHERE name = N'bge_m3_ollama'") -eq '1'
 $conWeb = (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.schemas WHERE name = N'web'") -eq '1'
+$conPredicciones = (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.schemas WHERE name = N'simulacion'") -eq '1'
 Write-Host ("    Datos: {0}" -f $dataPath)
 Write-Host ("    IA instalada: {0}" -f $(if ($conIA) { 'sí' } else { 'no (solo se actualizan los datos)' }))
 
@@ -98,10 +105,20 @@ if ($conIA) {
     }
 }
 
-# ---------- 3. Pruebas ----------
+# ---------- 3. Predicciones ----------
+if ($conPredicciones -and -not $SinPredicciones) {
+    Escribir-Paso 'Simulando la temporada con los datos nuevos'
+    & sqlcmd -S $Servidor -E -C -b -W -d LigaDB -Q "SET NOCOUNT ON; EXEC simulacion.usp_ActualizarPredicciones;"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "    AVISO: no se han podido recalcular las predicciones. Se puede hacer desde la web." -ForegroundColor Yellow
+    }
+}
+
+# ---------- 4. Pruebas ----------
 if ($Tests) {
     $lista = @('tests\tests.sql')
     if ($conWeb) { $lista += 'tests\tests_web.sql' }
+    if ($conPredicciones) { $lista += 'tests\tests_simulacion.sql' }
     foreach ($p in $lista) {
         Escribir-Paso $p
         & sqlcmd -S $Servidor -E -C -b -W -v DataPath="$dataPath" -i (Join-Path $raiz $p)

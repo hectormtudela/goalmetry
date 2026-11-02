@@ -247,3 +247,40 @@ textarea { resize: vertical; }
   .partidos { grid-template-columns: minmax(0, 1fr); }
   .caja-busqueda { flex-direction: column; }
 }
+
+/* ---------- Predicciones ---------- */
+.sin-margen { margin-top: 2px; }
+.carga { max-width: 760px; margin-left: auto; margin-right: auto; }
+.carga h2 { font-size: 1.4rem; margin-bottom: 14px; }
+.barra { height: 10px; background: var(--verde-claro); border-radius: 999px; overflow: hidden; }
+.barra span { display: block; height: 100%; width: 0; background: var(--verde); border-radius: 999px; transition: width .4s ease; }
+.curiosidad { margin-top: 22px; padding: 16px 18px; background: var(--verde-claro); border-radius: var(--radio); min-height: 118px; }
+.curiosidad .etiqueta { margin-bottom: 4px; }
+.curiosidad-texto { margin: 0; font-size: 1.1rem; }
+.prediccion .fila-puesto { cursor: pointer; }
+.prediccion .fila-puesto:focus-visible { outline: 3px solid rgba(15, 92, 63, .3); outline-offset: -3px; }
+.prediccion .fila-puesto .equipo::before { content: "\25B8\00A0"; color: var(--gris); }
+.prediccion .fila-puesto[aria-expanded="true"] .equipo::before { content: "\25BE\00A0"; }
+.opcion { display: flex; align-items: center; gap: 10px; min-width: 150px; }
+.opcion b { min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+.opcion .barra { flex: 1; height: 8px; }
+.candidatos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 20px; padding: 6px 4px 10px;
+  list-style: none; margin: 0; font-size: .9rem; }
+.candidatos li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #EDF3EF; padding: 2px 0; }
+.candidatos span:last-child { font-variant-numeric: tabular-nums; color: var(--gris); }
+.ysi-lista { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ysi-lista li { display: flex; align-items: center; gap: 8px; background: var(--verde-claro); color: var(--verde);
+  border-radius: 999px; padding: 6px 8px 6px 14px; font-size: .9rem; font-weight: 600; }
+.ysi-lista button { background: #fff; border: 0; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: var(--verde); font-weight: 700; }
+.grafico { position: relative; }
+.grafico svg { display: block; width: 100%; height: auto; }
+.grafico text { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
+.grafico .rotulo { fill: var(--texto); font-weight: 600; }
+.grafico .rejilla { stroke: #E4ECE7; stroke-width: 1; }
+.grafico .contexto { fill: none; stroke: #C9D6CE; stroke-width: 1; }
+.grafico .serie { fill: none; stroke: var(--verde); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.grafico .punto { fill: var(--verde); stroke: #fff; stroke-width: 2; }
+.grafico .guia { stroke: var(--gris); stroke-width: 1; stroke-dasharray: 3 3; }
+.grafico-ayuda { position: absolute; pointer-events: none; background: var(--texto); color: #fff; font-size: .82rem;
+  padding: 6px 10px; border-radius: 8px; transform: translate(-50%, -110%); white-space: nowrap; z-index: 2; }
+@media (prefers-reduced-motion: reduce) { .barra span { transition: none; } }

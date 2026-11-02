@@ -3,6 +3,7 @@
 Arranque:  iniciar-web.bat (doble clic)  o  .venv\\Scripts\\python app.py
 Abre http://localhost:8080. Solo escucha en este ordenador (127.0.0.1).
 """
+import json
 import os
 import secrets
 import socket
@@ -288,6 +289,149 @@ def api_preguntar():
         return jsonify(resultado)
     finally:
         modelo_ocupado.release()
+
+
+# ------------------------------------------------------------------ predicciones
+limite_simular = Limitador(6, 60 * 60)
+simulacion_web = {"hilo": None, "error": None}
+
+
+def clasificacion_prevista(veces, equipos, temporadas):
+    """Una fila por puesto, con cada equipo una sola vez: se reparte empezando por la pareja
+    (equipo, puesto) más probable de todas. Cada fila lleva además todos los candidatos a ese puesto."""
+    pares = sorted(((veces.get((e, p), (0, 0))[0], p, e) for e in equipos for p in range(1, 21)),
+                   key=lambda x: (-x[0], x[1], equipos[x[2]]))
+    equipo_de, usados = {}, set()
+    for n, puesto, equipo in pares:
+        if puesto not in equipo_de and equipo not in usados:
+            equipo_de[puesto] = equipo
+            usados.add(equipo)
+
+    def pct(valor):
+        return round(100.0 * valor / temporadas, 1) if temporadas else 0.0
+
+    resumen = {}
+    for e in equipos:
+        filas_e = [veces.get((e, p), (0, 0)) for p in range(1, 21)]
+        suma_top = lambda desde, hasta: sum(filas_e[p - 1][0] for p in range(desde, hasta + 1))
+        resumen[e] = {"campeon": pct(suma_top(1, 1)), "top4": pct(suma_top(1, 4)), "top6": pct(suma_top(1, 6)),
+                      "descenso": pct(suma_top(18, 20)),
+                      "puntos": round(sum(f[1] for f in filas_e) / temporadas, 1) if temporadas else 0.0}
+    tabla = []
+    for puesto in sorted(equipo_de):
+        e = equipo_de[puesto]
+        candidatos = sorted(((veces[(c, puesto)][0], equipos[c]) for c in equipos if (c, puesto) in veces),
+                            key=lambda x: (-x[0], x[1]))
+        tabla.append({"puesto": puesto, "equipoId": e, "equipo": equipos[e], "prob": pct(veces.get((e, puesto), (0, 0))[0]),
+                      **resumen[e], "candidatos": [{"equipo": n, "prob": pct(v)} for v, n in candidatos]})
+    return tabla
+
+
+def ejecucion_en_curso():
+    return filas("""SELECT TOP (1) Tipo, HastaJornada, Temporadas, Hechas FROM simulacion.Ejecucion
+                    WHERE Estado = 'En curso' AND Tipo <> 'Validacion' ORDER BY EjecucionID DESC""")
+
+
+def simulando():
+    hilo = simulacion_web["hilo"]
+    return hilo is not None and hilo.is_alive()
+
+
+@app.get("/predicciones")
+def predicciones():
+    return render_template("predicciones.html")
+
+
+@app.get("/api/predicciones")
+def api_predicciones():
+    ultima, equipos, datos = consultar("""
+        SELECT TOP (1) e.EjecucionID, e.HastaJornada, e.Temporadas, e.Fin,
+               CASE WHEN e.HuellaDatos = (SELECT CHECKSUM_AGG(BINARY_CHECKSUM(PartidoID, GolesLocal, GolesVisitante, Estado)) FROM liga.Partido)
+                    THEN 1 ELSE 0 END AS AlDia
+        FROM simulacion.Ejecucion AS e WHERE e.Tipo = 'Principal' AND e.Estado = 'Terminada'
+        ORDER BY e.EjecucionID DESC;
+        SELECT EquipoID, Nombre FROM liga.Equipo ORDER BY Nombre;
+        SELECT MAX(j.Numero) AS Ultima, COUNT(*) AS Jugados FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
+        WHERE p.Estado = 'Finalizado';""")
+    nombres = {e["EquipoID"]: e["Nombre"] for e in equipos}
+    respuesta = {"simulando": simulando() or bool(ejecucion_en_curso()), "equipos": equipos, "resultado": None}
+    if not ultima:
+        return jsonify(respuesta)
+    u = ultima[0]
+    prob, pendientes, evolucion = consultar("""
+        SELECT EquipoID, Puesto, Veces, SumaPuntos FROM simulacion.Probabilidad WHERE EjecucionID = ?;
+        SELECT DISTINCT LocalID, VisitanteID FROM simulacion.PartidoSimulado WHERE Sim = 1;
+        SELECT e.HastaJornada, p.EquipoID,
+               100.0 * SUM(CASE WHEN p.Puesto = 1 THEN p.Veces ELSE 0 END) / e.Temporadas AS Campeon,
+               100.0 * SUM(CASE WHEN p.Puesto <= 4 THEN p.Veces ELSE 0 END) / e.Temporadas AS Top4,
+               100.0 * SUM(CASE WHEN p.Puesto >= 18 THEN p.Veces ELSE 0 END) / e.Temporadas AS Descenso
+        FROM simulacion.Ejecucion AS e JOIN simulacion.Probabilidad AS p ON p.EjecucionID = e.EjecucionID
+        WHERE e.Estado = 'Terminada' AND e.Tipo <> 'Validacion'
+        GROUP BY e.HastaJornada, e.Temporadas, p.EquipoID
+        ORDER BY e.HastaJornada, p.EquipoID;""", (u["EjecucionID"],))
+    veces = {(p["EquipoID"], p["Puesto"]): (p["Veces"], p["SumaPuntos"]) for p in prob}
+    respuesta["resultado"] = {
+        "temporadas": u["Temporadas"], "hastaJornada": u["HastaJornada"], "alDia": bool(u["AlDia"]),
+        "fecha": u["Fin"].strftime("%d/%m/%Y %H:%M") if u["Fin"] else "",
+        "tabla": clasificacion_prevista(veces, nombres, u["Temporadas"]),
+        "pendientes": pendientes,
+        "evolucion": [{"j": e["HastaJornada"], "e": e["EquipoID"], "campeon": round(float(e["Campeon"]), 1),
+                       "top4": round(float(e["Top4"]), 1), "descenso": round(float(e["Descenso"]), 1)} for e in evolucion],
+    }
+    return jsonify(respuesta)
+
+
+@app.post("/api/predicciones/simular")
+def api_simular():
+    if simulando() or ejecucion_en_curso():
+        return jsonify(ok=True, yaEnMarcha=True)
+    if not limite_simular.permitir(request.remote_addr):
+        return jsonify(error="Ya has simulado varias veces en la última hora. Prueba más tarde."), 429
+    simulacion_web["error"] = None
+
+    def trabajo():
+        try:
+            consultar("EXEC simulacion.usp_ActualizarPredicciones;")
+        except ErrorDatos as error:
+            simulacion_web["error"] = str(error)
+
+    simulacion_web["hilo"] = threading.Thread(target=trabajo, daemon=True)
+    simulacion_web["hilo"].start()
+    return jsonify(ok=True)
+
+
+@app.get("/api/predicciones/estado")
+def api_estado_simulacion():
+    actual = ejecucion_en_curso()
+    respuesta = {"simulando": simulando() or bool(actual), "error": simulacion_web["error"], "paso": None}
+    if actual:
+        a = actual[0]
+        respuesta["paso"] = {"tipo": a["Tipo"], "jornada": a["HastaJornada"], "temporadas": a["Temporadas"], "hechas": a["Hechas"]}
+        if a["Tipo"] == "Principal" and a["Hechas"]:
+            lider = filas("""SELECT TOP (1) q.Nombre, p.Veces FROM simulacion.Probabilidad AS p
+                             JOIN liga.Equipo AS q ON q.EquipoID = p.EquipoID
+                             WHERE p.Puesto = 1 AND p.EjecucionID = (SELECT MAX(EjecucionID) FROM simulacion.Ejecucion WHERE Tipo = 'Principal')
+                             ORDER BY p.Veces DESC""")
+            if lider:
+                respuesta["lider"] = {"equipo": lider[0]["Nombre"], "pct": round(100.0 * lider[0]["Veces"] / a["Hechas"], 1)}
+    return jsonify(respuesta)
+
+
+@app.get("/api/predicciones/curiosidades")
+def api_curiosidades():
+    return jsonify(curiosidades=[f["Texto"] for f in filas("EXEC simulacion.usp_Curiosidades;")])
+
+
+@app.post("/api/predicciones/ysi")
+def api_ysi():
+    datos = request.get_json(silent=True) or {}
+    condiciones = [{"L": entero(c.get("L")), "V": entero(c.get("V")), "S": str(c.get("S"))}
+                   for c in (datos.get("condiciones") or [])[:3] if isinstance(c, dict)]
+    temporadas, detalle = consultar("EXEC simulacion.usp_YSi @Condiciones = ?;", (json.dumps(condiciones),))
+    total = temporadas[0]["Temporadas"]
+    nombres = {e["EquipoID"]: e["Nombre"] for e in filas("SELECT EquipoID, Nombre FROM liga.Equipo")}
+    veces = {(d["EquipoID"], d["Puesto"]): (d["Veces"], d["SumaPuntos"]) for d in detalle}
+    return jsonify(temporadas=total, tabla=clasificacion_prevista(veces, nombres, total) if total else [])
 
 
 # ------------------------------------------------------------------------ admin
