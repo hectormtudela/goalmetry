@@ -168,6 +168,7 @@ sqlcmd -S localhost -E -C -b -v DataPath="$PWD\data" -i ai\generate_embeddings.s
 sqlcmd -S localhost -E -C -b -i ai\vector_search.sql            # Full-Text + búsqueda híbrida
 sqlcmd -S localhost -E -C -b -i ai\temas.sql                    # temas de los que no hay datos
 sqlcmd -S localhost -E -C -b -i ai\rag.sql                      # procedimientos del RAG
+sqlcmd -S localhost -E -C -b -i ai\intenciones.sql              # tarjetas de datos, sin LLM
 sqlcmd -S localhost -E -C -b -i ai\rag_demo.sql                 # demo del RAG: la primera vez tarda ~1 minuto
 ```
 

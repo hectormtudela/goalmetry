@@ -27,6 +27,20 @@
 
 <div class="respuestas" data-respuestas aria-live="polite"></div>
 
+<template id="plantilla-tarjeta">
+  <article class="tarjeta respuesta tarjeta-datos">
+    <header><span class="chip">Directo de la base de datos</span><span class="tiempo">Sin IA generativa</span></header>
+    <h2 class="sin-margen" data-titulo></h2>
+    <p class="texto" data-texto></p>
+    <div data-grafico></div>
+    <div class="tabla-scroll"><table class="tabla"><thead><tr></tr></thead><tbody></tbody></table></div>
+    <div class="fila-acciones">
+      <a class="oculto" data-enlace>Ver la pantalla completa</a>
+      <button class="boton" type="button" data-a-la-ia>Preguntar a la IA</button>
+    </div>
+  </article>
+</template>
+
 <template id="plantilla-respuesta">
   <article class="tarjeta respuesta">
     <header><span class="chip"></span><span class="tiempo"></span></header>

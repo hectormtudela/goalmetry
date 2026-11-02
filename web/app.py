@@ -271,9 +271,9 @@ def cobertura(sin_contexto, texto, oficiales, documentos):
     if texto.startswith("No tengo ese dato") or texto.startswith("No tengo datos"):
         return {"nivel": "ninguna", "texto": "Sin datos sobre esto: no se ha podido responder."}
     if oficiales:
-        return {"nivel": "alta", "texto": "Datos exactos de las tablas de la liga."}
+        return {"nivel": "alta", "texto": "Ha consultado datos exactos de las tablas de la liga: los tienes en «Datos usados»."}
     if documentos:
-        return {"nivel": "media", "texto": "Solo documentos (crónicas o reglamento), sin datos exactos de las tablas."}
+        return {"nivel": "media", "texto": "Ha consultado solo documentos (crónicas o reglamento), sin datos exactos de las tablas."}
     return {"nivel": "ninguna", "texto": "Sin respaldo en la base de datos."}
 
 
@@ -296,6 +296,20 @@ def responder(pregunta, sin_contexto):
             "cobertura": cobertura(sin_contexto, texto, oficiales, usado), "cifras_sin_respaldo": sin_respaldo}
 
 
+def tarjeta_de(pregunta):
+    """La tarjeta de datos de esta pregunta, o None si debe responder el RAG."""
+    try:
+        resultados = consultar("EXEC ia.usp_TarjetaPregunta @Pregunta = ?;", (pregunta,))
+    except ErrorDatos:
+        return None
+    cabecera = resultados[0][0]
+    if not cabecera["Intencion"] or len(resultados) < 2 or not resultados[1]:
+        return None
+    columnas = list(resultados[1][0].keys())
+    return {"titulo": cabecera["Titulo"], "texto": cabecera["Texto"], "enlace": cabecera["Enlace"], "grafico": cabecera["Grafico"],
+            "columnas": columnas, "filas": [[f[c] for c in columnas] for f in resultados[1]]}
+
+
 @app.post("/api/preguntar")
 def api_preguntar():
     datos = request.get_json(silent=True) or {}
@@ -307,6 +321,11 @@ def api_preguntar():
     if not modelo_ocupado.acquire(timeout=120):
         return jsonify(error="La IA está ocupada con otra pregunta. Prueba dentro de un momento."), 503
     try:
+        # Sin LLM si la base de datos reconoce la pregunta; datos["rag"] es «Preguntar a la IA» desde la tarjeta.
+        if not datos.get("comparar") and not datos.get("rag"):
+            tarjeta = tarjeta_de(pregunta)
+            if tarjeta:
+                return jsonify(tarjeta=tarjeta)
         resultado = {"rag": responder(pregunta, False)}
         if datos.get("comparar"):
             resultado["solo"] = responder(pregunta, True)

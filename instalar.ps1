@@ -85,7 +85,7 @@ if ($Consultas) {
     $scripts += Get-Item (Join-Path $raiz 'database\consultas_avanzadas.sql')
 }
 if ($IA) {
-    foreach ($nombre in 'create_external_model.sql', 'generate_embeddings.sql', 'vector_search.sql', 'temas.sql', 'rag.sql', 'rag_demo.sql') {
+    foreach ($nombre in 'create_external_model.sql', 'generate_embeddings.sql', 'vector_search.sql', 'temas.sql', 'rag.sql', 'intenciones.sql', 'rag_demo.sql') {
         $ruta = Join-Path $raiz "ai\$nombre"
         if (Test-Path $ruta) { $scripts += Get-Item $ruta }
         else { Write-Warning "ai\$nombre todavía no existe; se omite." }

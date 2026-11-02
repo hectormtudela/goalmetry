@@ -22,35 +22,17 @@ SET NOCOUNT ON;
 USE LigaDB;
 GO
 
-/* ---------- ia.usp_DatosOficiales ----------
-   "Datos oficiales" para el RAG: la base de datos mira la pregunta, reconoce los equipos,
-   jugadores, árbitros y jornadas que se nombran (buscándolos en las tablas) y devuelve sus
-   datos EXACTOS en frases. Así el modelo no tiene que contar ni sumar nada a partir de las
-   crónicas, que es donde se equivoca un modelo pequeño. No hay preguntas ni respuestas
-   preparadas: funciona con cualquier pregunta que nombre algo de la liga.
-     - Equipo:    puesto, puntos, ganados/empatados/perdidos, goles, goleadores y resultados.
-     - 2 equipos: además, sus partidos entre ellos (con goles y árbitro).
-     - Jugador:   equipo, posición, goles totales (penaltis), en qué partidos y minutos;
-                  minutos jugados y asistencias de la ficha (hasta la jornada de la fuente).
-     - Árbitro:   partidos dirigidos.
-     - Jornada N: sus resultados y goles.
-     - Rankings (líder, último, puntos, "qué equipo..."): la clasificación completa.
-     - Goleadores ("pichichi", "máximo goleador"...): los 10 primeros.
-     - Futuro ("qué opciones tiene...", "va a descender..."): las predicciones, como ESTIMACIÓN.
-   Reconocimiento: se normaliza la pregunta (sin signos; la collation CI_AI ignora tildes y
-   mayúsculas) y se buscan los nombres completos, los nombres cortos, algunos apodos y las
-   partes del nombre que son únicas (p. ej. "Mbappé"), de más largo a más corto: así
-   "Atlético Madrid" no se confunde con "Real Madrid". */
-CREATE OR ALTER PROCEDURE ia.usp_DatosOficiales
+/* ---------- ia.usp_ReconocerEntidades ----------
+   Busca en la pregunta los equipos, jugadores, anotadores y árbitros que se nombran y los deja en
+   #Hallado (la crea quien llama). @Texto devuelve la pregunta sin signos y con cada nombre cambiado
+   por «|». Lo usan ia.usp_DatosOficiales y las tarjetas de ai/intenciones.sql. */
+CREATE OR ALTER PROCEDURE ia.usp_ReconocerEntidades
     @Pregunta NVARCHAR(500),
-    @Datos    NVARCHAR(MAX) OUTPUT
+    @Texto    NVARCHAR(700) = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
-    SET @Datos = NULL;
-
     DECLARE @t NVARCHAR(700) = CONCAT(N' ', REGEXP_REPLACE(@Pregunta, N'[^\p{L}\p{N}]+', N' '), N' ');
-    DECLARE @Lineas TABLE (Orden INT IDENTITY, Texto NVARCHAR(MAX));
 
     /* ---- 1. Formas de nombrar cada cosa ---- */
     CREATE TABLE #Term (Tipo CHAR(1), ID INT, Nombre NVARCHAR(150) COLLATE DATABASE_DEFAULT,
@@ -99,7 +81,6 @@ BEGIN
     WHERE Termino LIKE N'%[-.'']%';
 
     /* ---- 2. Buscar en la pregunta, de lo más largo a lo más corto ---- */
-    DECLARE @Hallado TABLE (Orden INT IDENTITY, Tipo CHAR(1), ID INT, Nombre NVARCHAR(150));
     DECLARE @tipo CHAR(1), @id INT, @nombre NVARCHAR(150), @termino NVARCHAR(150);
     -- Primero, de una vez, todos los términos que aparecen; después se recorren solo esos
     -- (normalmente 1-5) para quedarse con el más largo cuando se solapan.
@@ -113,13 +94,48 @@ BEGIN
     BEGIN
         IF @t LIKE N'% ' + @termino + N' %'
         BEGIN
-            IF NOT EXISTS (SELECT 1 FROM @Hallado WHERE Tipo = @tipo AND ID = @id)
-                INSERT @Hallado (Tipo, ID, Nombre) VALUES (@tipo, @id, @nombre);
+            IF NOT EXISTS (SELECT 1 FROM #Hallado WHERE Tipo = @tipo AND ID = @id)
+                INSERT #Hallado (Tipo, ID, Nombre) VALUES (@tipo, @id, @nombre);
             SET @t = REPLACE(@t, N' ' + @termino + N' ', N' | ');
         END;
         FETCH NEXT FROM c INTO @tipo, @id, @nombre, @termino;
     END;
     CLOSE c; DEALLOCATE c;
+    SET @Texto = @t;
+END;
+GO
+
+/* ---------- ia.usp_DatosOficiales ----------
+   "Datos oficiales" para el RAG: la base de datos mira la pregunta, reconoce los equipos,
+   jugadores, árbitros y jornadas que se nombran (buscándolos en las tablas) y devuelve sus
+   datos EXACTOS en frases. Así el modelo no tiene que contar ni sumar nada a partir de las
+   crónicas, que es donde se equivoca un modelo pequeño. No hay preguntas ni respuestas
+   preparadas: funciona con cualquier pregunta que nombre algo de la liga.
+     - Equipo:    puesto, puntos, ganados/empatados/perdidos, goles, goleadores y resultados.
+     - 2 equipos: además, sus partidos entre ellos (con goles y árbitro).
+     - Jugador:   equipo, posición, goles totales (penaltis), en qué partidos y minutos;
+                  minutos jugados y asistencias de la ficha (hasta la jornada de la fuente).
+     - Árbitro:   partidos dirigidos.
+     - Jornada N: sus resultados y goles.
+     - Rankings (líder, último, puntos, "qué equipo..."): la clasificación completa.
+     - Goleadores ("pichichi", "máximo goleador"...): los 10 primeros.
+     - Futuro ("qué opciones tiene...", "va a descender..."): las predicciones, como ESTIMACIÓN.
+   Reconocimiento: se normaliza la pregunta (sin signos; la collation CI_AI ignora tildes y
+   mayúsculas) y se buscan los nombres completos, los nombres cortos, algunos apodos y las
+   partes del nombre que son únicas (p. ej. "Mbappé"), de más largo a más corto: así
+   "Atlético Madrid" no se confunde con "Real Madrid". */
+CREATE OR ALTER PROCEDURE ia.usp_DatosOficiales
+    @Pregunta NVARCHAR(500),
+    @Datos    NVARCHAR(MAX) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Datos = NULL;
+
+    DECLARE @Lineas TABLE (Orden INT IDENTITY, Texto NVARCHAR(MAX));
+
+    CREATE TABLE #Hallado (Orden INT IDENTITY, Tipo CHAR(1), ID INT, Nombre NVARCHAR(150) COLLATE DATABASE_DEFAULT);
+    EXEC ia.usp_ReconocerEntidades @Pregunta = @Pregunta;
 
     DECLARE @Jornada INT = TRY_CONVERT(INT, REGEXP_SUBSTR(@Pregunta, N'jornada\s*(\d{1,2})', 1, 1, 'i', 1));
     IF @Jornada IS NULL SET @Jornada = TRY_CONVERT(INT, REGEXP_SUBSTR(@Pregunta, N'\bJ(\d{1,2})\b', 1, 1, 'i', 1));
@@ -139,7 +155,7 @@ BEGIN
                   N'Goles marcados (a favor) del ', e.Nombre, N': ', c.GF, N'. ',
                   N'Goles encajados (en contra) del ', e.Nombre, N': ', c.GC, N'.',
                   CASE WHEN g.Lista IS NOT NULL THEN CONCAT(N' Máximos goleadores del ', e.Nombre, N': ', g.Lista, N'.') ELSE N'' END)
-    FROM (SELECT TOP (3) ID, Orden FROM @Hallado WHERE Tipo = 'E' ORDER BY Orden) AS h
+    FROM (SELECT TOP (3) ID, Orden FROM #Hallado WHERE Tipo = 'E' ORDER BY Orden) AS h
     JOIN liga.Equipo AS e ON e.EquipoID = h.ID
     LEFT JOIN liga.vw_Clasificacion AS c ON c.EquipoID = e.EquipoID
     OUTER APPLY (SELECT STRING_AGG(CONCAT(t.Anotador, N' (', t.Goles, N' goles)'), N', ') WITHIN GROUP (ORDER BY t.Goles DESC, t.Anotador) AS Lista
@@ -169,8 +185,8 @@ BEGIN
     JOIN liga.Equipo  AS l ON l.EquipoID = p.EquipoLocalID
     JOIN liga.Equipo  AS v ON v.EquipoID = p.EquipoVisitanteID
     LEFT JOIN ia.vw_CronicaGenerada AS cr ON cr.PartidoID = p.PartidoID
-    WHERE p.EquipoLocalID IN (SELECT ID FROM @Hallado WHERE Tipo = 'E')
-      AND p.EquipoVisitanteID IN (SELECT ID FROM @Hallado WHERE Tipo = 'E')
+    WHERE p.EquipoLocalID IN (SELECT ID FROM #Hallado WHERE Tipo = 'E')
+      AND p.EquipoVisitanteID IN (SELECT ID FROM #Hallado WHERE Tipo = 'E')
       AND (@Jornada IS NULL OR j.Numero = @Jornada)
     ORDER BY j.Numero;
 
@@ -195,7 +211,7 @@ BEGIN
                        THEN CONCAT(N' Partidos jugados por ', h.Nombre, N': no constan en la base de datos; lo que sí consta son sus minutos jugados: ',
                                    jg.MinutosJugados, N'. Titularidades, tarjetas y lesiones: no constan.')
                        ELSE N' No tiene ficha de jugador en la base de datos: solo constan sus goles.' END)
-    FROM (SELECT TOP (3) Tipo, ID, Nombre, Orden FROM @Hallado WHERE Tipo IN ('J', 'A') ORDER BY Orden) AS h
+    FROM (SELECT TOP (3) Tipo, ID, Nombre, Orden FROM #Hallado WHERE Tipo IN ('J', 'A') ORDER BY Orden) AS h
     LEFT JOIN liga.Jugador AS jg ON h.Tipo = 'J' AND jg.JugadorID = h.ID
     LEFT JOIN liga.Equipo  AS eq ON eq.EquipoID = jg.EquipoID
     -- COUNT, no SUM: un jugador sin goles no tiene filas y SUM daría NULL (el dato saldría vacío).
@@ -227,7 +243,7 @@ BEGIN
                        THEN CONCAT(N': ', STRING_AGG(CONCAT(N'jornada ', j.Numero, N', ', l.Nombre, N' ', p.GolesLocal, N'-', p.GolesVisitante, N' ', v.Nombre), N'; ')
                                                     WITHIN GROUP (ORDER BY j.Numero))
                        ELSE N'' END, N'.')
-    FROM (SELECT TOP (2) ID, Orden FROM @Hallado WHERE Tipo = 'R' ORDER BY Orden) AS h
+    FROM (SELECT TOP (2) ID, Orden FROM #Hallado WHERE Tipo = 'R' ORDER BY Orden) AS h
     JOIN liga.Arbitro AS a ON a.ArbitroID = h.ID
     LEFT JOIN liga.Partido AS p ON p.ArbitroPrincipalID = a.ArbitroID AND p.Estado = 'Finalizado'
     LEFT JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
@@ -237,13 +253,13 @@ BEGIN
     ORDER BY h.Orden;
 
     -- Jornada nombrada (si no se ha preguntado ya por un partido concreto de esa jornada)
-    IF @Jornada IS NOT NULL AND (SELECT COUNT(*) FROM @Hallado WHERE Tipo = 'E') < 2
+    IF @Jornada IS NOT NULL AND (SELECT COUNT(*) FROM #Hallado WHERE Tipo = 'E') < 2
         INSERT @Lineas (Texto)
         SELECT CONCAT(N'JORNADA ', r.Numero, N': ', r.Texto) FROM ia.vw_ResumenJornada AS r WHERE r.Numero = @Jornada;
 
     -- Clasificación completa: preguntas de ranking o sobre equipos sin nombrar ninguno
     IF REGEXP_LIKE(@Pregunta, N'clasificaci|tabla|l[ií]der|lidera|primer|segund|tercer|cuart|[uú]ltim|colista|puesto|posici|descen|europa|champions|m[aá]s puntos|menos puntos|qu[eé] equipo|cu[aá]l equipo|qui[eé]n va|equipos', 'i')
-       OR (NOT EXISTS (SELECT 1 FROM @Hallado) AND @Jornada IS NULL
+       OR (NOT EXISTS (SELECT 1 FROM #Hallado) AND @Jornada IS NULL
            AND REGEXP_LIKE(@Pregunta, N'puntos|victori|derrot|empat|ganad|perdid|goles a favor|en contra|encaj', 'i'))
         INSERT @Lineas (Texto)
         SELECT CONCAT(N'CLASIFICACIÓN ACTUAL (solo partidos finalizados): ',
@@ -254,7 +270,7 @@ BEGIN
 
     -- Máximos goleadores: si se pregunta por ellos sin nombrar a ningún jugador
     IF REGEXP_LIKE(@Pregunta, N'goleador|pichichi|m[aá]s goles|marcado m[aá]s|anotado m[aá]s', 'i')
-       AND NOT EXISTS (SELECT 1 FROM @Hallado WHERE Tipo IN ('J', 'A'))
+       AND NOT EXISTS (SELECT 1 FROM #Hallado WHERE Tipo IN ('J', 'A'))
         INSERT @Lineas (Texto)
         SELECT CONCAT(N'MÁXIMOS GOLEADORES (total de goles en la temporada): ',
                       STRING_AGG(CONCAT(t.Posicion, N'º ', t.Anotador, N' (', t.Equipo, N'), ', t.Goles, N' goles'), N'; ')
@@ -290,11 +306,11 @@ BEGIN
                           N'Opciones de descender: ', FORMAT(r.Descenso, 'N1', 'es-ES'), N' %. ',
                           N'Puntos previstos al final: ', FORMAT(r.Puntos, 'N0', 'es-ES'), N'.')
             FROM R AS r
-            WHERE r.EquipoID IN (SELECT ID FROM @Hallado WHERE Tipo = 'E')
-               OR (NOT EXISTS (SELECT 1 FROM @Hallado WHERE Tipo = 'E')
+            WHERE r.EquipoID IN (SELECT ID FROM #Hallado WHERE Tipo = 'E')
+               OR (NOT EXISTS (SELECT 1 FROM #Hallado WHERE Tipo = 'E')
                    AND r.EquipoID IN (SELECT TOP (3) EquipoID FROM R ORDER BY Campeon DESC));
 
-            IF NOT EXISTS (SELECT 1 FROM @Hallado WHERE Tipo = 'E') AND REGEXP_LIKE(@Pregunta, N'descen|bajar|salva', 'i')
+            IF NOT EXISTS (SELECT 1 FROM #Hallado WHERE Tipo = 'E') AND REGEXP_LIKE(@Pregunta, N'descen|bajar|salva', 'i')
                 INSERT @Lineas (Texto)
                 SELECT CONCAT(N'ESTIMACIÓN (simulación, no es un resultado real). Equipos con más opciones de descender: ',
                               STRING_AGG(CONCAT(t.Nombre, N' ', FORMAT(t.Descenso, 'N1', 'es-ES'), N' %'), N'; ')

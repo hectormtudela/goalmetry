@@ -114,7 +114,7 @@ if ($conIA) {
 
 # ---------- 2b. Objetos nuevos ----------
 if ($conIA) {
-    foreach ($nombre in 'temas.sql', 'rag.sql') {
+    foreach ($nombre in 'temas.sql', 'rag.sql', 'intenciones.sql') {
         & sqlcmd -S $Servidor -E -C -b -W -i (Join-Path $raiz "ai\$nombre") | Out-Null
         if ($LASTEXITCODE -ne 0) { Write-Host "    AVISO: no se ha podido aplicar ai\$nombre." -ForegroundColor Yellow }
     }

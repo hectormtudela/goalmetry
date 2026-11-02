@@ -148,17 +148,72 @@ if (formPregunta) {
     zona.append(n);
   };
 
-  formPregunta.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const pregunta = area.value.trim();
-    if (!pregunta) return;
-    const comparar = formPregunta.comparar.checked;
+  // Barras enfrentadas de dos equipos: una fila por dato, cada una a escala de su máximo.
+  const graficoPares = (columnas, filas) => {
+    const NS = "http://www.w3.org/2000/svg";
+    const el = (tag, attrs, texto) => {
+      const x = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) x.setAttribute(k, v);
+      if (texto !== undefined) x.textContent = texto;
+      return x;
+    };
+    const alto = 26, ancho = 520, centro = ancho / 2, media = 150;
+    const svg = el("svg", { viewBox: `0 0 ${ancho} ${alto * filas.length + 26}`, class: "pares", role: "img",
+                            "aria-label": `Comparación entre ${columnas[1]} y ${columnas[2]}` });
+    svg.append(el("text", { x: centro - 60, y: 14, "text-anchor": "end", class: "pares-cab" }, columnas[1]));
+    svg.append(el("text", { x: centro + 60, y: 14, "text-anchor": "start", class: "pares-cab" }, columnas[2]));
+    filas.forEach(([dato, a, b], i) => {
+      const y = 24 + i * alto, max = Math.max(a, b, 1);
+      const la = (media * a) / max, lb = (media * b) / max;
+      svg.append(el("rect", { x: centro - 60 - la, y, width: la, height: 16, class: "pares-a" }));
+      svg.append(el("rect", { x: centro + 60, y, width: lb, height: 16, class: "pares-b" }));
+      svg.append(el("text", { x: centro, y: y + 12, "text-anchor": "middle", class: "pares-dato" }, dato));
+      svg.append(el("text", { x: centro - 66 - la, y: y + 12, "text-anchor": "end", class: "pares-num" }, a));
+      svg.append(el("text", { x: centro + 66 + lb, y: y + 12, "text-anchor": "start", class: "pares-num" }, b));
+    });
+    return svg;
+  };
+
+  const pintarTarjeta = (t, pregunta) => {
+    const n = document.getElementById("plantilla-tarjeta").content.cloneNode(true);
+    n.querySelector("[data-titulo]").textContent = t.titulo;
+    n.querySelector("[data-texto]").textContent = t.texto;
+    const cab = n.querySelector("thead tr");
+    t.columnas.forEach((c, i) => {
+      const th = document.createElement("th");
+      th.textContent = c;
+      if (typeof t.filas[0][i] === "number") th.className = "num";
+      cab.append(th);
+    });
+    const cuerpo = n.querySelector("tbody");
+    for (const fila of t.filas) {
+      const tr = document.createElement("tr");
+      for (const v of fila) {
+        const td = document.createElement("td");
+        td.textContent = v;
+        if (typeof v === "number") td.className = "num";
+        tr.append(td);
+      }
+      cuerpo.append(tr);
+    }
+    if (t.grafico === "pares") n.querySelector("[data-grafico]").append(graficoPares(t.columnas, t.filas));
+    if (t.enlace) {
+      const a = n.querySelector("[data-enlace]");
+      a.href = t.enlace;
+      a.classList.remove("oculto");
+    }
+    n.querySelector("[data-a-la-ia]").addEventListener("click", () => enviar(pregunta, false, true));
+    zona.append(n);
+  };
+
+  const enviar = async (pregunta, comparar, rag) => {
     const boton = formPregunta.querySelector("button[type=submit]");
     boton.disabled = true;
     cargando(zona, "Pensando… Buscando en la base de datos y redactando la respuesta. La primera pregunta puede tardar hasta un minuto.");
     try {
-      const r = await pedir("/api/preguntar", { pregunta, comparar });
+      const r = await pedir("/api/preguntar", { pregunta, comparar, rag });
       zona.replaceChildren();
+      if (r.tarjeta) { pintarTarjeta(r.tarjeta, pregunta); return; }
       pintar("Respuesta con los datos de la liga", r.rag, false);
       if (r.solo) pintar("IA sin consultar la base de datos", r.solo, true);
     } catch (error) {
@@ -166,6 +221,12 @@ if (formPregunta) {
     } finally {
       boton.disabled = false;
     }
+  };
+
+  formPregunta.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const pregunta = area.value.trim();
+    if (pregunta) enviar(pregunta, formPregunta.comparar.checked, false);
   });
 }
 

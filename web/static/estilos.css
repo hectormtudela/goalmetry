@@ -341,3 +341,12 @@ svg.calibracion { display: block; width: 100%; max-width: 520px; height: auto; m
 .cobertura-ninguna { border-left-color: #B3261E; }
 .datos-usados h3 { font-size: .9rem; margin: 12px 0 4px; }
 .datos-usados pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .82rem; margin: 0; padding: 10px; max-height: 320px; overflow-y: auto; background: #F4F7F5; border-radius: 6px; }
+
+/* ---------- Pregunta a la IA: tarjeta de datos ---------- */
+.tarjeta-datos .tabla { margin-top: 10px; }
+.tarjeta-datos .fila-acciones { margin-top: 12px; align-items: center; justify-content: space-between; }
+svg.pares { display: block; width: 100%; max-width: 560px; height: auto; margin: 8px auto; }
+.pares-a { fill: var(--verde); }
+.pares-b { fill: #6C8A7A; }
+.pares-cab { font: 600 13px "Segoe UI", system-ui, sans-serif; fill: var(--texto, #1B2A22); }
+.pares-dato, .pares-num { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
