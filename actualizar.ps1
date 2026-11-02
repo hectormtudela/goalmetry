@@ -80,6 +80,13 @@ Write-Host ("    IA instalada: {0}" -f $(if ($conIA) { 'sí' } else { 'no (solo 
 
 $total = [System.Diagnostics.Stopwatch]::StartNew()
 
+# ---------- 0. Congelar predicciones ANTES de cargar los resultados nuevos ----------
+if (-not $Simular -and (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.procedures WHERE name = N'usp_CongelarPredicciones'") -eq '1') {
+    Escribir-Paso 'Congelando las predicciones de la próxima jornada'
+    & sqlcmd -S $Servidor -E -C -b -W -d LigaDB -Q "SET NOCOUNT ON; EXEC simulacion.usp_CongelarPredicciones;"
+    if ($LASTEXITCODE -ne 0) { Write-Host "    AVISO: no se han podido congelar las predicciones." -ForegroundColor Yellow }
+}
+
 # ---------- 1. Datos de la liga ----------
 Escribir-Paso $(if ($Simular) { 'Simulando la actualización de los datos (no se guarda nada)' } else { 'Actualizando los datos de la liga' })
 & sqlcmd -S $Servidor -E -C -b -W -v DataPath="$dataPath" Simular=$(if ($Simular) { 1 } else { 0 }) `

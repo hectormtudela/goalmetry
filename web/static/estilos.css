@@ -325,3 +325,11 @@ svg.bump { display: block; width: 100%; min-width: 760px; height: auto; }
 .tarjeta-dato { margin: 0; }
 .tarjeta-dato p:last-child { margin: 4px 0 0; color: var(--texto); font-size: .95rem; }
 .separado-abajo { margin-bottom: 20px; }
+
+/* ---------- Fiabilidad ---------- */
+.lista-explicacion { font-size: .9rem; color: var(--gris); padding-left: 20px; margin: 14px 0 0; }
+svg.calibracion { display: block; width: 100%; max-width: 520px; height: auto; margin: 10px auto; }
+.calibracion .rejilla { stroke: #E4ECE7; stroke-width: 1; }
+.calibracion .eje { font: 12px "Segoe UI", system-ui, sans-serif; fill: var(--gris); }
+.calibracion .diagonal { stroke: var(--gris); stroke-width: 1; stroke-dasharray: 4 4; }
+.calibracion .punto { fill: var(--verde); stroke: #fff; stroke-width: 2; }

@@ -300,6 +300,7 @@ SECCIONES_ANALISIS = [
     ("Árbitros", "/arbitros", "Partidos dirigidos, goles y victorias locales, junto a la media de la liga."),
     ("Posición jornada a jornada", "/posiciones", "Cómo ha subido y bajado cada equipo en la clasificación."),
     ("Curiosidades y remontadas", "/curiosidades", "Mayor goleada, gol más tardío, rachas y partidos remontados."),
+    ("¿Cuánto fiarse de las predicciones?", "/fiabilidad", "Aciertos, Brier y calibración frente a referencias simples."),
     #@@SECCIONES@@
 ]
 
@@ -354,6 +355,25 @@ def curiosidades():
     datos = filas("SELECT Titulo, Texto FROM analisis.Curiosidad WHERE Categoria <> 'Simulacion' ORDER BY CuriosidadID")
     remontadas = filas("SELECT Titulo, MaxDesventaja FROM analisis.Remontada ORDER BY MaxDesventaja DESC, Jornada DESC")
     return render_template("curiosidades.html", curiosidades=datos, remontadas=remontadas)
+
+
+MODELOS = {
+    "Poisson": ("Poisson", "El modelo de Predicciones: goles a favor y en contra de cada equipo."),
+    "Frecuencias": ("Frecuencias de la liga", "Referencia simple: da a todos los partidos el reparto medio de 1, X y 2."),
+    "Un tercio": ("Un tercio cada resultado", "Referencia simple: no sabe nada."),
+    #@@MODELOS@@
+}
+
+
+@app.get("/fiabilidad")
+def fiabilidad():
+    modelos = filas("SELECT Modelo, Tipo, Partidos, Brier, LogLoss, Aciertos FROM simulacion.vw_FiabilidadModelo ORDER BY Tipo, Brier")
+    for m in modelos:
+        m["Nombre"], m["Explicacion"] = MODELOS.get(m["Modelo"], (m["Modelo"], ""))
+    calibracion = filas("SELECT Tramo, Casos, Previsto, Ocurrido FROM simulacion.vw_Calibracion WHERE Modelo = 'Poisson' ORDER BY Tramo")
+    total = max((m["Partidos"] for m in modelos), default=0)
+    congeladas = sum(m["Partidos"] for m in modelos if m["Tipo"] == "Congelada" and m["Modelo"] == "Poisson")
+    return render_template("fiabilidad.html", modelos=modelos, calibracion=calibracion, total=total, congeladas=congeladas)
 
 
 @app.get("/parecidos")

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Fiabilidad de las predicciones{% endblock %}
+{% macro n(v, d=3) %}{{ ('%.' ~ d ~ 'f')|format(v)|replace('.', ',') }}{% endmacro %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta">Estimaciones comparadas con la realidad</p><h1>¿Cuánto fiarse de las predicciones?</h1></div></section>
+<p class="aviso aviso-info">Muestra pequeña: solo {{ total }} partidos evaluados. Con tan pocos, una diferencia pequeña entre modelos puede ser casualidad.</p>
+
+<section class="tarjeta separado">
+  <div class="tarjeta-cabecera"><h2>Cada modelo frente a lo que pasó</h2></div>
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th>Modelo</th><th>Tipo de predicción</th><th class="num">Partidos</th><th class="num" title="Menos es mejor">Brier</th><th class="num" title="Menos es mejor">Log-loss</th><th class="num" title="Veces que acertó lo más probable">Aciertos</th></tr></thead>
+    <tbody>
+    {% for m in modelos %}
+      <tr>
+        <td><b>{{ m.Nombre }}</b><br><small class="nota">{{ m.Explicacion }}</small></td>
+        <td>{{ 'Congelada antes del partido' if m.Tipo == 'Congelada' else 'Retrospectiva' }}</td>
+        <td class="num">{{ m.Partidos }}</td><td class="num">{{ n(m.Brier) }}</td><td class="num">{{ n(m.LogLoss) }}</td>
+        <td class="num">{{ m.Aciertos }} ({{ n(100 * m.Aciertos / m.Partidos, 0) }} %)</td>
+      </tr>
+    {% else %}<tr><td colspan="6" class="vacio">Todavía no hay partidos evaluados.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  <ul class="lista-explicacion">
+    <li><b>Retrospectiva:</b> calculada después de jugarse, pero usando solo los partidos anteriores. Prueba el método, aunque no es una predicción hecha de verdad antes.</li>
+    <li><b>Congelada:</b> guardada antes de que empezara el partido. Son las que cuentan de verdad: {{ congeladas }} hasta ahora.</li>
+    <li><b>Brier y log-loss:</b> miden cuánto se equivocan las probabilidades. Menos es mejor. Un tercio para cada resultado da 0,667 de Brier.</li>
+  </ul>
+  {# COMPARACION #}
+</section>
+
+<section class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Calibración del modelo Poisson</h2></div>
+  <p class="nota sin-margen">Si el modelo está bien calibrado, cuando dice «40 %» pasa alrededor del 40 % de las veces: los puntos caen cerca de la diagonal.</p>
+  <svg class="calibracion" viewBox="0 0 420 340" role="img" aria-label="Probabilidad prevista frente a frecuencia real">
+    {% for v in [0, 25, 50, 75, 100] %}
+      <line class="rejilla" x1="50" x2="400" y1="{{ 300 - 2.8 * v }}" y2="{{ 300 - 2.8 * v }}"></line>
+      <text class="eje" x="42" y="{{ 304 - 2.8 * v }}" text-anchor="end">{{ v }} %</text>
+      <text class="eje" x="{{ 50 + 3.5 * v }}" y="320" text-anchor="middle">{{ v }} %</text>
+    {% endfor %}
+    <line class="diagonal" x1="50" y1="300" x2="400" y2="20"></line>
+    {% for c in calibracion %}
+      <circle class="punto" cx="{{ '%.1f'|format(50 + 350 * c.Previsto) }}" cy="{{ '%.1f'|format(300 - 280 * c.Ocurrido) }}" r="6">
+        <title>Previsto {{ n(100 * c.Previsto, 0) }} %, ocurrió {{ n(100 * c.Ocurrido, 0) }} % ({{ c.Casos }} casos)</title></circle>
+    {% endfor %}
+    <text class="eje" x="225" y="338" text-anchor="middle">Probabilidad prevista</text>
+  </svg>
+  <details class="fuentes"><summary>Ver los datos en una tabla</summary>
+    <table class="tabla"><thead><tr><th class="num">Previsto</th><th class="num">Ocurrió</th><th class="num">Casos</th></tr></thead>
+    <tbody>{% for c in calibracion %}<tr><td class="num">{{ n(100 * c.Previsto, 0) }} %</td><td class="num">{{ n(100 * c.Ocurrido, 0) }} %</td><td class="num">{{ c.Casos }}</td></tr>{% endfor %}</tbody></table>
+  </details>
+</section>
+{% endblock %}
