@@ -52,6 +52,7 @@ IF OBJECT_ID(N'externo.PartidoFuturo', N'U') IS NULL
 CREATE TABLE externo.PartidoFuturo
 (
     Jornada TINYINT NOT NULL, Fecha DATE NULL, Hora VARCHAR(5) NULL, LocalID INT NOT NULL, VisitanteID INT NOT NULL,
+    Contrastado BIT NOT NULL CONSTRAINT DF_PartidoFuturo_Contrastado DEFAULT (0),   -- 1 = también está en una segunda fuente
     Fuente VARCHAR(40) NOT NULL, Importado DATETIME2(0) NOT NULL CONSTRAINT DF_PartidoFuturo_Importado DEFAULT (SYSDATETIME()),
     CONSTRAINT PK_PartidoFuturo PRIMARY KEY (LocalID, VisitanteID)
 );

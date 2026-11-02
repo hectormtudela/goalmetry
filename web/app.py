@@ -343,6 +343,7 @@ SECCIONES_ANALISIS = [
     ("Curiosidades y remontadas", "/curiosidades", "Mayor goleada, gol más tardío, rachas y partidos remontados."),
     ("¿Cuánto fiarse de las predicciones?", "/fiabilidad", "Aciertos, Brier y calibración frente a referencias simples."),
     ("Jugadores parecidos", "/parecidos", "Los más cercanos por goles, asistencias y minutos. Similitud estadística."),
+    ("Próxima jornada", "/proxima-jornada", "Estimación de cada partido: 1X2 y marcador más probable. Calendario de fuente externa."),
     #@@SECCIONES@@
 ]
 
@@ -416,6 +417,12 @@ def fiabilidad():
     total = max((m["Partidos"] for m in modelos), default=0)
     congeladas = sum(m["Partidos"] for m in modelos if m["Tipo"] == "Congelada" and m["Modelo"] == "Poisson")
     return render_template("fiabilidad.html", modelos=modelos, calibracion=calibracion, total=total, congeladas=congeladas)
+
+
+@app.get("/proxima-jornada")
+def proxima_jornada():
+    meta, partidos = consultar("EXEC simulacion.usp_ProximaJornada;")
+    return render_template("proxima_jornada.html", meta=meta[0], partidos=partidos)
 
 
 @app.get("/parecidos")

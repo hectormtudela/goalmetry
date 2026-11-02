@@ -24,7 +24,7 @@
       <a href="{{ url_for('clasificacion') }}" {% if ruta == '/' %}aria-current="page"{% endif %}>Clasificación</a>
       <a href="{{ url_for('ver_jornadas') }}" {% if ruta.startswith('/jornadas') %}aria-current="page"{% endif %}>Jornadas</a>
       <a href="{{ url_for('predicciones') }}" {% if ruta == '/predicciones' %}aria-current="page"{% endif %}>Predicciones</a>
-      <a href="{{ url_for('analisis') }}" {% if ruta in ['/analisis', '/rankings', '/posiciones', '/curiosidades', '/fiabilidad', '/parecidos'] or ruta.startswith('/arbitro') %}aria-current="page"{% endif %}>Análisis</a>
+      <a href="{{ url_for('analisis') }}" {% if ruta in ['/analisis', '/rankings', '/posiciones', '/curiosidades', '/fiabilidad', '/parecidos', '/proxima-jornada'] or ruta.startswith('/arbitro') %}aria-current="page"{% endif %}>Análisis</a>
       <a href="{{ url_for('buscar') }}" {% if ruta == '/buscar' %}aria-current="page"{% endif %}>Buscador</a>
       <a href="{{ url_for('preguntar') }}" {% if ruta == '/preguntar' %}aria-current="page"{% endif %}>Pregunta a la IA</a>
       {% if admin %}

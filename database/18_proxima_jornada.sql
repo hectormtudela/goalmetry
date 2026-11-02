@@ -1,0 +1,75 @@
+/* =============================================================================
+   18_proxima_jornada.sql
+   Goalmetry - Idea 12: estimación de la próxima jornada con el calendario externo.
+   Por cada partido: goles esperados (Poisson), 1X2 y marcador más probable.
+   Son ESTIMACIONES sobre un calendario de fuente externa (externo.PartidoFuturo), nunca resultados.
+   Ejecución:  sqlcmd -S localhost -E -C -b -i database\18_proxima_jornada.sql
+   ============================================================================= */
+SET NOCOUNT ON;
+USE LigaDB;
+GO
+
+CREATE OR ALTER FUNCTION simulacion.fn_MarcadorProbable (@LamL FLOAT, @LamV FLOAT)
+RETURNS TABLE
+AS RETURN
+SELECT TOP (1) a.Goles AS GolesLocal, b.Goles AS GolesVisitante, a.P * b.P AS P
+FROM simulacion.PoissonPmf AS a CROSS JOIN simulacion.PoissonPmf AS b
+WHERE a.LamIdx = LEAST(160, GREATEST(1, CONVERT(INT, ROUND(@LamL / 0.05, 0))))
+  AND b.LamIdx = LEAST(160, GREATEST(1, CONVERT(INT, ROUND(@LamV / 0.05, 0))))
+ORDER BY a.P * b.P DESC, a.Goles DESC, b.Goles;
+GO
+
+CREATE OR ALTER PROCEDURE simulacion.usp_ProximaJornada
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @c TINYINT = (SELECT MAX(Jornada) FROM analisis.vw_ResultadoEquipo), @K FLOAT = 5;
+    DECLARE @prox TINYINT = (SELECT MIN(f.Jornada) FROM externo.PartidoFuturo AS f);
+
+    SELECT @prox AS Jornada, @c AS DatosHasta, (SELECT MAX(Importado) FROM externo.PartidoFuturo) AS Importado;
+
+    SELECT f.Jornada, f.Fecha, f.Contrastado, f.Fuente, f.LocalID, f.VisitanteID, l.Nombre AS Local, v.Nombre AS Visitante,
+           g.LamL, g.LamV, s.P1, s.PX, s.P2, m.GolesLocal, m.GolesVisitante, m.P AS PMarcador,
+           CASE WHEN f.Contrastado = 1 AND f.Fecha < CAST(SYSDATETIME() AS DATE) THEN 1 ELSE 0 END AS FechaPasada
+    FROM externo.PartidoFuturo AS f
+    JOIN liga.Equipo AS l ON l.EquipoID = f.LocalID
+    JOIN liga.Equipo AS v ON v.EquipoID = f.VisitanteID
+    JOIN simulacion.fn_GolesEsperados(@c, @K) AS g ON g.LocalID = f.LocalID AND g.VisitanteID = f.VisitanteID
+    CROSS APPLY simulacion.fn_Probabilidad1X2(g.LamL, g.LamV) AS s
+    CROSS APPLY simulacion.fn_MarcadorProbable(g.LamL, g.LamV) AS m
+    WHERE f.Jornada = @prox
+    ORDER BY f.Fecha, l.Nombre;
+END;
+GO
+
+/* La fecha solo sirve para decir «congelada» si está contrastada con dos fuentes. */
+CREATE OR ALTER PROCEDURE simulacion.usp_CongelarPredicciones
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @c TINYINT = (SELECT MAX(Jornada) FROM analisis.vw_ResultadoEquipo), @K FLOAT = 5;
+    IF @c IS NULL RETURN;
+
+    SELECT x.Jornada, x.L, x.V, x.Inicio INTO #F
+    FROM (SELECT j.Numero AS Jornada, p.EquipoLocalID AS L, p.EquipoVisitanteID AS V, CONVERT(DATETIME2(0), p.FechaHora) AS Inicio
+          FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID WHERE p.Estado = 'Programado'
+          UNION
+          SELECT f.Jornada, f.LocalID, f.VisitanteID,
+                 CASE WHEN f.Contrastado = 1 THEN DATEADD(MINUTE, COALESCE(DATEDIFF(MINUTE, 0, TRY_CONVERT(TIME(0), f.Hora)), 0), CONVERT(DATETIME2(0), f.Fecha)) END
+          FROM externo.PartidoFuturo AS f) AS x;
+    DECLARE @prox TINYINT = (SELECT MIN(Jornada) FROM #F);
+
+    INSERT INTO simulacion.Prediccion_Historico (Modelo, Jornada, LocalID, VisitanteID, P1, PX, P2, DatosHasta, Tipo)
+    SELECT 'Poisson', f.Jornada, f.L, f.V, s.P1, s.PX, s.P2, @c,
+           CASE WHEN f.Inicio > SYSDATETIME() THEN 'Congelada' ELSE 'Retrospectiva' END
+    FROM #F AS f
+    JOIN simulacion.fn_GolesEsperados(@c, @K) AS g ON g.LocalID = f.L AND g.VisitanteID = f.V
+    CROSS APPLY simulacion.fn_Probabilidad1X2(g.LamL, g.LamV) AS s
+    WHERE f.Jornada = @prox
+      AND NOT EXISTS (SELECT 1 FROM simulacion.Prediccion_Historico AS h WHERE h.Modelo = 'Poisson' AND h.LocalID = f.L AND h.VisitanteID = f.V);
+END;
+GO
+
+IF DATABASE_PRINCIPAL_ID(N'rol_web_publico') IS NOT NULL
+    GRANT EXECUTE ON OBJECT::simulacion.usp_ProximaJornada TO rol_web_publico;
+GO

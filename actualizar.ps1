@@ -80,6 +80,12 @@ Write-Host ("    IA instalada: {0}" -f $(if ($conIA) { 'sí' } else { 'no (solo 
 
 $total = [System.Diagnostics.Stopwatch]::StartNew()
 
+# ---------- 0a. Calendario externo (si hay Internet; sin él se sigue con lo que hubiera) ----------
+if (-not $Simular -and (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.schemas WHERE name = N'externo'") -eq '1') {
+    Escribir-Paso 'Consultando las fuentes externas'
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $raiz 'externo\importar_externo.ps1') -Servidor $Servidor | Out-Null
+}
+
 # ---------- 0. Congelar predicciones ANTES de cargar los resultados nuevos ----------
 if (-not $Simular -and (Valor-Sql "SELECT COUNT(*) FROM LigaDB.sys.procedures WHERE name = N'usp_CongelarPredicciones'") -eq '1') {
     Escribir-Paso 'Congelando las predicciones de la próxima jornada'

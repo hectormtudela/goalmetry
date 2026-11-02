@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Próxima jornada{% endblock %}
+{% macro pct(v) %}{{ '%.0f'|format(100 * v) }} %{% endmacro %}
+{% block contenido %}
+<section class="portada"><div><p class="etiqueta">Estimación, no resultados reales</p>
+  <h1>{% if meta.Jornada %}Jornada {{ meta.Jornada }}: estimación{% else %}Próxima jornada{% endif %}</h1></div></section>
+
+{% if not partidos %}
+<section class="tarjeta vacio">No hay calendario disponible: se descarga de una fuente externa al ejecutar <code>actualizar.ps1</code> con Internet. No se inventa ningún partido.</section>
+{% else %}
+<p class="aviso aviso-info">Estimación con los partidos jugados hasta la jornada {{ meta.DatosHasta }}: muestra pequeña, y no sabe de lesiones ni de sanciones. El calendario es de <b>fuente externa</b>, y si un partido aparece aquí es porque la base de datos aún no tiene su resultado.</p>
+
+<section class="tarjeta">
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th>Fecha</th><th>Partido</th>
+      <th class="num" title="Probabilidad estimada de que gane el local">1</th><th class="num" title="Probabilidad estimada de empate">X</th><th class="num" title="Probabilidad estimada de que gane el visitante">2</th>
+      <th class="num">Marcador más probable</th></tr></thead>
+    <tbody>{% for p in partidos %}
+      <tr>
+        <td>{{ p.Fecha.strftime('%d/%m/%Y') if p.Fecha }}{% if not p.Contrastado %} <small class="nota">(orientativa)</small>{% endif %}{% if p.FechaPasada %}<br><small class="nota">Sin resultado todavía en la base de datos</small>{% endif %}</td>
+        <td><a href="{{ url_for('equipo', equipo_id=p.LocalID) }}">{{ p.Local }}</a> - <a href="{{ url_for('equipo', equipo_id=p.VisitanteID) }}">{{ p.Visitante }}</a></td>
+        <td class="num">{{ pct(p.P1) }}</td><td class="num">{{ pct(p.PX) }}</td><td class="num">{{ pct(p.P2) }}</td>
+        <td class="num">{{ p.GolesLocal }}-{{ p.GolesVisitante }} <small class="nota">({{ pct(p.PMarcador) }})</small></td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  <ul class="lista-explicacion">
+    <li>El marcador más probable suele ser poco probable en sí: fíjate en el porcentaje que lleva al lado.</li>
+    <li>Calendario: openfootball, contrastado con football-data.co.uk cuando es posible. Fuente externa, importado el {{ meta.Importado.strftime('%d/%m/%Y') }}.</li>
+    <li><a href="{{ url_for('fiabilidad') }}">¿Cuánto fiarse de estas estimaciones?</a></li>
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
