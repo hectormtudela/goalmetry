@@ -50,6 +50,7 @@ param(
     [string] $Servidor = 'localhost',
     [switch] $Consultas,
     [switch] $IA,
+    [switch] $SinDemo,
     [switch] $Tests,
     [switch] $Forzar,
     [string] $CarpetaDatos
@@ -85,7 +86,9 @@ if ($Consultas) {
     $scripts += Get-Item (Join-Path $raiz 'database\consultas_avanzadas.sql')
 }
 if ($IA) {
-    foreach ($nombre in 'create_external_model.sql', 'generate_embeddings.sql', 'vector_search.sql', 'temas.sql', 'rag.sql', 'intenciones.sql', 'rag_demo.sql') {
+    $scriptsIA = @('create_external_model.sql', 'generate_embeddings.sql', 'vector_search.sql', 'temas.sql', 'rag.sql', 'intenciones.sql', 'rag_demo.sql')
+    if ($SinDemo) { $scriptsIA = $scriptsIA | Where-Object { $_ -ne 'rag_demo.sql' } }   # la demo hace unas 10 llamadas al modelo y no hace falta para usar la app
+    foreach ($nombre in $scriptsIA) {
         $ruta = Join-Path $raiz "ai\$nombre"
         if (Test-Path $ruta) { $scripts += Get-Item $ruta }
         else { Write-Warning "ai\$nombre todavía no existe; se omite." }

@@ -4,3 +4,5 @@ data/*.csv text eol=lf
 *.sql text
 *.md text
 *.ps1 text eol=crlf
+# Los .bat se descargan con fin de línea de Windows (con LF, cmd.exe puede ejecutarlos mal)
+*.bat text eol=crlf
