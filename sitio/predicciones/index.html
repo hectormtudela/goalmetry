@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="">
+  <title>Predicciones · Goalmetry</title>
+  <link rel="icon" href="/goalmetry/static/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/goalmetry/static/estilos.css">
+  <script src="/goalmetry/static/app.js" defer></script>
+  <script src="/goalmetry/static/analisis.js" defer></script>
+  <script src="/goalmetry/static/mi_equipo.js" defer></script>
+</head>
+<body data-base="/goalmetry" data-estatico="1">
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/goalmetry/">
+      <img src="/goalmetry/static/icono.svg" alt="" width="32" height="32">
+      <span>Goal<b>metry</b></span>
+    </a>
+    <button class="menu-boton" type="button" aria-label="Abrir menú" data-menu>☰</button>
+    <nav class="menu" id="menu">
+      
+      <a href="/goalmetry/" >Clasificación</a>
+      <a href="/goalmetry/jornadas" >Jornadas</a>
+      <a href="/goalmetry/predicciones" aria-current="page">Predicciones</a>
+      <a href="/goalmetry/analisis" >Análisis</a>
+      
+        <a class="menu-admin" href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">Versión completa</a>
+      
+    </nav>
+  </div>
+</header>
+
+
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+
+
+<main class="contenedor">
+  
+    
+  
+  
+<div data-predicciones>
+<section class="portada">
+  <div>
+    <p class="etiqueta">Estimación, no resultados reales</p>
+    <h1>Predicciones</h1>
+    <p class="nota" data-meta></p>
+  </div>
+  <button class="boton boton-principal oculto" type="button" data-simular>Simular la temporada</button>
+</section>
+
+<div class="aviso aviso-info oculto" data-desfasado>Hay resultados nuevos desde la última simulación. Vuelve a simular para tenerlos en cuenta.</div>
+<div class="aviso aviso-error oculto" data-error role="alert"></div>
+
+<!-- Pantalla de carga -->
+<section class="tarjeta carga oculto" data-carga aria-live="polite">
+  <p class="etiqueta">Jugando la temporada</p>
+  <h2 data-carga-paso>Preparando…</h2>
+  <div class="barra" role="progressbar" aria-label="Progreso de la simulación" aria-valuemin="0" aria-valuemax="100" data-carga-barra><span></span></div>
+  <p class="nota" data-carga-lider></p>
+  <div class="curiosidad">
+    <p class="etiqueta">¿Sabías que…?</p>
+    <p class="curiosidad-texto" data-curiosidad></p>
+  </div>
+</section>
+
+<!-- Sin datos todavía -->
+<section class="tarjeta vacio oculto" data-vacio>
+  <p>Todavía no se ha simulado la temporada. Tarda menos de un minuto.</p>
+</section>
+
+<div class="oculto" data-contenido>
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera">
+      <div>
+        <h2 data-titulo-tabla>Clasificación prevista</h2>
+        <p class="nota sin-margen">Cada puesto muestra el equipo con más opciones de acabar ahí. Pulsa en una fila para ver todos los candidatos.</p>
+      </div>
+    </div>
+    <div class="tabla-scroll">
+      <table class="tabla clasificacion prediccion">
+        <thead><tr>
+          <th class="num">Puesto</th><th>Equipo</th><th>Opciones de acabar en ese puesto</th>
+          <th class="num" title="Media de puntos al final de la temporada">Puntos</th>
+          <th class="num">Campeón</th><th class="num ocultar-movil">Puestos 1-4</th><th class="num ocultar-movil">Puestos 1-6</th><th class="num">Desciende</th>
+        </tr></thead>
+        <tbody data-tabla></tbody>
+      </table>
+    </div>
+    <ul class="leyenda">
+      <li><i class="marca-champions"></i>Puestos 1-4</li>
+      <li><i class="marca-europa"></i>Puestos 5-6</li>
+      <li><i class="marca-descenso"></i>Descenso</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta oculto" data-ysi>
+    <div class="tarjeta-cabecera"><h2>¿Y si…?</h2></div>
+    <p class="nota sin-margen">Elige hasta 3 resultados de partidos que faltan y mira cómo cambia la clasificación de arriba.</p>
+    <div class="formulario rejilla-formulario separado">
+      <label>Local <select data-ysi-local></select></label>
+      <label>Visitante <select data-ysi-visitante></select></label>
+      <label>Resultado
+        <select data-ysi-signo>
+          <option value="1">Gana el local</option>
+          <option value="X">Empate</option>
+          <option value="2">Gana el visitante</option>
+        </select></label>
+      <button class="boton boton-principal" type="button" data-ysi-anadir>Añadir</button>
+    </div>
+    <ul class="ysi-lista" data-ysi-lista></ul>
+    <p class="nota" data-ysi-nota></p>
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera">
+      <h2>Cómo han cambiado las opciones, jornada a jornada</h2>
+      <div class="en-linea">
+        <label>Opción
+          <select data-evo-medida>
+            <option value="campeon">Campeón</option>
+            <option value="top4">Puestos 1-4</option>
+            <option value="descenso">Descenso</option>
+          </select></label>
+        <label>Equipo <select data-evo-equipo></select></label>
+      </div>
+    </div>
+    <div class="grafico" data-evo-grafico></div>
+    <details class="fuentes">
+      <summary>Ver los datos en una tabla</summary>
+      <div class="tabla-scroll"><table class="tabla" data-evo-tabla></table></div>
+    </details>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Cómo se calcula y cuánto fiarse</h2>
+    <p>La base de datos juega miles de veces los partidos que faltan. Los goles de cada partido se sortean según el ataque y la defensa de cada equipo en lo que va de temporada y la ventaja de jugar en casa, y luego se cuenta en cuántas temporadas acaba cada equipo en cada puesto.</p>
+    <p><b>Se ha probado contra la realidad:</b> prediciendo 80 partidos ya jugados sin mirarlos, predice mejor que dos referencias simples (Brier 0,606 frente a 0,666 y 0,667; menos es mejor), pero acierta quién gana solo un poco más (38 de 80 frente a 36). Y en el 80 % de los casos, los puntos reales de los equipos cayeron dentro del intervalo previsto del 80 %.</p>
+    <p>Más detalle en <a href="/goalmetry/fiabilidad">¿Cuánto fiarse de las predicciones?</a> Y partido a partido en <a href="/goalmetry/proxima-jornada">Próxima jornada</a>.</p>
+    <p class="nota">No sabe de lesiones, fichajes ni calendario. La clasificación final no se podrá comprobar hasta que acabe la temporada, y con solo 10 jornadas jugadas la incertidumbre es grande.</p>
+  </section>
+</div>
+</div>
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span><b>Goalmetry</b> · Datos de LaLiga actualizados jornada a jornada</span>
+    <span>Fuentes de los datos: futbolfantasy.com, matchscan.co y Wikipedia</span>
+  </div>
+</footer>
+</body>
+</html>

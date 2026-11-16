@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="">
+  <title>Clasificación · Goalmetry</title>
+  <link rel="icon" href="/goalmetry/static/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/goalmetry/static/estilos.css">
+  <script src="/goalmetry/static/app.js" defer></script>
+  <script src="/goalmetry/static/analisis.js" defer></script>
+  <script src="/goalmetry/static/mi_equipo.js" defer></script>
+</head>
+<body data-base="/goalmetry" data-estatico="1">
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/goalmetry/">
+      <img src="/goalmetry/static/icono.svg" alt="" width="32" height="32">
+      <span>Goal<b>metry</b></span>
+    </a>
+    <button class="menu-boton" type="button" aria-label="Abrir menú" data-menu>☰</button>
+    <nav class="menu" id="menu">
+      
+      <a href="/goalmetry/" aria-current="page">Clasificación</a>
+      <a href="/goalmetry/jornadas" >Jornadas</a>
+      <a href="/goalmetry/predicciones" >Predicciones</a>
+      <a href="/goalmetry/analisis" >Análisis</a>
+      
+        <a class="menu-admin" href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">Versión completa</a>
+      
+    </nav>
+  </div>
+</header>
+
+
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+
+
+<main class="contenedor">
+  
+    
+  
+  
+<section class="portada">
+  <div>
+    <p class="etiqueta">Temporada 2026-27</p>
+    <h1>Clasificación</h1>
+  </div>
+  <div class="cifras">
+    <div><b>100</b><span>partidos jugados</span></div>
+    <div><b>298</b><span>goles</span></div>
+    <div><b>0</b><span>por jugar</span></div>
+  </div>
+</section>
+
+
+<div class="tarjetas-enlace separado-abajo">
+  <a class="tarjeta tarjeta-dato tarjeta-enlace" href="/goalmetry/curiosidades"><p class="etiqueta">Más goles en un partido</p><p>9 goles: Barcelona 7-2 Real Racing Club (jornada 6).</p></a><a class="tarjeta tarjeta-dato tarjeta-enlace" href="/goalmetry/curiosidades"><p class="etiqueta">Equipo más goleador</p><p>Barcelona, con 40 goles.</p></a><a class="tarjeta tarjeta-dato tarjeta-enlace" href="/goalmetry/curiosidades"><p class="etiqueta">Árbitro con más partidos</p><p>Francisco Hernández Maeso, con 6 partidos.</p></a>
+</div>
+
+<section class="tarjeta mi-equipo separado-abajo" data-mi-equipo>
+  <div class="tarjeta-cabecera">
+    <h2>Mi equipo</h2>
+    <label class="en-linea">Elige tu equipo
+      <select>
+        <option value="">Ninguno</option>
+        <option value="2">Athletic Bilbao</option><option value="3">Atlético Madrid</option><option value="4">Barcelona</option><option value="5">Celta Vigo</option><option value="1">Deportivo Alavés</option><option value="6">Deportivo de A Coruña</option><option value="7">Elche CF</option><option value="9">Getafe</option><option value="10">Levante UD</option><option value="11">Málaga CF</option><option value="12">Osasuna</option><option value="14">Rayo Vallecano de Madrid</option><option value="8">RCD Espanyol</option><option value="15">Real Betis</option><option value="16">Real Madrid</option><option value="13">Real Racing Club</option><option value="17">Real Sociedad</option><option value="18">Sevilla</option><option value="19">Valencia</option><option value="20">Villarreal</option>
+      </select>
+    </label>
+  </div>
+  <p class="nota sin-margen">Se recuerda solo en este navegador.</p>
+  <div class="aviso aviso-error oculto" data-error role="alert"></div>
+  <div class="oculto" data-resumen>
+    <h3><a data-ficha><span data-nombre></span></a></h3>
+    <p data-puesto></p>
+    <p data-ultimo></p>
+    <div class="fila-acciones">
+      <button class="boton" type="button" data-descargar="partido">Descargar imagen del último partido</button>
+      <button class="boton" type="button" data-descargar="clasificacion">Descargar imagen de la clasificación</button>
+    </div>
+  </div>
+</section>
+<div class="rejilla-2">
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera">
+      <h2>Hasta la jornada 6</h2>
+      <form method="get" action="/goalmetry/" class="en-linea">
+        <label for="hasta">Ver hasta la jornada</label>
+        <select id="hasta" name="hasta" data-auto-enviar>
+          <option value="">Actual</option>
+          <option value="1" >J1</option><option value="2" >J2</option><option value="3" >J3</option><option value="4" >J4</option><option value="5" >J5</option><option value="6" selected>J6</option><option value="7" >J7</option><option value="8" >J8</option><option value="9" >J9</option><option value="10" >J10</option>
+        </select>
+        <noscript><button class="boton">Ver</button></noscript>
+      </form>
+    </div>
+    <div class="tabla-scroll">
+    <table class="tabla clasificacion">
+      <thead><tr>
+        <th class="num">#</th><th>Equipo</th>
+        <th class="num" title="Partidos jugados">PJ</th><th class="num" title="Ganados">G</th>
+        <th class="num" title="Empatados">E</th><th class="num" title="Perdidos">P</th>
+        <th class="num ocultar-movil" title="Goles a favor">GF</th><th class="num ocultar-movil" title="Goles en contra">GC</th>
+        <th class="num" title="Diferencia de goles">DG</th><th class="num">Pts</th>
+      </tr></thead>
+      <tbody>
+      
+      
+        <tr data-equipo-id="4" class="zona-champions">
+          <td class="num">1</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/4">Barcelona</a></td>
+          <td class="num">6</td><td class="num">6</td><td class="num">0</td><td class="num">0</td>
+          <td class="num ocultar-movil">28</td><td class="num ocultar-movil">6</td>
+          <td class="num">+22</td>
+          <td class="num puntos">18</td>
+        </tr>
+      
+        <tr data-equipo-id="16" class="zona-champions">
+          <td class="num">2</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/16">Real Madrid</a></td>
+          <td class="num">6</td><td class="num">5</td><td class="num">0</td><td class="num">1</td>
+          <td class="num ocultar-movil">17</td><td class="num ocultar-movil">6</td>
+          <td class="num">+11</td>
+          <td class="num puntos">15</td>
+        </tr>
+      
+        <tr data-equipo-id="15" class="zona-champions">
+          <td class="num">3</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/15">Real Betis</a></td>
+          <td class="num">6</td><td class="num">5</td><td class="num">0</td><td class="num">1</td>
+          <td class="num ocultar-movil">8</td><td class="num ocultar-movil">6</td>
+          <td class="num">+2</td>
+          <td class="num puntos">15</td>
+        </tr>
+      
+        <tr data-equipo-id="3" class="zona-champions">
+          <td class="num">4</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/3">Atlético Madrid</a></td>
+          <td class="num">6</td><td class="num">4</td><td class="num">1</td><td class="num">1</td>
+          <td class="num ocultar-movil">14</td><td class="num ocultar-movil">6</td>
+          <td class="num">+8</td>
+          <td class="num puntos">13</td>
+        </tr>
+      
+        <tr data-equipo-id="18" class="zona-europa">
+          <td class="num">5</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/18">Sevilla</a></td>
+          <td class="num">6</td><td class="num">4</td><td class="num">1</td><td class="num">1</td>
+          <td class="num ocultar-movil">9</td><td class="num ocultar-movil">6</td>
+          <td class="num">+3</td>
+          <td class="num puntos">13</td>
+        </tr>
+      
+        <tr data-equipo-id="1" class="zona-europa">
+          <td class="num">6</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+          <td class="num">6</td><td class="num">3</td><td class="num">1</td><td class="num">2</td>
+          <td class="num ocultar-movil">11</td><td class="num ocultar-movil">6</td>
+          <td class="num">+5</td>
+          <td class="num puntos">10</td>
+        </tr>
+      
+        <tr data-equipo-id="6" class="">
+          <td class="num">7</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/6">Deportivo de A Coruña</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">3</td><td class="num">1</td>
+          <td class="num ocultar-movil">9</td><td class="num ocultar-movil">7</td>
+          <td class="num">+2</td>
+          <td class="num puntos">9</td>
+        </tr>
+      
+        <tr data-equipo-id="10" class="">
+          <td class="num">8</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/10">Levante UD</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">2</td><td class="num">2</td>
+          <td class="num ocultar-movil">10</td><td class="num ocultar-movil">10</td>
+          <td class="num">0</td>
+          <td class="num puntos">8</td>
+        </tr>
+      
+        <tr data-equipo-id="8" class="">
+          <td class="num">9</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/8">RCD Espanyol</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">3</td>
+          <td class="num ocultar-movil">9</td><td class="num ocultar-movil">7</td>
+          <td class="num">+2</td>
+          <td class="num puntos">7</td>
+        </tr>
+      
+        <tr data-equipo-id="2" class="">
+          <td class="num">10</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/2">Athletic Bilbao</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">3</td>
+          <td class="num ocultar-movil">8</td><td class="num ocultar-movil">9</td>
+          <td class="num">-1</td>
+          <td class="num puntos">7</td>
+        </tr>
+      
+        <tr data-equipo-id="13" class="">
+          <td class="num">11</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/13">Real Racing Club</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">3</td>
+          <td class="num ocultar-movil">11</td><td class="num ocultar-movil">16</td>
+          <td class="num">-5</td>
+          <td class="num puntos">7</td>
+        </tr>
+      
+        <tr data-equipo-id="14" class="">
+          <td class="num">12</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/14">Rayo Vallecano de Madrid</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">3</td>
+          <td class="num ocultar-movil">10</td><td class="num ocultar-movil">15</td>
+          <td class="num">-5</td>
+          <td class="num puntos">7</td>
+        </tr>
+      
+        <tr data-equipo-id="17" class="">
+          <td class="num">13</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/17">Real Sociedad</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">3</td>
+          <td class="num ocultar-movil">6</td><td class="num ocultar-movil">11</td>
+          <td class="num">-5</td>
+          <td class="num puntos">7</td>
+        </tr>
+      
+        <tr data-equipo-id="12" class="">
+          <td class="num">14</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/12">Osasuna</a></td>
+          <td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">3</td>
+          <td class="num ocultar-movil">5</td><td class="num ocultar-movil">12</td>
+          <td class="num">-7</td>
+          <td class="num puntos">7</td>
+        </tr>
+      
+        <tr data-equipo-id="20" class="">
+          <td class="num">15</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/20">Villarreal</a></td>
+          <td class="num">6</td><td class="num">1</td><td class="num">2</td><td class="num">3</td>
+          <td class="num ocultar-movil">10</td><td class="num ocultar-movil">11</td>
+          <td class="num">-1</td>
+          <td class="num puntos">5</td>
+        </tr>
+      
+        <tr data-equipo-id="9" class="">
+          <td class="num">16</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/9">Getafe</a></td>
+          <td class="num">6</td><td class="num">1</td><td class="num">2</td><td class="num">3</td>
+          <td class="num ocultar-movil">3</td><td class="num ocultar-movil">7</td>
+          <td class="num">-4</td>
+          <td class="num puntos">5</td>
+        </tr>
+      
+        <tr data-equipo-id="5" class="">
+          <td class="num">17</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/5">Celta Vigo</a></td>
+          <td class="num">6</td><td class="num">0</td><td class="num">4</td><td class="num">2</td>
+          <td class="num ocultar-movil">3</td><td class="num ocultar-movil">6</td>
+          <td class="num">-3</td>
+          <td class="num puntos">4</td>
+        </tr>
+      
+        <tr data-equipo-id="19" class="zona-descenso">
+          <td class="num">18</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/19">Valencia</a></td>
+          <td class="num">6</td><td class="num">1</td><td class="num">1</td><td class="num">4</td>
+          <td class="num ocultar-movil">2</td><td class="num ocultar-movil">10</td>
+          <td class="num">-8</td>
+          <td class="num puntos">4</td>
+        </tr>
+      
+        <tr data-equipo-id="11" class="zona-descenso">
+          <td class="num">19</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/11">Málaga CF</a></td>
+          <td class="num">6</td><td class="num">0</td><td class="num">3</td><td class="num">3</td>
+          <td class="num ocultar-movil">3</td><td class="num ocultar-movil">11</td>
+          <td class="num">-8</td>
+          <td class="num puntos">3</td>
+        </tr>
+      
+        <tr data-equipo-id="7" class="zona-descenso">
+          <td class="num">20</td>
+          <td class="equipo"><a class="enlace-equipo" href="/goalmetry/equipo/7">Elche CF</a></td>
+          <td class="num">6</td><td class="num">0</td><td class="num">2</td><td class="num">4</td>
+          <td class="num ocultar-movil">8</td><td class="num ocultar-movil">16</td>
+          <td class="num">-8</td>
+          <td class="num puntos">2</td>
+        </tr>
+      
+      </tbody>
+    </table>
+    </div>
+    <ul class="leyenda">
+      <li><i class="marca-champions"></i>Puestos 1-4</li>
+      <li><i class="marca-europa"></i>Puestos 5-6</li>
+      <li><i class="marca-descenso"></i>Descenso</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Máximos goleadores</h2></div>
+    <ol class="goleadores">
+      
+        <li>
+          <span class="pos">1</span>
+          <span class="quien"><b>Raphinha</b><small>Barcelona</small></span>
+          <span class="goles">13<small> (3 p.)</small></span>
+        </li>
+      
+        <li>
+          <span class="pos">2</span>
+          <span class="quien"><b>Kylian Mbappé</b><small>Real Madrid</small></span>
+          <span class="goles">11<small> (2 p.)</small></span>
+        </li>
+      
+        <li>
+          <span class="pos">3</span>
+          <span class="quien"><b>Lamine Yamal</b><small>Barcelona</small></span>
+          <span class="goles">8<small> (1 p.)</small></span>
+        </li>
+      
+        <li>
+          <span class="pos">3</span>
+          <span class="quien"><b>Yassir Zabiri</b><small>Real Racing Club</small></span>
+          <span class="goles">8</span>
+        </li>
+      
+        <li>
+          <span class="pos">5</span>
+          <span class="quien"><b>Ante Budimir</b><small>Osasuna</small></span>
+          <span class="goles">7<small> (4 p.)</small></span>
+        </li>
+      
+        <li>
+          <span class="pos">5</span>
+          <span class="quien"><b>Sergio Camello</b><small>Rayo Vallecano de Madrid</small></span>
+          <span class="goles">7</span>
+        </li>
+      
+        <li>
+          <span class="pos">7</span>
+          <span class="quien"><b>Fer Niño</b><small>Elche CF</small></span>
+          <span class="goles">6<small> (1 p.)</small></span>
+        </li>
+      
+        <li>
+          <span class="pos">7</span>
+          <span class="quien"><b>Roberto Fernández</b><small>RCD Espanyol</small></span>
+          <span class="goles">6</span>
+        </li>
+      
+        <li>
+          <span class="pos">9</span>
+          <span class="quien"><b>Alex Baena</b><small>Atlético Madrid</small></span>
+          <span class="goles">5</span>
+        </li>
+      
+        <li>
+          <span class="pos">9</span>
+          <span class="quien"><b>Lucas Boyé</b><small>Deportivo Alavés</small></span>
+          <span class="goles">5<small> (1 p.)</small></span>
+        </li>
+      
+        <li>
+          <span class="pos">9</span>
+          <span class="quien"><b>Pierre-Emerick Aubameyang</b><small>Deportivo de A Coruña</small></span>
+          <span class="goles">5</span>
+        </li>
+      
+        <li>
+          <span class="pos">9</span>
+          <span class="quien"><b>Roger Brugué</b><small>Levante UD</small></span>
+          <span class="goles">5</span>
+        </li>
+      
+        <li>
+          <span class="pos">13</span>
+          <span class="quien"><b>Adrián Niño</b><small>Málaga CF</small></span>
+          <span class="goles">4</span>
+        </li>
+      
+        <li>
+          <span class="pos">13</span>
+          <span class="quien"><b>Fermín López</b><small>Barcelona</small></span>
+          <span class="goles">4</span>
+        </li>
+      
+        <li>
+          <span class="pos">15</span>
+          <span class="quien"><b>Abdessamad Ezzalzouli</b><small>Real Betis</small></span>
+          <span class="goles">3</span>
+        </li>
+      
+    </ol>
+    <p class="nota">Goles en propia puerta no incluidos. «p.» = de penalti.</p>
+  </section>
+</div>
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span><b>Goalmetry</b> · Datos de LaLiga actualizados jornada a jornada</span>
+    <span>Fuentes de los datos: futbolfantasy.com, matchscan.co y Wikipedia</span>
+  </div>
+</footer>
+</body>
+</html>

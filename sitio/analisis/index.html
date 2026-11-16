@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="">
+  <title>Análisis · Goalmetry</title>
+  <link rel="icon" href="/goalmetry/static/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/goalmetry/static/estilos.css">
+  <script src="/goalmetry/static/app.js" defer></script>
+  <script src="/goalmetry/static/analisis.js" defer></script>
+  <script src="/goalmetry/static/mi_equipo.js" defer></script>
+</head>
+<body data-base="/goalmetry" data-estatico="1">
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/goalmetry/">
+      <img src="/goalmetry/static/icono.svg" alt="" width="32" height="32">
+      <span>Goal<b>metry</b></span>
+    </a>
+    <button class="menu-boton" type="button" aria-label="Abrir menú" data-menu>☰</button>
+    <nav class="menu" id="menu">
+      
+      <a href="/goalmetry/" >Clasificación</a>
+      <a href="/goalmetry/jornadas" >Jornadas</a>
+      <a href="/goalmetry/predicciones" >Predicciones</a>
+      <a href="/goalmetry/analisis" aria-current="page">Análisis</a>
+      
+        <a class="menu-admin" href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">Versión completa</a>
+      
+    </nav>
+  </div>
+</header>
+
+
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+
+
+<main class="contenedor">
+  
+    
+  
+  
+<section class="portada"><div><p class="etiqueta">Más allá de la clasificación</p><h1>Análisis</h1></div></section>
+<div class="tarjetas-enlace">
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/rankings"><h2>Rankings por 90 minutos</h2><p>Goles y asistencias por 90 minutos, con filtros por posición y minutos.</p></a>
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/arbitros"><h2>Árbitros</h2><p>Partidos dirigidos, goles y victorias locales, junto a la media de la liga.</p></a>
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/posiciones"><h2>Posición jornada a jornada</h2><p>Cómo ha subido y bajado cada equipo en la clasificación.</p></a>
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/curiosidades"><h2>Curiosidades y remontadas</h2><p>Mayor goleada, gol más tardío, rachas y partidos remontados.</p></a>
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/fiabilidad"><h2>¿Cuánto fiarse de las predicciones?</h2><p>Aciertos, Brier y calibración frente a referencias simples.</p></a>
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/parecidos"><h2>Jugadores parecidos</h2><p>Los más cercanos por goles, asistencias y minutos. Similitud estadística.</p></a>
+  
+    <a class="tarjeta tarjeta-enlace" href="/goalmetry/proxima-jornada"><h2>Próxima jornada</h2><p>Estimación de cada partido: 1X2 y marcador más probable. Calendario de fuente externa.</p></a>
+  
+</div>
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span><b>Goalmetry</b> · Datos de LaLiga actualizados jornada a jornada</span>
+    <span>Fuentes de los datos: futbolfantasy.com, matchscan.co y Wikipedia</span>
+  </div>
+</footer>
+</body>
+</html>

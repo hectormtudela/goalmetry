@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="">
+  <title>Rankings · Goalmetry</title>
+  <link rel="icon" href="/goalmetry/static/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/goalmetry/static/estilos.css">
+  <script src="/goalmetry/static/app.js" defer></script>
+  <script src="/goalmetry/static/analisis.js" defer></script>
+  <script src="/goalmetry/static/mi_equipo.js" defer></script>
+</head>
+<body data-base="/goalmetry" data-estatico="1">
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/goalmetry/">
+      <img src="/goalmetry/static/icono.svg" alt="" width="32" height="32">
+      <span>Goal<b>metry</b></span>
+    </a>
+    <button class="menu-boton" type="button" aria-label="Abrir menú" data-menu>☰</button>
+    <nav class="menu" id="menu">
+      
+      <a href="/goalmetry/" >Clasificación</a>
+      <a href="/goalmetry/jornadas" >Jornadas</a>
+      <a href="/goalmetry/predicciones" >Predicciones</a>
+      <a href="/goalmetry/analisis" aria-current="page">Análisis</a>
+      
+        <a class="menu-admin" href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">Versión completa</a>
+      
+    </nav>
+  </div>
+</header>
+
+
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+
+
+<main class="contenedor">
+  
+    
+  
+  
+<section class="portada"><div><p class="etiqueta"><a href="/goalmetry/analisis">Análisis</a></p><h1>Rankings por 90 minutos</h1></div></section>
+<section class="tarjeta">
+  <form method="get" action="/goalmetry/rankings" class="formulario rejilla-formulario">
+    <label>Posición
+      <select name="posicion">
+        <option value="">Todas</option>
+        
+          <option value="PT" >Porteros</option>
+          <option value="DF" >Defensas</option>
+          <option value="MC" selected>Centrocampistas</option>
+          <option value="DL" >Delanteros</option>
+      </select></label>
+    
+    
+    <label>Mínimo de minutos
+      <select name="minutos">
+        <option value="0" >0</option><option value="180" >180</option><option value="360" >360</option><option value="540" selected>540</option><option value="720" >720</option>
+      </select></label>
+    
+    <label>Ordenar por
+      <select name="orden">
+        <option value="ga" selected>Goles + asistencias por 90</option>
+        <option value="minutos" >Minutos por gol</option>
+      </select></label>
+    <button class="boton boton-principal">Ver ranking</button>
+  </form>
+  <p class="aviso aviso-info">Muestra pequeña: la temporada lleva 10 jornadas y las fichas de jugadores llegan, en general, hasta la J9. Un gol de más cambia mucho estas cifras, sobre todo con pocos minutos.</p>
+</section>
+<section class="tarjeta">
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th class="num">#</th><th>Jugador</th><th>Equipo</th><th>Pos.</th><th class="num">Min.</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">G+A/90</th><th class="num">Goles/90</th><th class="num">Min./gol</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="num">1</td>
+        <td><a href="/goalmetry/parecidos/jugador-51/" title="Ver jugadores parecidos">Jude Bellingham</a></td>
+        <td><a href="/goalmetry/equipo/16">Real Madrid</a></td>
+        <td>MC</td><td class="num">688</td><td class="num">3</td><td class="num">3</td>
+        <td class="num puntos-fuerte">0.78</td><td class="num">0.39</td><td class="num">229.3</td></tr>
+    
+      <tr><td class="num">2</td>
+        <td><a href="/goalmetry/parecidos/jugador-342/" title="Ver jugadores parecidos">Javi Hernández</a></td>
+        <td><a href="/goalmetry/equipo/8">RCD Espanyol</a></td>
+        <td>MC</td><td class="num">691</td><td class="num">0</td><td class="num">5</td>
+        <td class="num puntos-fuerte">0.65</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">3</td>
+        <td><a href="/goalmetry/parecidos/jugador-72/" title="Ver jugadores parecidos">Juan Hernández</a></td>
+        <td><a href="/goalmetry/equipo/15">Real Betis</a></td>
+        <td>MC</td><td class="num">589</td><td class="num">2</td><td class="num">2</td>
+        <td class="num puntos-fuerte">0.61</td><td class="num">0.31</td><td class="num">294.5</td></tr>
+    
+      <tr><td class="num">4</td>
+        <td><a href="/goalmetry/parecidos/jugador-25/" title="Ver jugadores parecidos">Alejandro Grimaldo</a></td>
+        <td><a href="/goalmetry/equipo/3">Atlético Madrid</a></td>
+        <td>MC</td><td class="num">670</td><td class="num">3</td><td class="num">1</td>
+        <td class="num puntos-fuerte">0.54</td><td class="num">0.40</td><td class="num">223.3</td></tr>
+    
+      <tr><td class="num">5</td>
+        <td><a href="/goalmetry/parecidos/jugador-29/" title="Ver jugadores parecidos">Kang-in Lee</a></td>
+        <td><a href="/goalmetry/equipo/3">Atlético Madrid</a></td>
+        <td>MC</td><td class="num">564</td><td class="num">2</td><td class="num">1</td>
+        <td class="num puntos-fuerte">0.48</td><td class="num">0.32</td><td class="num">282.0</td></tr>
+    
+      <tr><td class="num">6</td>
+        <td><a href="/goalmetry/parecidos/jugador-160/" title="Ver jugadores parecidos">Miguel Román</a></td>
+        <td><a href="/goalmetry/equipo/5">Celta Vigo</a></td>
+        <td>MC</td><td class="num">579</td><td class="num">1</td><td class="num">2</td>
+        <td class="num puntos-fuerte">0.47</td><td class="num">0.16</td><td class="num">579.0</td></tr>
+    
+      <tr><td class="num">7</td>
+        <td><a href="/goalmetry/parecidos/jugador-294/" title="Ver jugadores parecidos">Unai López</a></td>
+        <td><a href="/goalmetry/equipo/14">Rayo Vallecano de Madrid</a></td>
+        <td>MC</td><td class="num">636</td><td class="num">0</td><td class="num">3</td>
+        <td class="num puntos-fuerte">0.42</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">8</td>
+        <td><a href="/goalmetry/parecidos/jugador-248/" title="Ver jugadores parecidos">Pape Gueye</a></td>
+        <td><a href="/goalmetry/equipo/20">Villarreal</a></td>
+        <td>MC</td><td class="num">640</td><td class="num">3</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.42</td><td class="num">0.42</td><td class="num">213.3</td></tr>
+    
+      <tr><td class="num">9</td>
+        <td><a href="/goalmetry/parecidos/jugador-182/" title="Ver jugadores parecidos">Mario Soriano</a></td>
+        <td><a href="/goalmetry/equipo/6">Deportivo de A Coruña</a></td>
+        <td>MC</td><td class="num">688</td><td class="num">1</td><td class="num">2</td>
+        <td class="num puntos-fuerte">0.39</td><td class="num">0.13</td><td class="num">688.0</td></tr>
+    
+      <tr><td class="num">10</td>
+        <td><a href="/goalmetry/parecidos/jugador-364/" title="Ver jugadores parecidos">Iñigo Vicente</a></td>
+        <td><a href="/goalmetry/equipo/13">Real Racing Club</a></td>
+        <td>MC</td><td class="num">724</td><td class="num">0</td><td class="num">3</td>
+        <td class="num puntos-fuerte">0.37</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">11</td>
+        <td><a href="/goalmetry/parecidos/jugador-3/" title="Ver jugadores parecidos">Pedri</a></td>
+        <td><a href="/goalmetry/equipo/4">Barcelona</a></td>
+        <td>MC</td><td class="num">621</td><td class="num">1</td><td class="num">1</td>
+        <td class="num puntos-fuerte">0.29</td><td class="num">0.14</td><td class="num">621.0</td></tr>
+    
+      <tr><td class="num">12</td>
+        <td><a href="/goalmetry/parecidos/jugador-228/" title="Ver jugadores parecidos">Jon Olasagasti</a></td>
+        <td><a href="/goalmetry/equipo/10">Levante UD</a></td>
+        <td>MC</td><td class="num">705</td><td class="num">1</td><td class="num">1</td>
+        <td class="num puntos-fuerte">0.26</td><td class="num">0.13</td><td class="num">705.0</td></tr>
+    
+      <tr><td class="num">13</td>
+        <td><a href="/goalmetry/parecidos/jugador-368/" title="Ver jugadores parecidos">Iván Martín</a></td>
+        <td><a href="/goalmetry/equipo/13">Real Racing Club</a></td>
+        <td>MC</td><td class="num">572</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.16</td><td class="num">0.16</td><td class="num">572.0</td></tr>
+    
+      <tr><td class="num">14</td>
+        <td><a href="/goalmetry/parecidos/jugador-185/" title="Ver jugadores parecidos">Lorenzo Amatucci</a></td>
+        <td><a href="/goalmetry/equipo/6">Deportivo de A Coruña</a></td>
+        <td>MC</td><td class="num">573</td><td class="num">0</td><td class="num">1</td>
+        <td class="num puntos-fuerte">0.16</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">15</td>
+        <td><a href="/goalmetry/parecidos/jugador-159/" title="Ver jugadores parecidos">Ilaix Moriba</a></td>
+        <td><a href="/goalmetry/equipo/5">Celta Vigo</a></td>
+        <td>MC</td><td class="num">627</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.14</td><td class="num">0.14</td><td class="num">627.0</td></tr>
+    
+      <tr><td class="num">16</td>
+        <td><a href="/goalmetry/parecidos/jugador-435/" title="Ver jugadores parecidos">Carlos Dotor</a></td>
+        <td><a href="/goalmetry/equipo/11">Málaga CF</a></td>
+        <td>MC</td><td class="num">646</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.14</td><td class="num">0.14</td><td class="num">646.0</td></tr>
+    
+      <tr><td class="num">17</td>
+        <td><a href="/goalmetry/parecidos/jugador-367/" title="Ver jugadores parecidos">Sergio Canales</a></td>
+        <td><a href="/goalmetry/equipo/13">Real Racing Club</a></td>
+        <td>MC</td><td class="num">651</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.14</td><td class="num">0.14</td><td class="num">651.0</td></tr>
+    
+      <tr><td class="num">18</td>
+        <td><a href="/goalmetry/parecidos/jugador-319/" title="Ver jugadores parecidos">Ramón Terrats</a></td>
+        <td><a href="/goalmetry/equipo/9">Getafe</a></td>
+        <td>MC</td><td class="num">654</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.14</td><td class="num">0.14</td><td class="num">654.0</td></tr>
+    
+      <tr><td class="num">19</td>
+        <td><a href="/goalmetry/parecidos/jugador-390/" title="Ver jugadores parecidos">Gonzalo Villar</a></td>
+        <td><a href="/goalmetry/equipo/7">Elche CF</a></td>
+        <td>MC</td><td class="num">734</td><td class="num">0</td><td class="num">1</td>
+        <td class="num puntos-fuerte">0.12</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">20</td>
+        <td><a href="/goalmetry/parecidos/jugador-137/" title="Ver jugadores parecidos">Pablo Ibáñez</a></td>
+        <td><a href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+        <td>MC</td><td class="num">850</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.11</td><td class="num">0.11</td><td class="num">850.0</td></tr>
+    
+      <tr><td class="num">21</td>
+        <td><a href="/goalmetry/parecidos/jugador-140/" title="Ver jugadores parecidos">Antonio Blanco</a></td>
+        <td><a href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+        <td>MC</td><td class="num">753</td><td class="num">0</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.00</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">22</td>
+        <td><a href="/goalmetry/parecidos/jugador-436/" title="Ver jugadores parecidos">Dani Lorenzo</a></td>
+        <td><a href="/goalmetry/equipo/11">Málaga CF</a></td>
+        <td>MC</td><td class="num">617</td><td class="num">0</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.00</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">23</td>
+        <td><a href="/goalmetry/parecidos/jugador-434/" title="Ver jugadores parecidos">David Larrubia</a></td>
+        <td><a href="/goalmetry/equipo/11">Málaga CF</a></td>
+        <td>MC</td><td class="num">822</td><td class="num">0</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.00</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">24</td>
+        <td><a href="/goalmetry/parecidos/jugador-208/" title="Ver jugadores parecidos">Iker Muñoz</a></td>
+        <td><a href="/goalmetry/equipo/12">Osasuna</a></td>
+        <td>MC</td><td class="num">554</td><td class="num">0</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.00</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">25</td>
+        <td><a href="/goalmetry/parecidos/jugador-324/" title="Ver jugadores parecidos">Orel Mangala</a></td>
+        <td><a href="/goalmetry/equipo/9">Getafe</a></td>
+        <td>MC</td><td class="num">554</td><td class="num">0</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.00</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+      <tr><td class="num">26</td>
+        <td><a href="/goalmetry/parecidos/jugador-232/" title="Ver jugadores parecidos">Oriol Rey</a></td>
+        <td><a href="/goalmetry/equipo/10">Levante UD</a></td>
+        <td>MC</td><td class="num">628</td><td class="num">0</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.00</td><td class="num">0.00</td><td class="num">—</td></tr>
+    
+    </tbody>
+  </table></div>
+  <p class="nota">Datos de la ficha de cada jugador (fuente de jugadores), que pueden diferir del recuento de goles por partido.</p>
+</section>
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span><b>Goalmetry</b> · Datos de LaLiga actualizados jornada a jornada</span>
+    <span>Fuentes de los datos: futbolfantasy.com, matchscan.co y Wikipedia</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="">
+  <title>Jugadores parecidos · Goalmetry</title>
+  <link rel="icon" href="/goalmetry/static/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/goalmetry/static/estilos.css">
+  <script src="/goalmetry/static/app.js" defer></script>
+  <script src="/goalmetry/static/analisis.js" defer></script>
+  <script src="/goalmetry/static/mi_equipo.js" defer></script>
+</head>
+<body data-base="/goalmetry" data-estatico="1">
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/goalmetry/">
+      <img src="/goalmetry/static/icono.svg" alt="" width="32" height="32">
+      <span>Goal<b>metry</b></span>
+    </a>
+    <button class="menu-boton" type="button" aria-label="Abrir menú" data-menu>☰</button>
+    <nav class="menu" id="menu">
+      
+      <a href="/goalmetry/" >Clasificación</a>
+      <a href="/goalmetry/jornadas" >Jornadas</a>
+      <a href="/goalmetry/predicciones" >Predicciones</a>
+      <a href="/goalmetry/analisis" aria-current="page">Análisis</a>
+      
+        <a class="menu-admin" href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">Versión completa</a>
+      
+    </nav>
+  </div>
+</header>
+
+
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+
+
+<main class="contenedor">
+  
+    
+  
+  
+<section class="portada"><div><p class="etiqueta">Similitud estadística</p><h1>Jugadores parecidos</h1></div></section>
+<p class="aviso aviso-info">Compara solo tres números: goles por 90 minutos, asistencias por 90 minutos y minutos jugados. No dice nada de cómo juega cada uno. Muestra pequeña: datos de unas pocas jornadas.</p>
+
+<form class="tarjeta formulario separado en-linea" method="get" action="/goalmetry/parecidos">
+  <label>Jugador
+    <select name="jugador" data-enviar-al-cambiar>
+      <option value="">Elige un jugador…</option>
+      
+        <optgroup label="Porteros">
+          <option value="213">Aitor Fernández (Osasuna)</option><option value="88">Álex Remiro (Real Sociedad)</option><option value="432">Alfonso Herrero (Málaga CF)</option><option value="67">Álvaro Valles (Real Betis)</option><option value="135">Antonio Sivera (Deportivo Alavés)</option><option value="316">David Soria (Getafe)</option><option value="301">Emil Audero (Rayo Vallecano de Madrid)</option><option value="157">Ionuț Radu (Celta Vigo)</option><option value="24">Jan Oblak (Atlético Madrid)</option><option value="2">Joan García (Barcelona)</option><option value="363">Julen Agirrezabala (Real Racing Club)</option><option value="180">Leo Román (Deportivo de A Coruña)</option><option value="259">Luiz Júnior (Villarreal)</option><option value="344">Marko Dmitrovic (RCD Espanyol)</option><option value="226">Mathew Ryan (Levante UD)</option><option value="387">Matías Dituro (Elche CF)</option><option value="115">Odysseas Vlachodimos (Sevilla)</option><option value="210">Sergio Herrera (Osasuna)</option><option value="409">Stole Dimitrievski (Valencia)</option><option value="47">Thibaut Courtois (Real Madrid)</option><option value="269">Unai Simón (Athletic Bilbao)</option>
+        </optgroup>
+      
+        <optgroup label="Defensas">
+          <option value="204">Abel Bretones (Osasuna)</option><option value="193">Adrià Altimira (Deportivo de A Coruña)</option><option value="298">Adrià Pedrosa (Rayo Vallecano de Madrid)</option><option value="229">Adrián de la Fuente (Levante UD)</option><option value="233">Aïssa Mandi (Levante UD)</option><option value="279">Aitor Paredes (Athletic Bilbao)</option><option value="203">Alejandro Catena (Osasuna)</option><option value="251">Alex Freeman (Villarreal)</option><option value="366">Alvaro Mantilla (Real Racing Club)</option><option value="167">Alvaro Núñez (Celta Vigo)</option><option value="12">Andreas Christensen (Barcelona)</option><option value="297">Andrei Rațiu (Rayo Vallecano de Madrid)</option><option value="322">Andrés García (Getafe)</option><option value="117">Andrés Lopez (Sevilla)</option><option value="143">Ángel Pérez (Deportivo Alavés)</option><option value="433">Ángel Recio (Málaga CF)</option><option value="59">Antonio Rüdiger (Real Madrid)</option><option value="123">Arouna Sangante (Sevilla)</option><option value="214">Asier Osambela (Osasuna)</option><option value="270">Aymeric Laporte (Athletic Bilbao)</option><option value="189">Bright Ede (Deportivo de A Coruña)</option><option value="391">Buba Sangaré (Elche CF)</option><option value="438">Carlos Puga (Málaga CF)</option><option value="256">Carlos Romero (Villarreal)</option><option value="417">César Tárrega (Valencia)</option><option value="345">Clemens Riedel (RCD Espanyol)</option><option value="34">Cristian Romero (Atlético Madrid)</option><option value="26">Dávid Hancko (Atlético Madrid)</option><option value="52">Dean Huijsen (Real Madrid)</option><option value="57">Denzel Dumfries (Real Madrid)</option><option value="81">Diego Llorente (Real Betis)</option><option value="317">Djené (Getafe)</option><option value="437">Einar Galilea (Málaga CF)</option><option value="5">Eric García (Barcelona)</option><option value="49">Federico Valverde (Real Madrid)</option><option value="217">Flavien Boyomo (Osasuna)</option><option value="292">Florian Lejeune (Rayo Vallecano de Madrid)</option><option value="69">Fran García (Real Betis)</option><option value="113">Gabriel Suazo (Sevilla)</option><option value="7">Gerard Martín (Barcelona)</option><option value="389">Germán Valera (Elche CF)</option><option value="181">Giacomo Quagliata (Deportivo de A Coruña)</option><option value="27">Giuliano Simeone (Atlético Madrid)</option><option value="68">Héctor Bellerín (Real Betis)</option><option value="165">Hugo Álvarez (Celta Vigo)</option><option value="284">Hugo Rincón (Athletic Bilbao)</option><option value="50">Ibrahima Konaté (Real Madrid)</option><option value="238">Ifeanyi Ndukwe (Levante UD)</option><option value="97">Igor Zubeldia (Real Sociedad)</option><option value="207">Iñigo Arguibide (Osasuna)</option><option value="170">Javi Galán (Celta Vigo)</option><option value="168">Javi Rodríguez (Celta Vigo)</option><option value="373">Jeanuël Belocian (Real Racing Club)</option><option value="235">Jeremy Toljan (Levante UD)</option><option value="281">Jesús Areso (Athletic Bilbao)</option><option value="420">Jesús Vázquez (Valencia)</option><option value="320">Johan Mojica (Getafe)</option><option value="285">Johaneko Louisjean (Athletic Bilbao)</option><option value="94">Jon Aramburu (Real Sociedad)</option><option value="91">Jon Martin (Real Sociedad)</option><option value="206">Jon Moncayola (Osasuna)</option><option value="142">Jonny Otto (Deportivo Alavés)</option><option value="365">Jorge Salinas (Real Racing Club)</option><option value="414">José Gayá (Valencia)</option><option value="188">José Giménez (Deportivo de A Coruña)</option><option value="442">Jose Salinas (Málaga CF)</option><option value="257">Juan Foyth (Villarreal)</option><option value="116">Juan Iglesias (Sevilla)</option><option value="13">Jules Koundé (Barcelona)</option><option value="419">Justin De Haas (Valencia)</option><option value="118">Kike Salas (Sevilla)</option><option value="346">Leandro Cabrera (RCD Espanyol)</option><option value="190">Lucas Noubi (Deportivo de A Coruña)</option><option value="103">Luken Beitia (Real Sociedad)</option><option value="100">Mamadou Sarr (Real Sociedad)</option><option value="372">Manu Hernando (Real Racing Club)</option><option value="227">Manuel Sánchez (Levante UD)</option><option value="80">Marc Bartra (Real Betis)</option><option value="54">Marc Cucurella (Real Madrid)</option><option value="32">Marc Pubill (Atlético Madrid)</option><option value="163">Marcos Alonso (Celta Vigo)</option><option value="28">Marcos Llorente (Atlético Madrid)</option><option value="421">Mouctar Diakhaby (Valencia)</option><option value="237">Nacho Pérez (Levante UD)</option><option value="136">Nahuel Tenaglia (Deportivo Alavés)</option><option value="70">Natan (Real Betis)</option><option value="323">Nemanja Gudelj (Getafe)</option><option value="145">Nicolás Valentini (Deportivo Alavés)</option><option value="341">Omar El Hilali (RCD Espanyol)</option><option value="415">Pablo Maffeo (Valencia)</option><option value="370">Pablo Ramón (Real Racing Club)</option><option value="293">Pathé Ciss (Rayo Vallecano de Madrid)</option><option value="10">Pau Cubarsí (Barcelona)</option><option value="261">Pau Navarro (Villarreal)</option><option value="410">Pepelu (Valencia)</option><option value="247">Renato Veiga (Villarreal)</option><option value="37">Robin Le Normand (Atlético Madrid)</option><option value="343">Roger Hinojo (RCD Espanyol)</option><option value="395">Roy Revivo (Elche CF)</option><option value="262">Santiago Mouriño (Villarreal)</option><option value="254">Sergi Cardona (Villarreal)</option><option value="161">Sergio Carreira (Celta Vigo)</option><option value="89">Sergio Gómez (Real Sociedad)</option><option value="349">Unai Núñez (RCD Espanyol)</option><option value="79">Valentín Gómez (Real Betis)</option><option value="388">Víctor Chust (Elche CF)</option><option value="138">Ville Koski (Deportivo Alavés)</option><option value="4">Xavi Espart (Barcelona)</option><option value="183">Ximo Navarro (Deportivo de A Coruña)</option><option value="278">Yeray Álvarez (Athletic Bilbao)</option><option value="158">Yoel Lago (Celta Vigo)</option><option value="275">Yuri Berchiche (Athletic Bilbao)</option><option value="325">Zaid Abner Romero (Getafe)</option>
+        </optgroup>
+      
+        <optgroup label="Centrocampistas">
+          <option value="171">Aleix Febas (Celta Vigo)</option><option value="25">Alejandro Grimaldo (Atlético Madrid)</option><option value="350">Álex Calatrava (RCD Espanyol)</option><option value="374">Andrés Martín (Real Racing Club)</option><option value="140">Antonio Blanco (Deportivo Alavés)</option><option value="58">Aurélien Tchouaméni (Real Madrid)</option><option value="277">Beñat Gerenabarrena (Athletic Bilbao)</option><option value="60">Bernardo Silva (Real Madrid)</option><option value="351">Bryan Zaragoza (RCD Espanyol)</option><option value="435">Carlos Dotor (Málaga CF)</option><option value="436">Dani Lorenzo (Málaga CF)</option><option value="239">Dani Requena (Levante UD)</option><option value="434">David Larrubia (Málaga CF)</option><option value="147">Denis Suárez (Deportivo Alavés)</option><option value="236">Enzo Bardeli (Levante UD)</option><option value="396">Federico Redondo (Elche CF)</option><option value="121">Félix Correia (Sevilla)</option><option value="326">Francho Serrano (Getafe)</option><option value="124">Giorgi Kochorashvili (Sevilla)</option><option value="390">Gonzalo Villar (Elche CF)</option><option value="416">Guido Rodríguez (Valencia)</option><option value="208">Iker Muñoz (Osasuna)</option><option value="159">Ilaix Moriba (Celta Vigo)</option><option value="264">Ilias Akhomach (Villarreal)</option><option value="276">Inigo Ruiz de Galarreta (Athletic Bilbao)</option><option value="364">Iñigo Vicente (Real Racing Club)</option><option value="77">Isco (Real Betis)</option><option value="368">Iván Martín (Real Racing Club)</option><option value="439">Izan Merino (Málaga CF)</option><option value="342">Javi Hernández (RCD Espanyol)</option><option value="393">Javi Morcillo (Elche CF)</option><option value="164">Javi Rueda (Celta Vigo)</option><option value="441">Joaquín Muñoz (Málaga CF)</option><option value="102">Job Ochieng (Real Sociedad)</option><option value="38">Johnny Cardoso (Atlético Madrid)</option><option value="122">Jon Guridi (Sevilla)</option><option value="228">Jon Olasagasti (Levante UD)</option><option value="72">Juan Hernández (Real Betis)</option><option value="51">Jude Bellingham (Real Madrid)</option><option value="29">Kang-in Lee (Atlético Madrid)</option><option value="33">Koke (Atlético Madrid)</option><option value="185">Lorenzo Amatucci (Deportivo de A Coruña)</option><option value="399">Lucas Cepeda (Elche CF)</option><option value="216">Lucas Torró (Osasuna)</option><option value="397">Marc Aguado (Elche CF)</option><option value="16">Marc Bernal (Barcelona)</option><option value="74">Marc Roca (Real Betis)</option><option value="182">Mario Soriano (Deportivo de A Coruña)</option><option value="371">Matteo Prati (Real Racing Club)</option><option value="160">Miguel Román (Celta Vigo)</option><option value="283">Mikel Jauregizar (Athletic Bilbao)</option><option value="212">Moi Gómez (Osasuna)</option><option value="35">Morten Hjulmand (Atlético Madrid)</option><option value="260">Nathan Saliba (Villarreal)</option><option value="78">Nelson Deossa (Real Betis)</option><option value="280">Nico Williams (Athletic Bilbao)</option><option value="271">Oihan Sancet (Athletic Bilbao)</option><option value="324">Orel Mangala (Getafe)</option><option value="232">Oriol Rey (Levante UD)</option><option value="300">Óscar Valentín (Rayo Vallecano de Madrid)</option><option value="36">Pablo Barrios (Atlético Madrid)</option><option value="137">Pablo Ibáñez (Deportivo Alavés)</option><option value="440">Pablo Martínez (Málaga CF)</option><option value="248">Pape Gueye (Villarreal)</option><option value="3">Pedri (Barcelona)</option><option value="282">Peio Canales (Athletic Bilbao)</option><option value="319">Ramón Terrats (Getafe)</option><option value="191">Riki Rodríguez (Deportivo de A Coruña)</option><option value="273">Robert Navarro (Athletic Bilbao)</option><option value="9">Rodri (Barcelona)</option><option value="76">Rodrigo Riquelme (Real Betis)</option><option value="252">Santi Comesaña (Villarreal)</option><option value="367">Sergio Canales (Real Racing Club)</option><option value="234">Thiago Fernández (Levante UD)</option><option value="398">Thomas Lemar (Elche CF)</option><option value="347">Tyrhys Dolan (RCD Espanyol)</option><option value="294">Unai López (Rayo Vallecano de Madrid)</option><option value="348">Urko González (RCD Espanyol)</option><option value="95">Yangel Herrera (Real Sociedad)</option><option value="120">Youssouf Fofana (Sevilla)</option>
+        </optgroup>
+      
+        <optgroup label="Delanteros">
+          <option value="139">Abderrahman Rebbach (Deportivo Alavés)</option><option value="75">Abdessamad Ezzalzouli (Real Betis)</option><option value="400">Abiel Osorio (Elche CF)</option><option value="30">Ademola Lookman (Atlético Madrid)</option><option value="443">Adrián Niño (Málaga CF)</option><option value="249">Alberto Moleiro (Villarreal)</option><option value="31">Alex Baena (Atlético Madrid)</option><option value="274">Álex Berenguer (Athletic Bilbao)</option><option value="295">Álvaro García (Rayo Vallecano de Madrid)</option><option value="96">Ander Barrenetxea (Real Sociedad)</option><option value="205">Ante Budimir (Osasuna)</option><option value="11">Anthony Gordon (Barcelona)</option><option value="73">Antony (Real Betis)</option><option value="55">Arda Güler (Real Madrid)</option><option value="412">Arnaut Danjuma (Valencia)</option><option value="250">Ayoze Pérez (Villarreal)</option><option value="184">Bil Nsongo (Deportivo de A Coruña)</option><option value="92">Carlos Soler (Real Sociedad)</option><option value="14">Dani Olmo (Barcelona)</option><option value="422" selected>David Otorbi (Valencia)</option><option value="340">Edu Expósito (RCD Espanyol)</option><option value="321">Enes Ünal (Getafe)</option><option value="392">Fer Niño (Elche CF)</option><option value="8">Fermín López (Barcelona)</option><option value="162">Ferran Jutglà (Celta Vigo)</option><option value="413">Filip Ugrinić (Valencia)</option><option value="253">Georges Mikautadze (Villarreal)</option><option value="263">Gerard Moreno (Villarreal)</option><option value="99">Gonçalo Guedes (Real Sociedad)</option><option value="418">Hugo Duro (Valencia)</option><option value="272">Iñaki Williams (Athletic Bilbao)</option><option value="328">Ivan Azón (Getafe)</option><option value="231">Iván Romero (Levante UD)</option><option value="411">Javier Guerra (Valencia)</option><option value="39">Jonathan David (Atlético Madrid)</option><option value="215">Jonathan Dubasin (Osasuna)</option><option value="299">Jorge de Frutos (Rayo Vallecano de Madrid)</option><option value="15">Karim Adeyemi (Barcelona)</option><option value="48">Kylian Mbappé (Real Madrid)</option><option value="1">Lamine Yamal (Barcelona)</option><option value="141">Lucas Boyé (Deportivo Alavés)</option><option value="114">Lucien Agoumé (Sevilla)</option><option value="187">Luismi Cruz (Deportivo de A Coruña)</option><option value="90">Luka Sučić (Real Sociedad)</option><option value="146">Mariano Díaz (Deportivo Alavés)</option><option value="327">Mario Martín (Getafe)</option><option value="318">Martín Satriano (Getafe)</option><option value="119">Miguel Sierra (Sevilla)</option><option value="93">Mikel Oyarzabal (Real Sociedad)</option><option value="255">Nicolas Pépé (Villarreal)</option><option value="98">Orri Óskarsson (Real Sociedad)</option><option value="169">Pablo Durán (Celta Vigo)</option><option value="71">Pablo Fornals (Real Betis)</option><option value="302">Pedro Díaz (Rayo Vallecano de Madrid)</option><option value="186">Pierre-Emerick Aubameyang (Deportivo de A Coruña)</option><option value="6">Raphinha (Barcelona)</option><option value="211">Raul García (Osasuna)</option><option value="339">Roberto Fernández (RCD Espanyol)</option><option value="230">Roger Brugué (Levante UD)</option><option value="209">Rubén García (Osasuna)</option><option value="423">Ryunosuke Sato (Valencia)</option><option value="296">Sergio Camello (Rayo Vallecano de Madrid)</option><option value="258">Tajon Buchanan (Villarreal)</option><option value="101">Takefusa Kubo (Real Sociedad)</option><option value="394">Tete Morente (Elche CF)</option><option value="144">Toni Martínez (Deportivo Alavés)</option><option value="240">Víctor García (Levante UD)</option><option value="53">Vinícius Júnior (Real Madrid)</option><option value="166">Williot Swedberg (Celta Vigo)</option><option value="56">Yan Diomande (Real Madrid)</option><option value="369">Yassir Zabiri (Real Racing Club)</option><option value="192">Yeremay Hernández (Deportivo de A Coruña)</option>
+        </optgroup>
+      
+    </select>
+  </label>
+  <button class="boton boton-principal" type="submit">Ver parecidos</button>
+</form>
+
+
+<section class="tarjeta">
+  <div class="tarjeta-cabecera">
+    <h2>David Otorbi</h2>
+    <a href="/goalmetry/equipo/19">Valencia</a>
+  </div>
+  <p class="nota sin-margen">331 minutos · 1 goles (0,27 por 90) · 0 asistencias (0,00 por 90) · hasta la jornada 9</p>
+  
+  <div class="tabla-scroll separado"><table class="tabla">
+    <thead><tr><th>Jugador</th><th>Equipo</th><th class="num">Similitud estadística</th><th class="num">Goles/90</th><th class="num">Asist./90</th><th class="num">Minutos</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a href="/goalmetry/parecidos/jugador-400/">Abiel Osorio</a></td>
+        <td><a href="/goalmetry/equipo/7">Elche CF</a></td>
+        <td class="num">69 %</td>
+        <td class="num">0,33</td><td class="num">0,00</td><td class="num">271</td>
+      </tr>
+      <tr>
+        <td><a href="/goalmetry/parecidos/jugador-98/">Orri Óskarsson</a></td>
+        <td><a href="/goalmetry/equipo/17">Real Sociedad</a></td>
+        <td class="num">61 %</td>
+        <td class="num">0,46</td><td class="num">0,00</td><td class="num">391</td>
+      </tr>
+      <tr>
+        <td><a href="/goalmetry/parecidos/jugador-99/">Gonçalo Guedes</a></td>
+        <td><a href="/goalmetry/equipo/17">Real Sociedad</a></td>
+        <td class="num">60 %</td>
+        <td class="num">0,51</td><td class="num">0,00</td><td class="num">352</td>
+      </tr>
+      <tr>
+        <td><a href="/goalmetry/parecidos/jugador-263/">Gerard Moreno</a></td>
+        <td><a href="/goalmetry/equipo/20">Villarreal</a></td>
+        <td class="num">58 %</td>
+        <td class="num">0,54</td><td class="num">0,00</td><td class="num">334</td>
+      </tr>
+      <tr>
+        <td><a href="/goalmetry/parecidos/jugador-215/">Jonathan Dubasin</a></td>
+        <td><a href="/goalmetry/equipo/12">Osasuna</a></td>
+        <td class="num">58 %</td>
+        <td class="num">0,00</td><td class="num">0,00</td><td class="num">345</td>
+      </tr></tbody>
+  </table></div>
+  <p class="nota">100 % sería un perfil idéntico. Solo se compara con jugadores de su misma posición y con al menos 270 minutos.</p>
+  
+</section>
+
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span><b>Goalmetry</b> · Datos de LaLiga actualizados jornada a jornada</span>
+    <span>Fuentes de los datos: futbolfantasy.com, matchscan.co y Wikipedia</span>
+  </div>
+</footer>
+</body>
+</html>

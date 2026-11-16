@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="">
+  <title>Rankings · Goalmetry</title>
+  <link rel="icon" href="/goalmetry/static/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/goalmetry/static/estilos.css">
+  <script src="/goalmetry/static/app.js" defer></script>
+  <script src="/goalmetry/static/analisis.js" defer></script>
+  <script src="/goalmetry/static/mi_equipo.js" defer></script>
+</head>
+<body data-base="/goalmetry" data-estatico="1">
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/goalmetry/">
+      <img src="/goalmetry/static/icono.svg" alt="" width="32" height="32">
+      <span>Goal<b>metry</b></span>
+    </a>
+    <button class="menu-boton" type="button" aria-label="Abrir menú" data-menu>☰</button>
+    <nav class="menu" id="menu">
+      
+      <a href="/goalmetry/" >Clasificación</a>
+      <a href="/goalmetry/jornadas" >Jornadas</a>
+      <a href="/goalmetry/predicciones" >Predicciones</a>
+      <a href="/goalmetry/analisis" aria-current="page">Análisis</a>
+      
+        <a class="menu-admin" href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">Versión completa</a>
+      
+    </nav>
+  </div>
+</header>
+
+
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+
+
+<main class="contenedor">
+  
+    
+  
+  
+<section class="portada"><div><p class="etiqueta"><a href="/goalmetry/analisis">Análisis</a></p><h1>Rankings por 90 minutos</h1></div></section>
+<section class="tarjeta">
+  <form method="get" action="/goalmetry/rankings" class="formulario rejilla-formulario">
+    <label>Posición
+      <select name="posicion">
+        <option value="">Todas</option>
+        
+          <option value="PT" >Porteros</option>
+          <option value="DF" >Defensas</option>
+          <option value="MC" >Centrocampistas</option>
+          <option value="DL" >Delanteros</option>
+      </select></label>
+    
+    
+    <label>Mínimo de minutos
+      <select name="minutos">
+        <option value="0" >0</option><option value="180" >180</option><option value="360" >360</option><option value="540" >540</option><option value="720" selected>720</option>
+      </select></label>
+    
+    <label>Ordenar por
+      <select name="orden">
+        <option value="ga" >Goles + asistencias por 90</option>
+        <option value="minutos" selected>Minutos por gol</option>
+      </select></label>
+    <button class="boton boton-principal">Ver ranking</button>
+  </form>
+  <p class="aviso aviso-info">Muestra pequeña: la temporada lleva 10 jornadas y las fichas de jugadores llegan, en general, hasta la J9. Un gol de más cambia mucho estas cifras, sobre todo con pocos minutos.</p>
+</section>
+<section class="tarjeta">
+  <div class="tabla-scroll"><table class="tabla">
+    <thead><tr><th class="num">#</th><th>Jugador</th><th>Equipo</th><th>Pos.</th><th class="num">Min.</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">G+A/90</th><th class="num">Goles/90</th><th class="num">Min./gol</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="num">1</td>
+        <td><a href="/goalmetry/parecidos/jugador-48/" title="Ver jugadores parecidos">Kylian Mbappé</a></td>
+        <td><a href="/goalmetry/equipo/16">Real Madrid</a></td>
+        <td>DL</td><td class="num">804</td><td class="num">9</td><td class="num">2</td>
+        <td class="num puntos-fuerte">1.23</td><td class="num">1.01</td><td class="num">89.3</td></tr>
+    
+      <tr><td class="num">2</td>
+        <td><a href="/goalmetry/parecidos/jugador-1/" title="Ver jugadores parecidos">Lamine Yamal</a></td>
+        <td><a href="/goalmetry/equipo/4">Barcelona</a></td>
+        <td>DL</td><td class="num">741</td><td class="num">8</td><td class="num">6</td>
+        <td class="num puntos-fuerte">1.70</td><td class="num">0.97</td><td class="num">92.6</td></tr>
+    
+      <tr><td class="num">3</td>
+        <td><a href="/goalmetry/parecidos/jugador-339/" title="Ver jugadores parecidos">Roberto Fernández</a></td>
+        <td><a href="/goalmetry/equipo/8">RCD Espanyol</a></td>
+        <td>DL</td><td class="num">777</td><td class="num">6</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.69</td><td class="num">0.69</td><td class="num">129.5</td></tr>
+    
+      <tr><td class="num">4</td>
+        <td><a href="/goalmetry/parecidos/jugador-141/" title="Ver jugadores parecidos">Lucas Boyé</a></td>
+        <td><a href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+        <td>DL</td><td class="num">728</td><td class="num">5</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.62</td><td class="num">0.62</td><td class="num">145.6</td></tr>
+    
+      <tr><td class="num">5</td>
+        <td><a href="/goalmetry/parecidos/jugador-389/" title="Ver jugadores parecidos">Germán Valera</a></td>
+        <td><a href="/goalmetry/equipo/7">Elche CF</a></td>
+        <td>DF</td><td class="num">752</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.12</td><td class="num">0.12</td><td class="num">752.0</td></tr>
+    
+      <tr><td class="num">6</td>
+        <td><a href="/goalmetry/parecidos/jugador-116/" title="Ver jugadores parecidos">Juan Iglesias</a></td>
+        <td><a href="/goalmetry/equipo/18">Sevilla</a></td>
+        <td>DF</td><td class="num">792</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.11</td><td class="num">0.11</td><td class="num">792.0</td></tr>
+    
+      <tr><td class="num">7</td>
+        <td><a href="/goalmetry/parecidos/jugador-138/" title="Ver jugadores parecidos">Ville Koski</a></td>
+        <td><a href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+        <td>DF</td><td class="num">819</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.11</td><td class="num">0.11</td><td class="num">819.0</td></tr>
+    
+      <tr><td class="num">8</td>
+        <td><a href="/goalmetry/parecidos/jugador-137/" title="Ver jugadores parecidos">Pablo Ibáñez</a></td>
+        <td><a href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+        <td>MC</td><td class="num">850</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.11</td><td class="num">0.11</td><td class="num">850.0</td></tr>
+    
+      <tr><td class="num">9</td>
+        <td><a href="/goalmetry/parecidos/jugador-136/" title="Ver jugadores parecidos">Nahuel Tenaglia</a></td>
+        <td><a href="/goalmetry/equipo/1">Deportivo Alavés</a></td>
+        <td>DF</td><td class="num">855</td><td class="num">1</td><td class="num">0</td>
+        <td class="num puntos-fuerte">0.11</td><td class="num">0.11</td><td class="num">855.0</td></tr>
+    
+    </tbody>
+  </table></div>
+  <p class="nota">Datos de la ficha de cada jugador (fuente de jugadores), que pueden diferir del recuento de goles por partido.</p>
+</section>
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span><b>Goalmetry</b> · Datos de LaLiga actualizados jornada a jornada</span>
+    <span>Fuentes de los datos: futbolfantasy.com, matchscan.co y Wikipedia</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Secretos y configuración local: nunca al repositorio
+.env
+.env.*
+web/.env
+*.pfx
+*.key
+*.pem
+
+# Entorno de Python de la web y datos que se generan en cada equipo
+web/.venv/
+__pycache__/
+data/_externo/
+data/_copias/
+backups/
+
+# Salidas temporales y bases de datos
+*.log
+*.bak
+*.mdf
+*.ldf
+*.ndf
+
+# Sistema y editor
+.DS_Store
+Thumbs.db
+.vscode/
