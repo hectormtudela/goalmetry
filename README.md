@@ -266,6 +266,24 @@ Todas salen de SQL Server. Lo que es una estimación o viene de fuera lo dice en
 - Lo descargado queda en `data\_externo`, ignorada por git.
 - Lo que no cuadra con `liga.Partido` no se usa y queda en `externo.PendienteRevision`.
 
+## Versión pública de solo lectura (GitHub Pages)
+
+Para que cualquiera pueda ver Goalmetry **sin instalar nada y sin que tu ordenador haga de servidor**, la web se exporta a ficheros HTML y GitHub Pages los sirve gratis. Incluye todas las pantallas que solo leen datos: clasificación, jornadas, fichas de equipo, análisis, predicciones, próxima jornada, fiabilidad, jugadores parecidos y «Mi equipo». **No incluye** lo que necesita un servidor: el buscador inteligente, las preguntas a la IA, «¿Y si…?», volver a simular y el panel de administración. Esa parte es la versión completa, que se instala con `instalar.ps1`.
+
+Es una foto: dice en cada página hasta qué jornada llegan los datos y cuándo se publicó. Para actualizarla, tras cargar jornadas nuevas:
+
+```powershell
+.\actualizar.ps1            # datos y predicciones al día
+.\publicar-web.ps1          # genera la carpeta sitio\ (tarda unos 15 segundos)
+git add sitio; git commit -m "chore(web): datos hasta la jornada N"; git push
+```
+
+[`publicar-web.ps1`](publicar-web.ps1) no toca la base de datos ni los CSV: solo escribe en `sitio/`. Se niega a exportar si las predicciones no están al día con los últimos resultados (`-AunqueDesfasado` lo salta). El flujo de [`.github/workflows/pages.yml`](.github/workflows/pages.yml) publica `sitio/` en cuanto llega a `main`. No hay secretos ni base de datos en GitHub, solo los ficheros ya generados.
+
+**Primera vez:** en GitHub, *Settings → Pages → Build and deployment → Source: GitHub Actions*. La dirección será `https://hectormtudela.github.io/goalmetry/`. Con un dominio propio, usa `.\publicar-web.ps1 -Base ''`.
+
+Las pruebas están en `tests\tests_estatico.py` (exporta a una carpeta temporal y comprueba que no haya enlaces rotos, ni scripts o estilos en línea, ni nada de las ventas, y que dos exportaciones den lo mismo).
+
 ## Predicciones
 
 SQL Server juega 10.000 veces los partidos que faltan (menos de un minuto, también desde la web, con una pantalla de carga de curiosidades de la liga) y cuenta en cuántas temporadas acaba cada equipo en cada puesto.

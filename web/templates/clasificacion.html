@@ -44,7 +44,7 @@
   <section class="tarjeta">
     <div class="tarjeta-cabecera">
       <h2>{% if hasta %}Hasta la jornada {{ hasta }}{% else %}Tabla actual{% endif %}</h2>
-      <form method="get" class="en-linea">
+      <form method="get" action="{{ url_for('clasificacion') }}" class="en-linea">
         <label for="hasta">Ver hasta la jornada</label>
         <select id="hasta" name="hasta" data-auto-enviar>
           <option value="">Actual</option>

@@ -80,9 +80,14 @@ def cabeceras(respuesta):
 
 @app.context_processor
 def comunes():
+    estatico = app.config.get("ESTATICO")
+    if estatico:
+        # Web exportada a ficheros (exportar_estatico.py): sin sesión ni tokens, para que
+        # la salida sea siempre la misma y no lleve nada que no sea público.
+        return {"csrf_token": "", "app_nombre": NOMBRE_APP, "admin": None, "estatico": estatico}
     if "csrf" not in session:
         session["csrf"] = secrets.token_urlsafe(32)
-    return {"csrf_token": session["csrf"], "app_nombre": NOMBRE_APP, "admin": session.get("admin")}
+    return {"csrf_token": session["csrf"], "app_nombre": NOMBRE_APP, "admin": session.get("admin"), "estatico": None}
 
 
 class Limitador:
@@ -177,8 +182,11 @@ def clasificacion():
                               (SELECT Nombre FROM liga.Temporada
                                WHERE TemporadaID = (SELECT MAX(TemporadaID) FROM liga.Temporada)) AS Temporada""")[0]
     ids = {e["Nombre"]: e["EquipoID"] for e in filas("SELECT EquipoID, Nombre FROM liga.Equipo")}
-    datos_curiosos = filas("""SELECT TOP (3) Titulo, Texto FROM analisis.Curiosidad
-                               WHERE Categoria <> 'Simulacion' ORDER BY NEWID()""")
+    # En la web exportada el orden es fijo (cambia con cada jornada) en vez de aleatorio.
+    fijo = bool(app.config.get("ESTATICO"))
+    datos_curiosos = filas(f"""SELECT TOP (3) Titulo, Texto FROM analisis.Curiosidad
+                               WHERE Categoria <> 'Simulacion' ORDER BY {'CHECKSUM(Titulo, ?)' if fijo else 'NEWID()'}""",
+                           (len(jugadas),) if fijo else ())
     return render_template("clasificacion.html", tabla=tabla, goleadores=goleadores, jugadas=jugadas,
                            hasta=hasta, resumen=resumen, ids=ids, curiosidades=datos_curiosos)
 

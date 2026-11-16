@@ -3,13 +3,33 @@
 
 const csrf = document.querySelector('meta[name="csrf"]').content;
 
+// Versión exportada a ficheros (GitHub Pages): no hay servidor, así que las consultas son
+// ficheros .json ya preparados y los formularios de filtro navegan a páginas ya preparadas.
+const BASE_WEB = document.body.dataset.base || "";
+const ESTATICO = document.body.dataset.estatico === "1";
+function urlApi(ruta) { return ESTATICO ? `${BASE_WEB}${ruta}.json` : ruta; }
+
+// Misma regla que exportar_estatico.py: claves ordenadas, sin las vacías, una carpeta por cada una.
+function rutaEstatica(accion, params) {
+  const partes = [...new Set(params.keys())].sort().filter((k) => params.get(k)).map((k) => `${k}-${params.get(k)}/`);
+  return `${accion.replace(/\/$/, "")}/${partes.join("")}`;
+}
+if (ESTATICO) {
+  document.addEventListener("submit", (e) => {
+    const f = e.target;
+    if (!(f instanceof HTMLFormElement) || f.method !== "get") return;
+    e.preventDefault();
+    location.href = rutaEstatica(f.getAttribute("action") || location.pathname, new URLSearchParams(new FormData(f)));
+  });
+}
+
 async function pedir(url, datos) {
   const opciones = datos === undefined ? {} : {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
     body: JSON.stringify(datos),
   };
-  const respuesta = await fetch(url, opciones);
+  const respuesta = await fetch(datos === undefined ? urlApi(url) : url, opciones);
   let cuerpo = {};
   try { cuerpo = await respuesta.json(); } catch { /* respuesta vacía o HTML */ }
   if (!respuesta.ok) throw new Error(cuerpo.error || "No se ha podido completar la petición.");
@@ -38,7 +58,7 @@ document.querySelector("[data-menu]")?.addEventListener("click", () => {
 });
 
 // Desplegables que envían el formulario al cambiar
-document.querySelectorAll("[data-auto-enviar]").forEach((s) => s.addEventListener("change", () => s.form.submit()));
+document.querySelectorAll("[data-auto-enviar]").forEach((s) => s.addEventListener("change", () => s.form.requestSubmit()));
 
 // Confirmación antes de borrar
 document.querySelectorAll("form[data-confirmar]").forEach((f) => f.addEventListener("submit", (e) => {
@@ -514,7 +534,7 @@ if (paginaPred) {
       const d = await pedir("/api/predicciones");
       if (d.simulando) { empezarCarga(); return; }
       const boton = $("[data-simular]");
-      boton.classList.remove("oculto");
+      if (!ESTATICO) boton.classList.remove("oculto");   // sin servidor no se puede volver a simular
       if (!d.resultado) {
         $("[data-vacio]").classList.remove("oculto");
         return;
@@ -523,7 +543,7 @@ if (paginaPred) {
       resultado.equiposPorId = Object.fromEntries(d.equipos.map((e) => [e.EquipoID, e.Nombre]));
       boton.textContent = "Volver a simular";
       $("[data-meta]").textContent = `${resultado.temporadas.toLocaleString("es-ES")} temporadas simuladas con los partidos jugados hasta la jornada ${resultado.hastaJornada} · ${resultado.fecha}`;
-      $("[data-desfasado]").classList.toggle("oculto", resultado.alDia);
+      $("[data-desfasado]").classList.toggle("oculto", resultado.alDia || ESTATICO);
       $("[data-contenido]").classList.remove("oculto");
 
       const locales = [...new Set(resultado.pendientes.map((p) => p.LocalID))]

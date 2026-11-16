@@ -360,3 +360,7 @@ tr.fila-mi-equipo td { background: #FDF3D0; font-weight: 600; }
 /* ---------- Asistente de jornada ---------- */
 .lista-informe { font-size: .9rem; padding-left: 20px; margin: 8px 0; }
 pre.registro { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .78rem; max-height: 260px; overflow-y: auto; background: #F4F7F5; padding: 10px; border-radius: 6px; margin: 8px 0 0; }
+
+/* ---------- Versión exportada (solo lectura) ---------- */
+.banner-estatico { background: var(--verde-claro); border-bottom: 1px solid var(--borde); font-size: .9rem; padding: 8px 0; }
+.banner-estatico a { color: var(--verde); font-weight: 600; }

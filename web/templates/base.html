@@ -11,7 +11,7 @@
   <script src="{{ url_for('static', filename='analisis.js') }}" defer></script>
   <script src="{{ url_for('static', filename='mi_equipo.js') }}" defer></script>
 </head>
-<body>
+<body data-base="{{ request.script_root }}" data-estatico="{{ 1 if estatico else 0 }}">
 <header class="cabecera">
   <div class="contenedor cabecera-fila">
     <a class="marca" href="{{ url_for('clasificacion') }}">
@@ -25,16 +25,30 @@
       <a href="{{ url_for('ver_jornadas') }}" {% if ruta.startswith('/jornadas') %}aria-current="page"{% endif %}>Jornadas</a>
       <a href="{{ url_for('predicciones') }}" {% if ruta == '/predicciones' %}aria-current="page"{% endif %}>Predicciones</a>
       <a href="{{ url_for('analisis') }}" {% if ruta in ['/analisis', '/rankings', '/posiciones', '/curiosidades', '/fiabilidad', '/parecidos', '/proxima-jornada'] or ruta.startswith('/arbitro') %}aria-current="page"{% endif %}>Análisis</a>
-      <a href="{{ url_for('buscar') }}" {% if ruta == '/buscar' %}aria-current="page"{% endif %}>Buscador</a>
-      <a href="{{ url_for('preguntar') }}" {% if ruta == '/preguntar' %}aria-current="page"{% endif %}>Pregunta a la IA</a>
-      {% if admin %}
-        <a class="menu-admin" href="{{ url_for('panel') }}" {% if ruta.startswith('/admin') %}aria-current="page"{% endif %}>Administración</a>
+      {% if estatico %}
+        <a class="menu-admin" href="{{ estatico.url_completa }}" rel="noopener">Versión completa</a>
       {% else %}
-        <a class="menu-admin" href="{{ url_for('entrar') }}">Entrar</a>
+        <a href="{{ url_for('buscar') }}" {% if ruta == '/buscar' %}aria-current="page"{% endif %}>Buscador</a>
+        <a href="{{ url_for('preguntar') }}" {% if ruta == '/preguntar' %}aria-current="page"{% endif %}>Pregunta a la IA</a>
+        {% if admin %}
+          <a class="menu-admin" href="{{ url_for('panel') }}" {% if ruta.startswith('/admin') %}aria-current="page"{% endif %}>Administración</a>
+        {% else %}
+          <a class="menu-admin" href="{{ url_for('entrar') }}">Entrar</a>
+        {% endif %}
       {% endif %}
     </nav>
   </div>
 </header>
+
+{% if estatico %}
+<div class="banner-estatico">
+  <div class="contenedor">
+    <b>Versión de solo lectura</b> · datos hasta la jornada {{ estatico.jornada }} (publicada el {{ estatico.fecha }}).
+    La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
+    <a href="{{ estatico.url_completa }}" rel="noopener">versión completa</a>, que se instala en tu ordenador.
+  </div>
+</div>
+{% endif %}
 
 <main class="contenedor">
   {% with mensajes = get_flashed_messages(with_categories=true) %}

@@ -3,14 +3,22 @@
 {% block contenido %}
 <section class="portada"><div><p class="etiqueta"><a href="{{ url_for('analisis') }}">Análisis</a></p><h1>Rankings por 90 minutos</h1></div></section>
 <section class="tarjeta">
-  <form method="get" class="formulario rejilla-formulario">
+  <form method="get" action="{{ url_for('rankings') }}" class="formulario rejilla-formulario">
     <label>Posición
       <select name="posicion">
         <option value="">Todas</option>
         {% for v, n in [('PT','Porteros'),('DF','Defensas'),('MC','Centrocampistas'),('DL','Delanteros')] %}
           <option value="{{ v }}" {% if posicion == v %}selected{% endif %}>{{ n }}</option>{% endfor %}
       </select></label>
+    {% if estatico %}
+    {# Sin servidor solo existen los valores que se han preparado de antemano. #}
+    <label>Mínimo de minutos
+      <select name="minutos">
+        {% for m in [0, 180, 360, 540, 720] %}<option value="{{ m }}" {% if minutos == m %}selected{% endif %}>{{ m }}</option>{% endfor %}
+      </select></label>
+    {% else %}
     <label>Mínimo de minutos <input type="number" name="minutos" min="0" max="4000" step="30" value="{{ minutos }}"></label>
+    {% endif %}
     <label>Ordenar por
       <select name="orden">
         <option value="ga" {% if orden == 'ga' %}selected{% endif %}>Goles + asistencias por 90</option>

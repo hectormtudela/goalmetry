@@ -42,7 +42,7 @@ if (zonaMiEquipo) {
     datos = null;
     if (!id) return;
     try {
-      const r = await fetch(`/api/mi-equipo/${encodeURIComponent(id)}`);
+      const r = await fetch(urlApi(`/api/mi-equipo/${encodeURIComponent(id)}`));   // urlApi: app.js
       if (!r.ok) throw new Error();
       datos = await r.json();
       pintar();

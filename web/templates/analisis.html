@@ -4,7 +4,7 @@
 <section class="portada"><div><p class="etiqueta">Más allá de la clasificación</p><h1>Análisis</h1></div></section>
 <div class="tarjetas-enlace">
   {% for titulo, ruta, texto in secciones %}
-    <a class="tarjeta tarjeta-enlace" href="{{ ruta }}"><h2>{{ titulo }}</h2><p>{{ texto }}</p></a>
+    <a class="tarjeta tarjeta-enlace" href="{{ request.script_root }}{{ ruta }}"><h2>{{ titulo }}</h2><p>{{ texto }}</p></a>
   {% endfor %}
 </div>
 {% endblock %}
