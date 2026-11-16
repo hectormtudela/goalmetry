@@ -37,7 +37,7 @@ Están explicadas en la sección «Pantallas nuevas» del README de la raíz. Su
 
 ### La versión exportada (solo lectura)
 
-`exportar_estatico.py` recorre la web con los datos de SQL Server y la guarda como ficheros (`publicar-web.ps1` lo lanza; ver el README de la raíz). Para eso la web tiene un modo «estático»: sin sesión ni tokens, sin lo que necesita servidor y con los filtros convertidos en carpetas (`/rankings/minutos-360/orden-ga/posicion-DL/`). La regla que convierte filtros en carpetas existe dos veces, en `exportar_estatico.py` y en `static/app.js` (`rutaEstatica`), y una prueba comprueba que dan lo mismo. Si añades una pantalla con filtros, hay que añadir sus combinaciones a las semillas del exportador.
+`exportar_estatico.py` recorre la web con los datos de SQL Server y la guarda como ficheros (`publicar-web.ps1` lo lanza y `publicar-github.ps1` la sube al repositorio público; ver el README de la raíz). Para eso la web tiene un modo «estático»: sin sesión ni tokens, sin lo que necesita servidor y con los filtros convertidos en carpetas (`/rankings/minutos-360/orden-ga/posicion-DL/`). La regla que convierte filtros en carpetas existe dos veces, en `exportar_estatico.py` y en `static/app.js` (`rutaEstatica`), y una prueba comprueba que dan lo mismo. Si añades una pantalla con filtros, hay que añadir sus combinaciones a las semillas del exportador.
 
 ### La cuenta de administrador
 Solo hay una cuenta y se crea así:

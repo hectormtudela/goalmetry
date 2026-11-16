@@ -148,6 +148,11 @@ if ($conPredicciones -and -not $SinPredicciones) {
 }
 
 # ---------- 4. Pruebas ----------
+# La copia pública del repositorio no lleva las pruebas: con -Tests se avisa y se sigue sin ellas.
+if ($Tests -and -not (Test-Path (Join-Path $raiz 'tests'))) {
+    Write-Host 'Esta copia no incluye las pruebas (carpeta tests): se omiten.' -ForegroundColor Yellow
+    $Tests = $false
+}
 if ($Tests) {
     $lista = @('tests\tests.sql')
     if ($conWeb) { $lista += 'tests\tests_web.sql' }

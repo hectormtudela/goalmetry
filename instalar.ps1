@@ -92,6 +92,11 @@ if ($IA) {
     }
 }
 
+# La copia pública del repositorio no lleva las pruebas: con -Tests se avisa y se sigue sin ellas.
+if ($Tests -and -not (Test-Path (Join-Path $raiz 'tests'))) {
+    Write-Host 'Esta copia no incluye las pruebas (carpeta tests): se omiten.' -ForegroundColor Yellow
+    $Tests = $false
+}
 if ($Tests) {
     $scripts += Get-Item (Join-Path $raiz 'tests\tests.sql')
     $scripts += Get-Item (Join-Path $raiz 'tests\tests_web.sql')
