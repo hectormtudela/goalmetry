@@ -2,6 +2,13 @@
 
 Cada actualización de los CSV de `data/` se anota aquí: qué se añadió o corrigió, de qué fuentes y cómo se comprobó. Para aplicarla en una instalación existente: `git pull` y después `actualizar.ps1`.
 
+## 19/11/2026 · Rayo-Athletic (J8): fecha de reanudación
+
+- **Partido 72:** `fecha_hora` pasa de 2026-10-10 14:00 a **2026-12-09 20:00** (la reanudación). Sigue `Programado`, sin marcador.
+- **Qué pasó:** se suspendió el 10-10-2026 hacia el minuto 25 con 0-0 por incidentes y lanzamiento de objetos en Vallecas; se retoma el miércoles 9-12-2026 a las 20:00 y sin público.
+- **Fuentes:** fecha y puerta cerrada, Comuniate (una sola fuente; laliga.com no se puede leer sin JavaScript). Minuto y marcador: la ficha de futbolfantasy.com, cuyo relato llega al 24:20, con 25 minutos jugados y ningún gol registrado.
+- **Cuidado:** al jugarse es una reanudación, no un partido nuevo. Al cargarlo hay que sumar los goles al 0-0 y ajustar `tests/tests.sql` (ver «Estado» en la documentación de carga).
+
 ## 19/11/2026 · Estadísticas de jugadores hasta la J12
 
 - **Jugadores:** los 452 actualizados en su fila (minutos, goles, asistencias y `ultima_jornada` = 12) y 30 nuevos al final (`jugador_id` 453 a 482), con su posición (Alejandro Santiago y Jan Peries no la tienen en la fuente: quedan sin posición).

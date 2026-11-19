@@ -34,15 +34,16 @@
 {% if aplazados %}
 <section class="tarjeta separado">
   <div class="tarjeta-cabecera"><h2>Partidos aplazados</h2></div>
-  <p class="nota sin-margen">Partidos de jornadas anteriores que todavía no se han jugado. Son datos reales de la liga (sin fecha nueva todavía) y la estimación se calcula igual que la de arriba.</p>
+  <p class="nota sin-margen">Partidos de jornadas anteriores que todavía no se han jugado. Son datos reales de la liga y la estimación se calcula igual que la de arriba. El Rayo-Athletic se suspendió el 10-10-2026 hacia el minuto 25 con 0-0 por incidentes en Vallecas y se reanuda a puerta cerrada en la fecha indicada; la estimación es la de un partido completo, no la del tramo que queda.</p>
   <div class="tabla-scroll separado"><table class="tabla">
-    <thead><tr><th class="num">Jornada</th><th>Partido</th>
+    <thead><tr><th class="num">Jornada</th><th>Partido</th><th>Fecha</th>
       <th class="num" title="Probabilidad estimada de que gane el local">1</th><th class="num" title="Probabilidad estimada de empate">X</th><th class="num" title="Probabilidad estimada de que gane el visitante">2</th>
       <th class="num">Marcador más probable</th></tr></thead>
     <tbody>{% for p in aplazados %}
       <tr>
         <td class="num">{{ p.Jornada }}</td>
         <td><a href="{{ url_for('equipo', equipo_id=p.LocalID) }}">{{ p.Local }}</a> - <a href="{{ url_for('equipo', equipo_id=p.VisitanteID) }}">{{ p.Visitante }}</a></td>
+        <td>{{ p.FechaOriginal.strftime('%d/%m/%Y %H:%M') if p.FechaOriginal else '—' }}</td>
         <td class="num">{{ pct(p.P1) }}</td><td class="num">{{ pct(p.PX) }}</td><td class="num">{{ pct(p.P2) }}</td>
         <td class="num">{{ p.GolesLocal }}-{{ p.GolesVisitante }} <small class="nota">({{ pct(p.PMarcador) }})</small></td>
       </tr>{% endfor %}</tbody>
