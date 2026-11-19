@@ -333,6 +333,7 @@ CREATE OR ALTER PROCEDURE ia.usp_PreguntarLiga
     @Pregunta    NVARCHAR(500),
     @Top         INT           = 5,
     @SinContexto BIT           = 0,
+    @SinTarjetas BIT           = 0,   -- 1 = no responder con tarjetas de datos: pasa siempre por el modelo
     @Mostrar     BIT           = 1,
     @Respuesta   NVARCHAR(MAX) = NULL OUTPUT,
     @Contexto    NVARCHAR(MAX) = NULL OUTPUT
@@ -349,6 +350,8 @@ BEGIN
     DECLARE @sistema  NVARCHAR(MAX);
     DECLARE @usuario  NVARCHAR(MAX);
     DECLARE @inicio   DATETIME2 = SYSDATETIME();
+    DECLARE @modo     NVARCHAR(20) = CASE WHEN @SinContexto = 1 THEN N'LLM solo' ELSE N'RAG' END;
+    DECLARE @tarjeta  VARCHAR(20), @tarjetaTexto NVARCHAR(2000);
 
     CREATE TABLE #Docs (DocumentoID INT, Tipo VARCHAR(20) COLLATE DATABASE_DEFAULT,
                         Titulo NVARCHAR(150) COLLATE DATABASE_DEFAULT,
@@ -362,6 +365,25 @@ BEGIN
         IF @sinDatos IS NOT NULL
         BEGIN
             SELECT @Respuesta = @sinDatos, @Contexto = NULL;
+            GOTO Resultados;
+        END;
+    END;
+
+    /* ---- 0b. ¿La base de datos reconoce la pregunta? Responde con su tarjeta, sin llamar al modelo ----
+       Los datos exactos (puntos, goles, resultados...) los da SQL: un modelo pequeño los confunde con cifras
+       vecinas (medido con testsag_evaluacion*.sql). Si no hay tarjeta, o falla el reconocimiento (por ejemplo,
+       Ollama apagado), la pregunta sigue al modelo como siempre. */
+    IF @SinContexto = 0 AND @SinTarjetas = 0 AND OBJECT_ID(N'ia.usp_TextoTarjeta', N'P') IS NOT NULL
+    BEGIN
+        BEGIN TRY
+            EXEC ia.usp_TextoTarjeta @Pregunta = @Pregunta, @Intencion = @tarjeta OUTPUT, @Texto = @tarjetaTexto OUTPUT;
+        END TRY
+        BEGIN CATCH
+            SET @tarjeta = NULL;
+        END CATCH;
+        IF @tarjeta IS NOT NULL AND @tarjetaTexto IS NOT NULL
+        BEGIN
+            SELECT @Respuesta = @tarjetaTexto, @modo = N'Tarjeta', @Contexto = CONCAT(N'[Tarjeta de datos: ', @tarjeta, N']', CHAR(10), @tarjetaTexto);
             GOTO Resultados;
         END;
     END;
@@ -497,7 +519,7 @@ BEGIN
     Resultados:
     IF @Mostrar = 1
     BEGIN
-        SELECT @Pregunta AS Pregunta, CASE WHEN @SinContexto = 1 THEN N'LLM solo' ELSE N'RAG' END AS Modo;
+        SELECT @Pregunta AS Pregunta, @modo AS Modo;
         SELECT DocumentoID, Tipo, Titulo, Puntuacion FROM #Docs ORDER BY Puntuacion DESC, DocumentoID;
         SELECT @Contexto AS Contexto;
         SELECT @Respuesta AS Respuesta, DATEDIFF(MILLISECOND, @inicio, SYSDATETIME()) AS Milisegundos;

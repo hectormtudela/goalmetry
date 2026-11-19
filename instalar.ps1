@@ -106,6 +106,7 @@ if ($Tests) {
     $scripts += Get-Item (Join-Path $raiz 'tests\tests_simulacion.sql')
     $scripts += Get-Item (Join-Path $raiz 'tests\tests_analisis.sql')
     if ($IA) { $scripts += Get-Item (Join-Path $raiz 'tests\tests_temas.sql') }
+    if ($IA) { $scripts += Get-Item (Join-Path $raiz 'tests\tests_rag_tarjetas.sql') }
 }
 
 Escribir-Paso 'Scripts que se van a ejecutar, en este orden'

@@ -4,17 +4,17 @@ Esta carpeta es la **fuente de verdad** del proyecto. `instalar.ps1` crea la bas
 
 Todos los ficheros son UTF-8, separados por comas, con cabecera en la primera fila y fin de línea LF (lo garantiza `.gitattributes`). Los campos vacíos son NULL. Los textos con comas van entre comillas dobles (`"..."`), y una comilla dentro de un texto se escribe doble (`""`).
 
-| Fichero | Filas (J1-J10) | Tabla destino |
+| Fichero | Filas (J1-J12) | Tabla destino |
 |---|---:|---|
 | temporadas.csv | 1 | liga.Temporada |
 | equipos.csv | 20 | liga.Equipo |
 | estadios.csv | 20 | liga.Estadio |
 | arbitros.csv | 21 | liga.Arbitro |
-| jornadas.csv | 10 | liga.Jornada |
-| partidos.csv | 100 | liga.Partido |
+| jornadas.csv | 12 | liga.Jornada |
+| partidos.csv | 120 | liga.Partido |
 | jugadores.csv | 452 | liga.Jugador |
-| goles.csv | 298 | liga.Gol |
-| cronicas.csv | 100 | ia.Documento (tipo `cronica_partido`) |
+| goles.csv | 344 | liga.Gol |
+| cronicas.csv | 119 | ia.Documento (tipo `cronica_partido`) |
 | documentos.csv | 16 | ia.Documento (tipos `reglamento` y `faq`) |
 
 Orden de carga (por las claves foráneas): temporadas, equipos, estadios, arbitros, jornadas, partidos, jugadores, goles. Los identificadores (`*_id`) vienen ya asignados en los CSV y se cargan con `SET IDENTITY_INSERT`.

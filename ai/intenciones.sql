@@ -160,24 +160,72 @@ BEGIN
 END;
 GO
 
-/* Tarjeta completa. Primer resultado: cabecera (Intencion NULL = sin tarjeta). Segundo: las filas. */
-CREATE OR ALTER PROCEDURE ia.usp_TarjetaPregunta
-    @Pregunta NVARCHAR(500)
+/* Texto de la tarjeta, sin las filas. Lo usan ia.usp_TarjetaPregunta (pantalla de preguntas) e ia.usp_PreguntarLiga
+   (el RAG responde con él, sin llamar al modelo, cuando la base de datos reconoce la pregunta).
+   Cada texto tiene que contestar la pregunta por sí solo. Devuelve @Intencion NULL si no hay tarjeta. */
+CREATE OR ALTER PROCEDURE ia.usp_TextoTarjeta
+    @Pregunta  NVARCHAR(500),
+    @Intencion VARCHAR(20)    = NULL OUTPUT,
+    @Distancia FLOAT          = NULL OUTPUT,
+    @Candidata VARCHAR(20)    = NULL OUTPUT,
+    @A         INT            = NULL OUTPUT,
+    @B         INT            = NULL OUTPUT,
+    @N         INT            = NULL OUTPUT,
+    @Titulo    NVARCHAR(150)  = NULL OUTPUT,
+    @Texto     NVARCHAR(2000) = NULL OUTPUT,
+    @Enlace    NVARCHAR(100)  = NULL OUTPUT,
+    @Grafico   VARCHAR(10)    = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
-    DECLARE @i VARCHAR(20), @d FLOAT, @cand VARCHAR(20), @A INT, @B INT, @N INT;
+    SELECT @Intencion = NULL, @Distancia = NULL, @Candidata = NULL, @Titulo = NULL, @Texto = NULL, @Enlace = NULL, @Grafico = NULL;
+    DECLARE @i VARCHAR(20), @d FLOAT, @cand VARCHAR(20);
     EXEC ia.usp_ClasificarPregunta @Pregunta = @Pregunta, @Intencion = @i OUTPUT, @Distancia = @d OUTPUT, @Candidata = @cand OUTPUT,
          @A = @A OUTPUT, @B = @B OUTPUT, @Jornada = @N OUTPUT;
 
-    DECLARE @texto NVARCHAR(1000), @titulo NVARCHAR(150) = (SELECT Titulo FROM ia.Intencion WHERE Intencion = @i), @enlace NVARCHAR(100), @grafico VARCHAR(10);
+    SET @Titulo = (SELECT Titulo FROM ia.Intencion WHERE Intencion = @i);   -- (@texto, @enlace y @grafico son los propios parámetros de salida)
     DECLARE @jornadas INT = (SELECT MAX(j.Numero) FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID WHERE p.Estado = 'Finalizado');
 
     IF @i = 'clasificacion'
     BEGIN
-        SELECT @texto = CONCAT(a.Equipo, N' lidera con ', a.Pts, N' puntos tras ', @jornadas, N' jornadas. ', z.Equipo, N' es último con ', z.Pts, N'.')
-        FROM (SELECT TOP (1) Equipo, Pts FROM liga.vw_Clasificacion ORDER BY Posicion, Equipo) AS a
-        CROSS JOIN (SELECT TOP (1) Equipo, Pts FROM liga.vw_Clasificacion ORDER BY Posicion DESC, Equipo DESC) AS z;
+        -- Según lo que se pregunte, el texto da justo ese dato (con empates, todos los equipos empatados).
+        DECLARE @lista NVARCHAR(400), @valor INT;
+        IF REGEXP_LIKE(@Pregunta, N'saca|ventaja|diferencia|distancia', 'i')
+            SELECT @texto = CONCAT(N'El líder, ', a.Equipo, N', le saca ', a.Pts - b.Pts, N' puntos al segundo, ', b.Equipo, N'.')
+            FROM (SELECT TOP (1) Equipo, Pts FROM liga.vw_Clasificacion WHERE Posicion = 1 ORDER BY Equipo) AS a
+            CROSS JOIN (SELECT TOP (1) Equipo, Pts FROM liga.vw_Clasificacion WHERE Posicion = 2 ORDER BY Equipo) AS b;
+        ELSE IF REGEXP_LIKE(@Pregunta, N'encajad|en contra|menos goles', 'i')
+        BEGIN
+            SELECT @lista = STRING_AGG(Equipo, N', ') WITHIN GROUP (ORDER BY Equipo), @valor = MIN(GC)
+            FROM liga.vw_Clasificacion WHERE GC = (SELECT MIN(GC) FROM liga.vw_Clasificacion);
+            SET @lista = CASE WHEN CHARINDEX(N', ', @lista) > 0 THEN STUFF(@lista, LEN(@lista) - CHARINDEX(N' ,', REVERSE(@lista)), 2, N' y ') ELSE @lista END;
+            SET @texto = CONCAT(N'El equipo que menos goles ha encajado es ', @lista, N', con ', @valor, N' goles en contra.');
+        END
+        ELSE IF REGEXP_LIKE(@Pregunta, N'marcad|a favor|m[aá]s goles', 'i')
+        BEGIN
+            SELECT @lista = STRING_AGG(Equipo, N', ') WITHIN GROUP (ORDER BY Equipo), @valor = MAX(GF)
+            FROM liga.vw_Clasificacion WHERE GF = (SELECT MAX(GF) FROM liga.vw_Clasificacion);
+            SET @lista = CASE WHEN CHARINDEX(N', ', @lista) > 0 THEN STUFF(@lista, LEN(@lista) - CHARINDEX(N' ,', REVERSE(@lista)), 2, N' y ') ELSE @lista END;
+            SET @texto = CONCAT(N'El equipo que más goles ha marcado es ', @lista, N', con ', @valor, N' goles a favor.');
+        END
+        ELSE IF REGEXP_LIKE(@Pregunta, N'segund', 'i')
+        BEGIN
+            SELECT @lista = STRING_AGG(Equipo, N', ') WITHIN GROUP (ORDER BY Equipo), @valor = MAX(Pts)
+            FROM liga.vw_Clasificacion WHERE Posicion = 2;
+            SET @lista = CASE WHEN CHARINDEX(N', ', @lista) > 0 THEN STUFF(@lista, LEN(@lista) - CHARINDEX(N' ,', REVERSE(@lista)), 2, N' y ') ELSE @lista END;
+            SET @texto = CONCAT(N'El segundo clasificado es ', @lista, N', con ', @valor, N' puntos.');
+        END
+        ELSE IF REGEXP_LIKE(@Pregunta, N'[uú]ltim', 'i')
+        BEGIN
+            SELECT @lista = STRING_AGG(Equipo, N', ') WITHIN GROUP (ORDER BY Equipo), @valor = MAX(Pts)
+            FROM liga.vw_Clasificacion WHERE Posicion = (SELECT MAX(Posicion) FROM liga.vw_Clasificacion);
+            SET @lista = CASE WHEN CHARINDEX(N', ', @lista) > 0 THEN STUFF(@lista, LEN(@lista) - CHARINDEX(N' ,', REVERSE(@lista)), 2, N' y ') ELSE @lista END;
+            SET @texto = CONCAT(N'El último de la clasificación es ', @lista, N', con ', @valor, N' puntos.');
+        END
+        IF @texto IS NULL
+            SELECT @texto = CONCAT(a.Equipo, N' lidera con ', a.Pts, N' puntos tras ', @jornadas, N' jornadas. ', z.Equipo, N' es último con ', z.Pts, N'.')
+            FROM (SELECT TOP (1) Equipo, Pts FROM liga.vw_Clasificacion ORDER BY Posicion, Equipo) AS a
+            CROSS JOIN (SELECT TOP (1) Equipo, Pts FROM liga.vw_Clasificacion ORDER BY Posicion DESC, Equipo DESC) AS z;
         SET @enlace = N'/';
     END
     ELSE IF @i = 'goleadores'
@@ -191,6 +239,12 @@ BEGIN
         SELECT @titulo = c.Equipo, @enlace = CONCAT(N'/equipo/', c.EquipoID),
                @texto = CONCAT(c.Equipo, N' va ', c.Posicion, N'º con ', c.Pts, N' puntos: ', c.G, N' ganados, ', c.E, N' empatados y ', c.P, N' perdidos; ',
                                c.GF, N' goles a favor y ', c.GC, N' en contra.',
+                               CASE WHEN c.G = 0 THEN N' No ha ganado ningún partido.' ELSE N'' END,
+                               CASE WHEN c.P = 0 THEN N' No ha perdido ningún partido.' ELSE N'' END,
+                               (SELECT CONCAT(N' Ha perdido contra: ', STRING_AGG(CONCAT(r.Rival, N' (jornada ', r.Jornada, N')'), N', ') WITHIN GROUP (ORDER BY r.Jornada), N'.')
+                                FROM analisis.vw_ResultadoEquipo AS r WHERE r.EquipoID = c.EquipoID AND r.Resultado = 'D' HAVING COUNT(*) > 0),
+                               (SELECT CONCAT(N' Ha empatado con: ', STRING_AGG(CONCAT(r.Rival, N' (jornada ', r.Jornada, N')'), N', ') WITHIN GROUP (ORDER BY r.Jornada), N'.')
+                                FROM analisis.vw_ResultadoEquipo AS r WHERE r.EquipoID = c.EquipoID AND r.Resultado = 'E' HAVING COUNT(*) > 0),
                                (SELECT TOP (1) CONCAT(N' Su máximo goleador es ', g.Anotador, N' (', g.Goles, N').') FROM liga.vw_MaximosGoleadores AS g
                                 JOIN liga.Equipo AS e ON e.Nombre = g.Equipo WHERE e.EquipoID = c.EquipoID ORDER BY g.Goles DESC, g.Anotador))
         FROM liga.vw_Clasificacion AS c WHERE c.EquipoID = @A;
@@ -205,18 +259,27 @@ BEGIN
     ELSE IF @i = 'enfrentamiento'
     BEGIN
         SELECT @titulo = CONCAT(a.Nombre, N' y ', b.Nombre) FROM liga.Equipo AS a CROSS JOIN liga.Equipo AS b WHERE a.EquipoID = @A AND b.EquipoID = @B;
-        SELECT @texto = STRING_AGG(CONCAT(N'Jornada ', j.Numero, N': ', l.Nombre, N' ',
-                                          CASE WHEN p.Estado = 'Finalizado' THEN CONCAT(p.GolesLocal, N'-', p.GolesVisitante) ELSE N'(por jugar)' END, N' ', v.Nombre, N'.'), N' ')
+        SELECT @texto = STRING_AGG(CONCAT(N'Jornada ', j.Numero,
+                                          CASE WHEN p.FechaHora IS NOT NULL THEN CONCAT(N' (', FORMAT(p.FechaHora, 'dd/MM/yyyy'), N')') ELSE N'' END, N': ',
+                                          l.Nombre, N' ', CASE WHEN p.Estado = 'Finalizado' THEN CONCAT(p.GolesLocal, N'-', p.GolesVisitante) ELSE N'(por jugar)' END, N' ', v.Nombre, N'.',
+                                          CASE WHEN a.Nombre IS NOT NULL THEN CONCAT(N' Árbitro: ', a.Nombre, N'.') ELSE N'' END,
+                                          CASE WHEN gg.Detalle IS NOT NULL THEN CONCAT(N' Goles: ', gg.Detalle, N'.') ELSE N'' END), N' ')
                                    WITHIN GROUP (ORDER BY j.Numero)
         FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
         JOIN liga.Equipo AS l ON l.EquipoID = p.EquipoLocalID JOIN liga.Equipo AS v ON v.EquipoID = p.EquipoVisitanteID
+        LEFT JOIN liga.Arbitro AS a ON a.ArbitroID = p.ArbitroPrincipalID
+        OUTER APPLY (SELECT STRING_AGG(CONCAT(g.Anotador, N' (', g.Minuto, N''')'), N', ') WITHIN GROUP (ORDER BY g.Minuto, g.GolID) AS Detalle
+                     FROM liga.Gol AS g WHERE g.PartidoID = p.PartidoID) AS gg
         WHERE p.EquipoLocalID IN (@A, @B) AND p.EquipoVisitanteID IN (@A, @B) AND (@N IS NULL OR j.Numero = @N);
         IF @texto IS NULL SET @i = NULL;
     END
     ELSE IF @i = 'jugador'
     BEGIN
+        -- Goles de las actas; minutos y asistencias de la ficha (que llega hasta su UltimaJornada). Los partidos jugados no constan.
         SELECT @titulo = j.Nombre, @enlace = CONCAT(N'/parecidos?jugador=', j.JugadorID),
-               @texto = CONCAT(j.Nombre, N' (', e.Nombre, N') lleva ', g.Goles, N' goles', CASE WHEN g.Penaltis > 0 THEN CONCAT(N', ', g.Penaltis, N' de penalti') ELSE N'' END, N'.')
+               @texto = CONCAT(j.Nombre, N' (', e.Nombre, N') lleva ', g.Goles, N' goles', CASE WHEN g.Penaltis > 0 THEN CONCAT(N', ', g.Penaltis, N' de penalti') ELSE N'' END, N'.',
+                               N' Según su ficha (datos hasta la jornada ', COALESCE(j.UltimaJornada, 0), N'): ', j.Asistencias, N' asistencias y ', j.MinutosJugados,
+                               N' minutos jugados. Los partidos jugados no constan en la base de datos.')
         FROM liga.Jugador AS j JOIN liga.Equipo AS e ON e.EquipoID = j.EquipoID
         CROSS APPLY (SELECT COUNT(CASE WHEN x.Tipo <> 'PropiaPuerta' THEN 1 END) AS Goles, COUNT(CASE WHEN x.Tipo = 'Penalti' THEN 1 END) AS Penaltis
                      FROM liga.Gol AS x WHERE x.JugadorID = j.JugadorID) AS g
@@ -237,6 +300,21 @@ BEGIN
                    @texto = CONCAT(N'En la jornada ', @N, N' se han jugado ', COUNT(*), N' partidos con ', SUM(CAST(p.GolesLocal AS INT) + p.GolesVisitante), N' goles en total.')
             FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID WHERE j.Numero = @N AND p.Estado = 'Finalizado';
     END;
+
+    IF @texto IS NULL SET @i = NULL;
+    SELECT @Intencion = @i, @Distancia = @d, @Candidata = @cand;
+END;
+GO
+
+/* Tarjeta completa. Primer resultado: cabecera (Intencion NULL = sin tarjeta). Segundo: las filas. */
+CREATE OR ALTER PROCEDURE ia.usp_TarjetaPregunta
+    @Pregunta NVARCHAR(500)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @i VARCHAR(20), @d FLOAT, @cand VARCHAR(20), @A INT, @B INT, @N INT, @titulo NVARCHAR(150), @texto NVARCHAR(2000), @enlace NVARCHAR(100), @grafico VARCHAR(10);
+    EXEC ia.usp_TextoTarjeta @Pregunta = @Pregunta, @Intencion = @i OUTPUT, @Distancia = @d OUTPUT, @Candidata = @cand OUTPUT,
+         @A = @A OUTPUT, @B = @B OUTPUT, @N = @N OUTPUT, @Titulo = @titulo OUTPUT, @Texto = @texto OUTPUT, @Enlace = @enlace OUTPUT, @Grafico = @grafico OUTPUT;
 
     IF @i IS NULL
     BEGIN

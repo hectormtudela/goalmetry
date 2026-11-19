@@ -158,7 +158,7 @@ if ($Tests) {
     if ($conWeb) { $lista += 'tests\tests_web.sql' }
     if ($conPredicciones) { $lista += 'tests\tests_simulacion.sql' }
     $lista += 'tests\tests_analisis.sql'
-    if ($conIA) { $lista += 'tests\tests_temas.sql' }
+    if ($conIA) { $lista += 'tests\tests_temas.sql'; $lista += 'tests\tests_rag_tarjetas.sql' }
     foreach ($p in $lista) {
         Escribir-Paso $p
         & sqlcmd -S $Servidor -E -C -b -W -v DataPath="$dataPath" -i (Join-Path $raiz $p)

@@ -2,6 +2,19 @@
 
 Cada actualización de los CSV de `data/` se anota aquí: qué se añadió o corrigió, de qué fuentes y cómo se comprobó. Para aplicarla en una instalación existente: `git pull` y después `actualizar.ps1`.
 
+## 19/11/2026 · Jornadas 11 y 12
+
+- **Jornadas:** 11 y 12 (`jornada_id` 11 y 12), las dos completas (20 partidos jugados).
+- **Partidos:** 20 nuevos (101 a 120), todos Finalizado, con fecha y hora de la ficha de cada partido. El estadio es el del equipo local.
+- **Árbitros:** ya existían todos; no se añade ninguno.
+- **Goles:** 46 nuevos (`gol_id` 299 a 344; total 298 → 344): 44 normales, 2 de penalti y 0 en propia puerta. Alias aplicados, los mismos que ya se usaban: «Álex Grimaldo» = Alejandro Grimaldo y «Orri Steinn Óskarsson» = Orri Óskarsson.
+- **Crónicas:** 20 nuevas (total 100 → 120), con la plantilla de `ia.vw_CronicaGenerada` (comprobado que reproduce idénticas las 10 de la J10).
+- **Fuentes:** futbolfantasy.com (calendario y ficha de cada partido: fecha, árbitro y goles). Contraste con football-data.co.uk (20 de 20 marcadores y fechas coinciden) y con la clasificación de matchscan.co a 08-11-2026 (18 de 20 equipos idénticos; los dos que difieren, Athletic y Rayo, por el partido de abajo).
+- **Comprobaciones:** marcador del calendario = marcador de la ficha = suma de goleadores en los 20 partidos; cada jornada tiene 10 partidos con los 20 equipos una vez; el lector de las fichas reproduce la J10 que ya estaba (8 de 10 partidos idénticos; en 2 goles hay un minuto de diferencia, porque la J10 se completó con laliga.com y no se han modificado).
+- **Rayo Vallecano–Athletic de la J8 (partido 72) pasa a aplazado**, por indicación del alumno. Su 0-0 era dudoso: la ficha de futbolfantasy estaba congelada en el descanso (último dato a las 14:43 de un partido de las 14:00) y ni football-data ni matchscan lo registraban. Queda `Programado`, sin marcador, conservando su fecha original y su árbitro (las entradas ficticias de `ventas` apuntan a ese partido y no se tocan), y se quita su crónica (total 120 → 119). Con esto la clasificación coincide con la de matchscan en los 20 equipos. Cuando se juegue, se cambia en su fila y se añade su crónica.
+- **No se ha tocado `jugadores.csv`:** sus minutos, goles y asistencias siguen hasta la J9 (la J10 en 43 jugadores; cada fila lleva su `ultima_jornada`).
+- Las ventas (`ventas.Abonado` y `ventas.Entrada`) no se tocan.
+
 ## 30/10/2026 · Jornada 10 completada
 
 - **Partidos:** los 7 que faltaban por jugar (94 a 100) pasan a Finalizado con su marcador. El 92 (Rayo Vallecano 0-3 Elche CF) ya estaba finalizado, pero no tenía goleadores.

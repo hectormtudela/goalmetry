@@ -81,11 +81,18 @@ WHERE a.LamIdx = LEAST(160, GREATEST(1, CONVERT(INT, ROUND(@LamL / 0.05, 0))))
 GO
 
 /* Siembra lo ya jugado como RETROSPECTIVA: J3..última, cada jornada con los datos de la anterior.
-   Referencias: frecuencias de la liga hasta ese momento y un tercio cada resultado. */
+   Referencias: frecuencias de la liga hasta ese momento y un tercio cada resultado.
+   Las retrospectivas de partidos ya jugados se RECALCULAN cada vez: por definición se pueden reconstruir, y así una
+   corrección de datos (por ejemplo, un partido que pasa a aplazado) llega también a las predicciones posteriores que lo usaron.
+   Las CONGELADAS no se tocan nunca: son las que cuentan de verdad. */
 CREATE OR ALTER PROCEDURE simulacion.usp_SembrarHistorico
 AS
 BEGIN
     SET NOCOUNT ON;
+    DELETE h
+    FROM simulacion.Prediccion_Historico AS h
+    JOIN liga.Partido AS p ON p.EquipoLocalID = h.LocalID AND p.EquipoVisitanteID = h.VisitanteID AND p.Estado = 'Finalizado'
+    WHERE h.Tipo = 'Retrospectiva' AND h.Modelo IN ('Poisson', 'Frecuencias', 'Un tercio');
     DECLARE @K FLOAT = 5, @ultima TINYINT = (SELECT MAX(Jornada) FROM analisis.vw_ResultadoEquipo), @j TINYINT = 3;
     WHILE @j <= @ultima
     BEGIN
@@ -120,32 +127,9 @@ BEGIN
 END;
 GO
 
-/* Congela las predicciones de los partidos de la próxima jornada, ANTES de cargar sus resultados.
-   Solo es «Congelada» si el partido aún no ha empezado según su fecha; si ya pasó (por ejemplo, al
-   instalar tarde), se guarda como Retrospectiva, porque no es una predicción hecha de verdad antes. */
-CREATE OR ALTER PROCEDURE simulacion.usp_CongelarPredicciones
-AS
-BEGIN
-    SET NOCOUNT ON;
-    DECLARE @c TINYINT = (SELECT MAX(Jornada) FROM analisis.vw_ResultadoEquipo), @K FLOAT = 5;
-    IF @c IS NULL RETURN;
-
-    SELECT x.Jornada, x.L, x.V, x.Inicio INTO #F
-    FROM (SELECT j.Numero AS Jornada, p.EquipoLocalID AS L, p.EquipoVisitanteID AS V, p.FechaHora AS Inicio
-          FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID WHERE p.Estado = 'Programado'
-          UNION ALL
-          SELECT f.Jornada, f.LocalID, f.VisitanteID, CAST(f.Fecha AS DATETIME2(0)) FROM externo.PartidoFuturo AS f) AS x;
-    DECLARE @prox TINYINT = (SELECT MIN(Jornada) FROM #F);
-
-    INSERT INTO simulacion.Prediccion_Historico (Modelo, Jornada, LocalID, VisitanteID, P1, PX, P2, DatosHasta, Tipo)
-    SELECT 'Poisson', f.Jornada, f.L, f.V, s.P1, s.PX, s.P2, @c,
-           CASE WHEN f.Inicio > SYSDATETIME() THEN 'Congelada' ELSE 'Retrospectiva' END
-    FROM #F AS f
-    JOIN simulacion.fn_GolesEsperados(@c, @K) AS g ON g.LocalID = f.L AND g.VisitanteID = f.V
-    CROSS APPLY simulacion.fn_Probabilidad1X2(g.LamL, g.LamV) AS s
-    WHERE f.Jornada = @prox
-      AND NOT EXISTS (SELECT 1 FROM simulacion.Prediccion_Historico AS h WHERE h.Modelo = 'Poisson' AND h.LocalID = f.L AND h.VisitanteID = f.V);
-END;
+-- simulacion.usp_CongelarPredicciones (congela las predicciones de la próxima jornada antes de cargar sus resultados) está en
+-- 18_proxima_jornada.sql, porque usa el calendario externo. Una sola definición: si estuviera aquí también, reaplicar este
+-- script pisaría la versión buena.
 GO
 
 /* Cada predicción frente a lo que pasó (solo partidos ya jugados en liga.Partido). */

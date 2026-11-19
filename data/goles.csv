@@ -297,3 +297,49 @@ gol_id,partido_id,equipo_id,jugador_id,anotador,minuto,tipo
 296,99,16,48,Kylian Mbappé,87,Normal
 297,100,18,126,Isaac Romero,24,Normal
 298,100,18,121,Félix Correia,82,Normal
+299,101,8,346,Leandro Cabrera,60,Normal
+300,102,3,25,Alejandro Grimaldo,36,Normal
+301,102,3,27,Giuliano Simeone,62,Normal
+302,103,14,299,Jorge de Frutos,36,Normal
+303,103,14,299,Jorge de Frutos,55,Normal
+304,103,14,294,Unai López,73,Normal
+305,104,15,80,Marc Bartra,38,Normal
+306,104,15,71,Pablo Fornals,47,Normal
+307,104,11,443,Adrián Niño,68,Normal
+308,105,4,6,Raphinha,8,Normal
+309,105,4,8,Fermín López,23,Normal
+310,105,4,6,Raphinha,41,Normal
+311,105,4,1,Lamine Yamal,46,Normal
+312,105,4,1,Lamine Yamal,64,Normal
+313,105,4,11,Anthony Gordon,81,Normal
+314,105,1,146,Mariano Díaz,84,Normal
+315,106,18,118,Kike Salas,19,Normal
+316,106,9,321,Enes Ünal,68,Normal
+317,106,9,318,Martín Satriano,74,Normal
+318,106,9,324,Orel Mangala,94,Normal
+319,107,16,48,Kylian Mbappé,11,Penalti
+320,107,16,51,Jude Bellingham,22,Normal
+321,107,16,56,Yan Diomande,36,Normal
+322,108,19,427,Umar Sadiq,69,Normal
+323,109,2,272,Iñaki Williams,14,Normal
+324,109,17,90,Luka Sučić,30,Normal
+325,109,2,274,Álex Berenguer,47,Penalti
+326,110,12,205,Ante Budimir,32,Normal
+327,110,6,182,Mario Soriano,64,Normal
+328,110,6,184,Bil Nsongo,87,Normal
+329,112,11,435,Carlos Dotor,28,Normal
+330,112,13,381,Iker Luque,50,Normal
+331,112,13,369,Yassir Zabiri,60,Normal
+332,114,2,280,Nico Williams,84,Normal
+333,114,12,203,Alejandro Catena,90,Normal
+334,115,16,49,Federico Valverde,28,Normal
+335,115,16,55,Arda Güler,36,Normal
+336,115,16,48,Kylian Mbappé,75,Normal
+337,116,15,76,Rodrigo Riquelme,81,Normal
+338,116,15,80,Marc Bartra,89,Normal
+339,117,17,98,Orri Óskarsson,67,Normal
+340,119,20,258,Tajon Buchanan,80,Normal
+341,119,20,256,Carlos Romero,91,Normal
+342,120,3,27,Giuliano Simeone,10,Normal
+343,120,4,8,Fermín López,45,Normal
+344,120,4,8,Fermín López,66,Normal

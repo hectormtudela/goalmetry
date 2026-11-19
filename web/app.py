@@ -292,7 +292,7 @@ def cobertura(sin_contexto, texto, oficiales, documentos):
 
 def responder(pregunta, sin_contexto):
     _, documentos, contexto, respuesta = consultar(
-        "EXEC ia.usp_PreguntarLiga @Pregunta = ?, @SinContexto = ?, @Mostrar = 1;",
+        "EXEC ia.usp_PreguntarLiga @Pregunta = ?, @SinContexto = ?, @SinTarjetas = 1, @Mostrar = 1;",
         (pregunta, 1 if sin_contexto else 0))
     fuentes = [{"Titulo": d["Titulo"], "Tipo": TIPOS_DOCUMENTO.get(d["Tipo"], d["Tipo"])} for d in documentos]
     # Lo que SQL pasó de verdad al modelo: documentos y datos exactos de ia.usp_DatosOficiales.
@@ -448,8 +448,8 @@ def fiabilidad():
 
 @app.get("/proxima-jornada")
 def proxima_jornada():
-    meta, partidos = consultar("EXEC simulacion.usp_ProximaJornada;")
-    return render_template("proxima_jornada.html", meta=meta[0], partidos=partidos)
+    meta, partidos, aplazados = consultar("EXEC simulacion.usp_ProximaJornada;")
+    return render_template("proxima_jornada.html", meta=meta[0], partidos=partidos, aplazados=aplazados)
 
 
 @app.get("/parecidos")

@@ -35,7 +35,7 @@
 
 <div class="banner-estatico">
   <div class="contenedor">
-    <b>Versión de solo lectura</b> · datos hasta la jornada 10 (publicada el 16/11/2026).
+    <b>Versión de solo lectura</b> · datos hasta la jornada 12 (publicada el 19/11/2026).
     La búsqueda inteligente, las preguntas a la IA y el panel de administración solo existen en la
     <a href="https://github.com/hectormtudela/goalmetry#instalar-la-versión-completa" rel="noopener">versión completa</a>, que se instala en tu ordenador.
   </div>
@@ -48,7 +48,7 @@
   
   
 <section class="portada"><div><p class="etiqueta">Estimaciones comparadas con la realidad</p><h1>¿Cuánto fiarse de las predicciones?</h1></div></section>
-<p class="aviso aviso-info">Muestra pequeña: solo 80 partidos evaluados. Con tan pocos, una diferencia pequeña entre modelos puede ser casualidad.</p>
+<p class="aviso aviso-info">Muestra pequeña: solo 99 partidos evaluados. Con tan pocos, una diferencia pequeña entre modelos puede ser casualidad.</p>
 
 <section class="tarjeta separado">
   <div class="tarjeta-cabecera"><h2>Cada modelo frente a lo que pasó</h2></div>
@@ -59,22 +59,22 @@
       <tr>
         <td><b>Poisson</b><br><small class="nota">El modelo de Predicciones: goles a favor y en contra de cada equipo.</small></td>
         <td>Retrospectiva</td>
-        <td class="num">80</td><td class="num">0,606</td><td class="num">1,015</td>
-        <td class="num">38 (48 %)</td>
+        <td class="num">99</td><td class="num">0,590</td><td class="num">0,992</td>
+        <td class="num">48 (48 %)</td>
       </tr>
     
       <tr>
         <td><b>Frecuencias de la liga</b><br><small class="nota">Referencia simple: da a todos los partidos el reparto medio de 1, X y 2.</small></td>
         <td>Retrospectiva</td>
-        <td class="num">80</td><td class="num">0,666</td><td class="num">1,098</td>
-        <td class="num">36 (45 %)</td>
+        <td class="num">99</td><td class="num">0,664</td><td class="num">1,095</td>
+        <td class="num">44 (44 %)</td>
       </tr>
     
       <tr>
         <td><b>Un tercio cada resultado</b><br><small class="nota">Referencia simple: no sabe nada.</small></td>
         <td>Retrospectiva</td>
-        <td class="num">80</td><td class="num">0,667</td><td class="num">1,099</td>
-        <td class="num">36 (45 %)</td>
+        <td class="num">99</td><td class="num">0,667</td><td class="num">1,099</td>
+        <td class="num">44 (44 %)</td>
       </tr>
     
     </tbody>
@@ -89,45 +89,45 @@
 <section class="tarjeta">
   <div class="tarjeta-cabecera"><h2>Otros modelos, sobre los mismos partidos</h2></div>
   
-  <p class="nota sin-margen">Usan <b>datos de fuente externa</b>, separados de los datos de la liga. Todos se miden sobre los mismos 79 partidos, con predicciones retrospectivas.</p>
+  <p class="nota sin-margen">Usan <b>datos de fuente externa</b>, separados de los datos de la liga. Todos se miden sobre los mismos 99 partidos, con predicciones retrospectivas.</p>
   <div class="tabla-scroll separado"><table class="tabla">
     <thead><tr><th>Modelo</th><th class="num" title="Menos es mejor">Brier</th><th class="num" title="Menos es mejor">Log-loss</th><th class="num">Aciertos</th><th class="num" title="Brier del modelo menos Brier de Poisson, con margen de error">Frente a Poisson</th><th>Conclusión</th></tr></thead>
     <tbody>
       <tr>
         <td><b>Cuotas de apuestas</b><br><small class="nota">Referencia externa: media de las casas, sin su margen. No es un consejo para apostar.</small></td>
-        <td class="num">0,550</td><td class="num">0,928</td><td class="num">44</td>
-        <td class="num">-0,053 ± 0,041</td>
+        <td class="num">0,539</td><td class="num">0,914</td><td class="num">56</td>
+        <td class="num">-0,051 ± 0,035</td>
         <td>Mejor que Poisson</td>
       </tr>
       <tr>
         <td><b>Elo</b><br><small class="nota">Fuente externa: parte de las temporadas 2024-25 y 2025-26 y sigue con esta.</small></td>
-        <td class="num">0,587</td><td class="num">0,990</td><td class="num">42</td>
-        <td class="num">-0,016 ± 0,038</td>
-        <td>No se distingue de Poisson</td>
-      </tr>
-      <tr>
-        <td><b>Poisson con tiros a puerta</b><br><small class="nota">Fuente externa: el ataque y la defensa salen de los tiros a puerta.</small></td>
-        <td class="num">0,598</td><td class="num">1,006</td><td class="num">42</td>
-        <td class="num">-0,005 ± 0,038</td>
+        <td class="num">0,580</td><td class="num">0,981</td><td class="num">55</td>
+        <td class="num">-0,010 ± 0,033</td>
         <td>No se distingue de Poisson</td>
       </tr>
       <tr>
         <td><b>Poisson</b><br><small class="nota">El modelo de Predicciones: goles a favor y en contra de cada equipo.</small></td>
-        <td class="num">0,603</td><td class="num">1,010</td><td class="num">38</td>
+        <td class="num">0,590</td><td class="num">0,992</td><td class="num">48</td>
         <td class="num">—</td>
         <td>Es el modelo de referencia</td>
       </tr>
       <tr>
+        <td><b>Poisson con tiros a puerta</b><br><small class="nota">Fuente externa: el ataque y la defensa salen de los tiros a puerta.</small></td>
+        <td class="num">0,597</td><td class="num">1,004</td><td class="num">52</td>
+        <td class="num">+0,006 ± 0,034</td>
+        <td>No se distingue de Poisson</td>
+      </tr>
+      <tr>
         <td><b>Frecuencias de la liga</b><br><small class="nota">Referencia simple: da a todos los partidos el reparto medio de 1, X y 2.</small></td>
-        <td class="num">0,663</td><td class="num">1,094</td><td class="num">36</td>
-        <td class="num">+0,060 ± 0,060</td>
+        <td class="num">0,664</td><td class="num">1,095</td><td class="num">44</td>
+        <td class="num">+0,074 ± 0,053</td>
         <td>Peor que Poisson</td>
       </tr>
       <tr>
         <td><b>Un tercio cada resultado</b><br><small class="nota">Referencia simple: no sabe nada.</small></td>
-        <td class="num">0,667</td><td class="num">1,099</td><td class="num">36</td>
-        <td class="num">+0,064 ± 0,070</td>
-        <td>No se distingue de Poisson</td>
+        <td class="num">0,667</td><td class="num">1,099</td><td class="num">44</td>
+        <td class="num">+0,077 ± 0,062</td>
+        <td>Peor que Poisson</td>
       </tr></tbody>
   </table></div>
   <p class="nota">Si la diferencia es menor que su margen de error, con tan pocos partidos no se puede decir que un modelo sea mejor. Predicciones usa siempre Poisson.</p>
@@ -161,17 +161,17 @@
     
     <line class="diagonal" x1="50" y1="300" x2="400" y2="20"></line>
     
-      <circle class="punto" cx="105.0" cy="254.6" r="6">
-        <title>Previsto 16 %, ocurrió 16 % (37 casos)</title></circle>
+      <circle class="punto" cx="104.8" cy="257.4" r="6">
+        <title>Previsto 16 %, ocurrió 15 % (46 casos)</title></circle>
     
-      <circle class="punto" cx="146.5" cy="213.8" r="6">
-        <title>Previsto 28 %, ocurrió 31 % (130 casos)</title></circle>
+      <circle class="punto" cx="145.5" cy="216.0" r="6">
+        <title>Previsto 27 %, ocurrió 30 % (160 casos)</title></circle>
     
-      <circle class="punto" cx="216.6" cy="190.0" r="6">
-        <title>Previsto 48 %, ocurrió 39 % (56 casos)</title></circle>
+      <circle class="punto" cx="218.5" cy="188.0" r="6">
+        <title>Previsto 48 %, ocurrió 40 % (70 casos)</title></circle>
     
-      <circle class="punto" cx="285.0" cy="113.3" r="6">
-        <title>Previsto 67 %, ocurrió 67 % (15 casos)</title></circle>
+      <circle class="punto" cx="286.5" cy="93.7" r="6">
+        <title>Previsto 68 %, ocurrió 74 % (19 casos)</title></circle>
     
       <circle class="punto" cx="335.6" cy="20.0" r="6">
         <title>Previsto 82 %, ocurrió 100 % (2 casos)</title></circle>
@@ -180,7 +180,7 @@
   </svg>
   <details class="fuentes"><summary>Ver los datos en una tabla</summary>
     <table class="tabla"><thead><tr><th class="num">Previsto</th><th class="num">Ocurrió</th><th class="num">Casos</th></tr></thead>
-    <tbody><tr><td class="num">16 %</td><td class="num">16 %</td><td class="num">37</td></tr><tr><td class="num">28 %</td><td class="num">31 %</td><td class="num">130</td></tr><tr><td class="num">48 %</td><td class="num">39 %</td><td class="num">56</td></tr><tr><td class="num">67 %</td><td class="num">67 %</td><td class="num">15</td></tr><tr><td class="num">82 %</td><td class="num">100 %</td><td class="num">2</td></tr></tbody></table>
+    <tbody><tr><td class="num">16 %</td><td class="num">15 %</td><td class="num">46</td></tr><tr><td class="num">27 %</td><td class="num">30 %</td><td class="num">160</td></tr><tr><td class="num">48 %</td><td class="num">40 %</td><td class="num">70</td></tr><tr><td class="num">68 %</td><td class="num">74 %</td><td class="num">19</td></tr><tr><td class="num">82 %</td><td class="num">100 %</td><td class="num">2</td></tr></tbody></table>
   </details>
 </section>
 
