@@ -16,7 +16,7 @@ gol_id,partido_id,equipo_id,jugador_id,anotador,minuto,tipo
 15,5,7,397,Marc Aguado,75,Normal
 16,6,3,29,Kang-in Lee,69,Normal
 17,6,3,31,Alex Baena,84,Normal
-18,7,15,,Pablo García,82,Normal
+18,7,15,476,Pablo García,82,Normal
 19,8,16,48,Kylian Mbappé,39,Normal
 20,8,17,90,Luka Sučić,43,Normal
 21,8,16,48,Kylian Mbappé,59,Normal
@@ -30,7 +30,7 @@ gol_id,partido_id,equipo_id,jugador_id,anotador,minuto,tipo
 29,11,14,296,Sergio Camello,48,Normal
 30,11,1,146,Mariano Díaz,84,Normal
 31,12,15,76,Rodrigo Riquelme,63,Normal
-32,13,18,,Joaquín Oso,14,Normal
+32,13,18,481,Joaquín Oso,14,Normal
 33,13,18,125,Chidera Ejuke,50,Normal
 34,13,18,126,Isaac Romero,56,Normal
 35,13,2,279,Aitor Paredes,69,Normal
@@ -238,7 +238,7 @@ gol_id,partido_id,equipo_id,jugador_id,anotador,minuto,tipo
 237,79,13,369,Yassir Zabiri,32,Normal
 238,79,13,368,Iván Martín,47,Normal
 239,79,19,422,David Otorbi,65,Normal
-240,80,18,,Robbie Ure,13,Normal
+240,80,18,480,Robbie Ure,13,Normal
 241,80,18,121,Félix Correia,54,Normal
 242,80,10,231,Iván Romero,57,Normal
 243,80,10,229,Adrián de la Fuente,92,Normal

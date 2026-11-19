@@ -371,7 +371,10 @@ def rankings():
     minutos = max(0, min(4000, entero(request.args.get("minutos"), 360)))
     orden = "minutos" if request.args.get("orden") == "minutos" else "ga"
     jugadores = filas("EXEC analisis.usp_Rankings @Posicion = ?, @MinMinutos = ?, @Orden = ?;", (posicion, minutos, orden))
-    return render_template("rankings.html", jugadores=jugadores, posicion=posicion, minutos=minutos, orden=orden)
+    datos = filas("""SELECT (SELECT MAX(j.Numero) FROM liga.Partido AS p JOIN liga.Jornada AS j ON j.JornadaID = p.JornadaID
+                            WHERE p.Estado = 'Finalizado') AS Jornada, (SELECT MAX(UltimaJornada) FROM liga.Jugador) AS Fichas""")[0]
+    return render_template("rankings.html", jugadores=jugadores, posicion=posicion, minutos=minutos, orden=orden,
+                           jornada_actual=datos["Jornada"], ficha_hasta=datos["Fichas"])
 
 
 @app.get("/arbitros")

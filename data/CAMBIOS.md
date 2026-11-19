@@ -2,6 +2,13 @@
 
 Cada actualización de los CSV de `data/` se anota aquí: qué se añadió o corrigió, de qué fuentes y cómo se comprobó. Para aplicarla en una instalación existente: `git pull` y después `actualizar.ps1`.
 
+## 19/11/2026 · Estadísticas de jugadores hasta la J12
+
+- **Jugadores:** los 452 actualizados en su fila (minutos, goles, asistencias y `ultima_jornada` = 12) y 30 nuevos al final (`jugador_id` 453 a 482), con su posición (Alejandro Santiago y Jan Peries no la tienen en la fuente: quedan sin posición).
+- **Goles:** 3 enlazados con su jugador, que antes no tenía ficha: gol 18 (Pablo García, Betis), gol 240 (Robbie Ure, Sevilla) y gol 32 («Joaquín Oso» = Oso, Sevilla). Solo se enlaza si coinciden equipo, apellido y número de goles.
+- **Fuente:** matchscan.co, plantilla de cada equipo (datos a 08-11-2026), con una lectura puntual de las 20 páginas y su `robots.txt` respetado.
+- **Comprobaciones:** los 452 jugadores casan con la fuente por equipo y nombre; **los goles de cada uno coinciden con los de las actas (`goles.csv`) en los 452**; ninguna estadística baja respecto a lo que había; los minutos no superan 90 por partido jugado; las posiciones son idénticas. Rayo y Athletic aparecen con un partido menos, igual que en nuestros datos (el aplazado de la J8).
+
 ## 19/11/2026 · Jornadas 11 y 12
 
 - **Jornadas:** 11 y 12 (`jornada_id` 11 y 12), las dos completas (20 partidos jugados).
@@ -12,7 +19,7 @@ Cada actualización de los CSV de `data/` se anota aquí: qué se añadió o cor
 - **Fuentes:** futbolfantasy.com (calendario y ficha de cada partido: fecha, árbitro y goles). Contraste con football-data.co.uk (20 de 20 marcadores y fechas coinciden) y con la clasificación de matchscan.co a 08-11-2026 (18 de 20 equipos idénticos; los dos que difieren, Athletic y Rayo, por el partido de abajo).
 - **Comprobaciones:** marcador del calendario = marcador de la ficha = suma de goleadores en los 20 partidos; cada jornada tiene 10 partidos con los 20 equipos una vez; el lector de las fichas reproduce la J10 que ya estaba (8 de 10 partidos idénticos; en 2 goles hay un minuto de diferencia, porque la J10 se completó con laliga.com y no se han modificado).
 - **Rayo Vallecano–Athletic de la J8 (partido 72) pasa a aplazado**, por indicación del alumno. Su 0-0 era dudoso: la ficha de futbolfantasy estaba congelada en el descanso (último dato a las 14:43 de un partido de las 14:00) y ni football-data ni matchscan lo registraban. Queda `Programado`, sin marcador, conservando su fecha original y su árbitro (las entradas ficticias de `ventas` apuntan a ese partido y no se tocan), y se quita su crónica (total 120 → 119). Con esto la clasificación coincide con la de matchscan en los 20 equipos. Cuando se juegue, se cambia en su fila y se añade su crónica.
-- **No se ha tocado `jugadores.csv`:** sus minutos, goles y asistencias siguen hasta la J9 (la J10 en 43 jugadores; cada fila lleva su `ultima_jornada`).
+- **`jugadores.csv`:** se actualiza en la entrada de arriba, de la misma fecha.
 - Las ventas (`ventas.Abonado` y `ventas.Entrada`) no se tocan.
 
 ## 30/10/2026 · Jornada 10 completada

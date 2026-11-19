@@ -12,7 +12,7 @@ Todos los ficheros son UTF-8, separados por comas, con cabecera en la primera fi
 | arbitros.csv | 21 | liga.Arbitro |
 | jornadas.csv | 12 | liga.Jornada |
 | partidos.csv | 120 | liga.Partido |
-| jugadores.csv | 452 | liga.Jugador |
+| jugadores.csv | 482 | liga.Jugador |
 | goles.csv | 344 | liga.Gol |
 | cronicas.csv | 119 | ia.Documento (tipo `cronica_partido`) |
 | documentos.csv | 16 | ia.Documento (tipos `reglamento` y `faq`) |
